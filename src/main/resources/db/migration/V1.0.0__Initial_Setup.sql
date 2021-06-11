@@ -8,11 +8,11 @@ CREATE TABLE registries
     client_uuid VARCHAR(128) NOT NULL,
     state VARCHAR(64) NOT NULL,
     subdomain VARCHAR(128) NOT NULL,
-    ts_info VARCHAR(512) NOT NULL,
+    tunnel_server VARCHAR(512) NOT NULL,
     created_at DATETIME,
     updated_at DATETIME,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_guards (box_uuid, client_uuid, sub_domain)
+    UNIQUE KEY uk_guards (box_uuid, client_uuid, subdomain)
 ) ENGINE = InnoDB
   DEFAULT CHARSET=utf8mb4;

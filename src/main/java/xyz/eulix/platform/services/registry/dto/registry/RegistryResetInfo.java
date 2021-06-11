@@ -14,5 +14,5 @@ public class RegistryResetInfo {
   private String boxUUID;
 
   @NotBlank
-  private String boxRgKey;
+  private String boxRegKey;
 }

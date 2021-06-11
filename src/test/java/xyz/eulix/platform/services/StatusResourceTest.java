@@ -2,6 +2,7 @@ package xyz.eulix.platform.services;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
+import xyz.eulix.platform.services.config.ApplicationProperties;
 
 import javax.inject.Inject;
 

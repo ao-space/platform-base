@@ -1,7 +1,8 @@
 package xyz.eulix.platform.services;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import xyz.eulix.platform.services.ApplicationProperties;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.registry.dto.StatusResult;
 import xyz.eulix.platform.services.support.log.Logged;
 
@@ -11,6 +12,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+@Tag(name = "Platform Service Status",
+    description = "Provides service server status related APIs.")
 @Path("/status")
 public class StatusResource {
 

@@ -8,10 +8,10 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 /**
- * Provides activation key related registry service.
+ * Provides box and client registry service.
  */
 @ApplicationScoped
-public class ActivationRegistryService {
+public class RegistryService {
 
   @Inject
   RegistryEntityRepository registryRepository;
@@ -19,7 +19,7 @@ public class ActivationRegistryService {
   public boolean verifyClient(String clientRegKey, String clientUUID) {
     Optional<RegistryEntity> rp = registryRepository.find(
         "client_uuid", clientUUID).singleResultOptional();
-    return rp.filter(r -> clientRegKey.endsWith(r.getClientRegKey())).isPresent();
+    return rp.filter(r -> clientRegKey.equals(r.getClientRegKey())).isPresent();
   }
 
 }

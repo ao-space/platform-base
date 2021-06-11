@@ -43,14 +43,17 @@ public class RegistryEntity extends BaseEntity {
   /**
    * The tunnel sever info (Json format):
    * {
-   *   "ts_url" : "",
-   *   "ts_port" : "",
-   *   "ts_auth": ""
+   *   "url" : "",
+   *   "port" : "",
+   *   "auth": {
+   *     "clientId": "",
+   *     "secretKey": ""
+   *   }
    * }
    */
   @NotBlank
-  @Column(name = "ts_info")
-  private String tsInfo;
+  @Column(name = "tunnel_server")
+  private String tunnelServer;
 
   public enum State {
     READY, REVOKED,
