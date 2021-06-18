@@ -14,7 +14,7 @@
 # docker run -i --rm -p 8080:8080 eulix/eulixplatform-services
 #
 ###
-FROM quay.io/quarkus/quarkus-distroless-image:1.0
+FROM registry.eulix.xyz/collab/infra/infrastructure/quarkus-distroless-image:1.0
 COPY target/*-runner /application
 
 EXPOSE 8080
