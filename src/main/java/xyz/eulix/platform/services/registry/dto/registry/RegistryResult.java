@@ -10,5 +10,6 @@ import lombok.Data;
 public class RegistryResult {
   private final String clientRegKey;
   private final String boxRegKey;
+  private final String userDomain;
   private final TunnelServer tunnelServer;
 }

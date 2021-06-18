@@ -14,7 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @RequestScoped
-@Path("api/v1")
+@Path("/v1/api")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Platform Registry Service",
@@ -31,11 +31,12 @@ public class RegistryResource {
   @Operation(description =
       "Tries to registry a box and client, and meanwhile returns the reg_keys and tunnel server info")
   public RegistryResult registry(@Valid RegistryInfo registryInfo,
-                                 @HeaderParam("Request-Id") @NotBlank String reqId) {
+                                 @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
 
     return RegistryResult.of(
         "crk_s92Szxk",
         "brk_98skLwf",
+        registryInfo.getSubdomain() + ".space.eulix.xyz",
         TunnelServer.of(
             "https://ts.platform.eulix.xyz", 7000, TunnelServer.Auth.of("", ""))
     );
@@ -47,7 +48,7 @@ public class RegistryResource {
   @Operation(description =
       "Reset the registry operation by a specified previous box.")
   public RegistryResetResult reset(@Valid RegistryResetInfo resetInfo,
-                                   @HeaderParam("Request-Id") @NotBlank String reqId) {
+                                   @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
     return RegistryResetResult.of(resetInfo.getBoxUUID());
   }
 }

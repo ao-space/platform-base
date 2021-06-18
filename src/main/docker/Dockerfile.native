@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/eulixplatform-registry-service .
+# docker build -f src/main/docker/Dockerfile.native -t eulix/eulixplatform-services .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/eulixplatform-registry-service
+# docker run -i --rm -p 8080:8080 eulix/eulixplatform-services
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3

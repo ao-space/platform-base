@@ -138,26 +138,17 @@ public class RestConfiguration {
       final Stopwatch sw = (Stopwatch) requestContext.getProperty(STOPWATCH);
       final String method = requestContext.getMethod();
       try {
-        sw.stop();
-        if (responseContext.hasEntity()) {
-          LOG.infof(
-              "[Response] %s %s with result: %s, elapsed: %s, req-id: %s",
-              method,
-              info.getPath(),
-              utils.objectToJson(responseContext.getEntity()),
-              sw,
-              ri
-          );
-        } else {
-          LOG.infof(
-              "[Response] %s %s with result: %s, elapsed: %s, req-id: %s",
-              method,
-              info.getPath(),
-              response.getStatusMessage(),
-              sw,
-              ri
-          );
+        if (sw != null) { // will be null when 404 error happens
+          sw.stop();
         }
+        LOG.infof(
+            "[Response] %s %s with result: %s, elapsed: %s, req-id: %s",
+            method,
+            info.getPath(),
+            response.getStatusMessage(),
+            sw,
+            ri
+        );
       } finally {
         requestContext.removeProperty(STOPWATCH);
       }
