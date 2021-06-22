@@ -3,13 +3,14 @@ package xyz.eulix.platform.services.notify.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
 import xyz.eulix.platform.services.notify.dto.NotifySessionInfo;
 import xyz.eulix.platform.services.notify.entity.NotifyMessage;
 import xyz.eulix.platform.services.notify.repository.NotifyMessageRepository;
-import xyz.eulix.platform.services.support.model.PageInfo;
-import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.OperationUtils;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.model.PageInfo;
+import xyz.eulix.platform.services.support.model.PageListResult;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -148,6 +149,9 @@ public class NotifySessionService {
 
     private void onPing(String deviceId) {
         NotifySessionInfo info = sessions.get(deviceId);
+        if (info == null) {
+            return;
+        }
         info.markAsActive();
         logged("Device [" + info.getDeviceId() + "] ping");
         notify(resultBuilder(Method.PONG), info.getSession());
@@ -176,14 +180,23 @@ public class NotifySessionService {
     public String resultBuilder(Method method, String messageId, Object result) {
         HashMap<String, Object> messageMap = new HashMap<>();
         messageMap.put("messageId", messageId);
-        messageMap.put("method", method.raw());
+        messageMap.put("method", method.getValue());
         if (result != null) {
             messageMap.put("result", utils.jsonToObject(utils.objectToJson(result), HashMap.class));
         }
         return utils.objectToJson(messageMap);
     }
 
-    private void onACK(String messageId, HashMap parameters) {
+    public String resultBuilder(NotifyMessage message) {
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("title", message.getTitle());
+        parameters.put("body", message.getBody());
+        parameters.put("extParameters", utils.jsonToObject(message.getExtParameters(), HashMap.class));
+        return resultBuilder(Method.PUSH, message.getMessageId(), parameters);
+    }
+
+    @Transactional
+    public void onACK(String messageId, HashMap parameters) {
         if (messageId != null) {
             messageRepository.markMessageSent(messageId);
         }
@@ -194,7 +207,7 @@ public class NotifySessionService {
     }
 
     @Transactional
-    private void clearDevice(String deviceId) {
+    public void clearDevice(String deviceId) {
         sessions.remove(deviceId);
         deviceService.deviceOffline(deviceId);
     }
@@ -218,21 +231,6 @@ public class NotifySessionService {
         });
     }
 
-    public String messageBuilder(NotifyMessage message) {
-        HashMap<String, Object> parameters = new HashMap<>();
-        parameters.put("title", message.getTitle());
-        parameters.put("body", message.getBody());
-        parameters.put("messageId", message.getMessageId());
-        parameters.put("extParameters", utils.jsonToObject(message.getExtParameters(), HashMap.class));
-        return messageBuilder(Method.PUSH, parameters);
-    }
-
-    public String messageBuilder(Method method, HashMap<String, Object> parameters) {
-        HashMap<String, Object> messageMap = new HashMap<>();
-        messageMap.put("method", method.raw());
-        messageMap.put("parameters", parameters);
-        return utils.objectToJson(messageMap);
-    }
 
     public boolean online(String deviceId) {
         return sessions.get(deviceId) != null;
@@ -250,6 +248,7 @@ public class NotifySessionService {
         return info != null;
     }
 
+    @Getter
     public enum Method {
         LOGIN("login"),
         PING("ping"),
@@ -271,10 +270,6 @@ public class NotifySessionService {
 
             return any.orElseThrow(
                     () -> new IllegalArgumentException("this value is illegal for message method - " + value));
-        }
-
-        public String raw() {
-            return value;
         }
     }
 }

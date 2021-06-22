@@ -52,7 +52,7 @@ public class NotifyMessageRepository implements PanacheRepository<NotifyMessage>
      */
     public void markMessageSent(String messageId) {
         this.update(
-                " state=?1 WHERE message_id=?2",
+                "state=?1 WHERE message_id=?2",
                 SENT.getValue(), messageId);
     }
 }

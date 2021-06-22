@@ -75,15 +75,15 @@
           $("#name").focus();
       });
 
-
+      $("#name").val("bad57d2e-4679-4bd4-9103-0957b965316e");
       var connect = function() {
           if (! connected) {
-              var deviceId = "bad57d2e-4679-4bd4-9103-0957b965316e";
+              var deviceId = $("#name").val();
               socket = new WebSocket("ws://" + location.host + "/session/" + deviceId);
               console.log("Val: " + deviceId);
               socket.onopen = function() {
                   connected = true;
-                  var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"iOS\",\"clientUUID\":\"cu_offline\",\"clientRegKey\":\"crk_ungacy\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
+                  var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"ios\",\"clientUUID\":\"cu_ungacy\",\"clientRegKey\":\"crk_ungacy\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
                   socket.send(loginJson);
                   console.log("Connected to the web socket");
                   $("#send").attr("disabled", false);
@@ -91,6 +91,7 @@
                   $("#name").attr("disabled", true);
                   $("#msg").focus();
                   window.setInterval(ping, 10000);
+                  window.setTimeout(ack, 10000);
               };
               socket.onmessage =function(m) {
                   console.log("Got message: " + m.data);
@@ -116,6 +117,12 @@
       var ping = function() {
           if (connected) {
               sendJsonMessage("{\"method\":\"ping\"}");
+          }
+      };
+
+      var ack = function() {
+          if (connected) {
+              sendJsonMessage("{\"method\":\"ack\",\"messageId\":\"a23188be-1100-4246-b897-5dce29ae0c87\"}");
           }
       };
 

@@ -11,11 +11,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static java.util.UUID.randomUUID;
 import static xyz.eulix.platform.services.notify.entity.NotifyMessage.State.SENDING;
-import static xyz.eulix.platform.services.notify.entity.NotifyMessage.State.SENT;
 
 
 @ApplicationScoped
@@ -63,11 +63,11 @@ public class NotifyMessageService {
         if (device.iOS()) {
             List<String> deviceTokens = new ArrayList<>(1);
             deviceTokens.add(device.getDeviceToken());
-            pushToIOSResult = pusher.push(deviceTokens, message.getTitle(), message.getBody());
+            pushToIOSResult = pusher.push(deviceTokens, message.getTitle(), message.getBody(), utils.jsonToObject(message.getExtParameters(), HashMap.class));
         }
 
         boolean pushToSocket = sessionService.online(device.getDeviceId());
-        sessionService.notify(sessionService.messageBuilder(message), device.getDeviceId());
+        sessionService.notify(sessionService.resultBuilder(message), device.getDeviceId());
         return pushToIOSResult && pushToSocket;
     }
 
