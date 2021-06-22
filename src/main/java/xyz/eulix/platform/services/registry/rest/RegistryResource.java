@@ -38,7 +38,7 @@ public class RegistryResource {
         "brk_98skLwf",
         registryInfo.getSubdomain() + ".space.eulix.xyz",
         TunnelServer.of(
-            "https://ts.platform.eulix.xyz", 7000, TunnelServer.Auth.of("", ""))
+            "ts.platform.eulix.xyz", 59000, TunnelServer.Auth.of("n/a", "n/a"))
     );
   }
 

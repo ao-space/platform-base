@@ -3,7 +3,7 @@ package xyz.eulix.platform.services;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import xyz.eulix.platform.services.config.ApplicationProperties;
-import xyz.eulix.platform.services.registry.dto.StatusResult;
+import xyz.eulix.platform.services.support.model.StatusResult;
 import xyz.eulix.platform.services.support.log.Logged;
 
 import javax.inject.Inject;

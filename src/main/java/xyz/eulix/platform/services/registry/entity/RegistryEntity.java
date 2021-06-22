@@ -3,6 +3,7 @@ package xyz.eulix.platform.services.registry.entity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import xyz.eulix.platform.services.support.model.BaseEntity;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.persistence.Column;
@@ -43,7 +44,7 @@ public class RegistryEntity extends BaseEntity {
   /**
    * The tunnel sever info (Json format):
    * {
-   *   "url" : "",
+   *   "address" : "",
    *   "port" : "",
    *   "auth": {
    *     "clientId": "",

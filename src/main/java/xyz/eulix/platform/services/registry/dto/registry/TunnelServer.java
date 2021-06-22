@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data(staticConstructor = "of")
 public class TunnelServer {
-  private final String url;
+  private final String address;
   private final Integer port;
   private final Auth auth;
 

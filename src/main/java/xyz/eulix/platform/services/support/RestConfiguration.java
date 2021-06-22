@@ -8,7 +8,6 @@ import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -127,9 +126,6 @@ public class RestConfiguration {
 
     @Context
     HttpServerRequest request;
-
-    @Inject
-    OperationUtils utils;
 
     @Override
     public void filter(

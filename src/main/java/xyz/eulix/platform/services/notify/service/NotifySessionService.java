@@ -6,8 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import xyz.eulix.platform.services.notify.dto.NotifySessionInfo;
 import xyz.eulix.platform.services.notify.entity.NotifyMessage;
 import xyz.eulix.platform.services.notify.repository.NotifyMessageRepository;
-import xyz.eulix.platform.services.registry.dto.PageInfo;
-import xyz.eulix.platform.services.registry.dto.PageListResult;
+import xyz.eulix.platform.services.support.model.PageInfo;
+import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.OperationUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 

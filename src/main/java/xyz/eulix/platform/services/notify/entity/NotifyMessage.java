@@ -3,7 +3,7 @@ package xyz.eulix.platform.services.notify.entity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import xyz.eulix.platform.services.registry.entity.BaseEntity;
+import xyz.eulix.platform.services.support.model.BaseEntity;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.persistence.Column;
