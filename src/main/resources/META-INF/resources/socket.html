@@ -100,7 +100,8 @@
               };
 
               socket.onclose = function (err) {
-
+                  $("#chat").append(err + "\n");
+                  scrollToBottom();
               }
           }
       };

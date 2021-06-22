@@ -82,7 +82,6 @@ public class NotifySessionService {
 
     @OnError
     public void onError(Session session, @PathParam("deviceId") String deviceId, Throwable throwable) {
-        clearDevice(deviceId);
         logged("Device [" + deviceId + "] left on error: " + throwable);
     }
 
@@ -95,6 +94,7 @@ public class NotifySessionService {
             if (!deviceService.deviceExist(deviceId)) {
                 String msg = "Unknown device [" + deviceId + "], please register device first!";
                 notify(resultBuilder(Method.LOGIN, messageId, ImmutableMap.of("code", -1, "msg", msg)), info.getSession());
+                clearDevice(deviceId);
                 throw new IllegalArgumentException(msg);
             }
             info.setClientUUID(clientUUID);
@@ -105,6 +105,7 @@ public class NotifySessionService {
         } else {
             String msg = "clientUUID && platform must not be null";
             notify(resultBuilder(Method.LOGIN, messageId, ImmutableMap.of("code", -1, "msg", msg)), info.getSession());
+            clearDevice(deviceId);
             throw new IllegalArgumentException(msg);
         }
     }
