@@ -36,8 +36,8 @@ public class NotifyMessageRepository implements PanacheRepository<NotifyMessage>
      * Returns offline message of the specified clientUUID.
      *
      * @param clientUUID the specified clientUUID
-     * @param page page
-     * @param pageSize pageSize
+     * @param page       page
+     * @param pageSize   pageSize
      * @return offline message of the specified clientUUID.
      */
     public List<NotifyMessage> listOfflineMessage(String clientUUID, int page, int pageSize) {

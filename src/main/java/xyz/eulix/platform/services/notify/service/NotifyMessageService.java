@@ -52,9 +52,7 @@ public class NotifyMessageService {
             return false;
         }
         devices.forEach(device -> {
-            if (pushMessageToDevice(message, device)) {
-                onSentMessage(message);
-            }
+            pushMessageToDevice(message, device);
         });
         return true;
     }
@@ -73,12 +71,5 @@ public class NotifyMessageService {
         return pushToIOSResult && pushToSocket;
     }
 
-    @Transactional
-    public void onSentMessage(NotifyMessage message) {
-        message.setState(SENT.getValue());
-        messageRepository.markMessageSent(message.getMessageId());
-    }
 
-    public void offlineMessage(String clientUUID) {
-    }
 }

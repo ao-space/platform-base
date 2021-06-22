@@ -229,7 +229,7 @@ public class NotifySessionService {
 
     public String messageBuilder(Method method, HashMap<String, Object> parameters) {
         HashMap<String, Object> messageMap = new HashMap<>();
-        messageMap.put("method", method);
+        messageMap.put("method", method.raw());
         messageMap.put("parameters", parameters);
         return utils.objectToJson(messageMap);
     }
