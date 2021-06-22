@@ -16,3 +16,37 @@ CREATE TABLE registries
     UNIQUE KEY uk_guards (box_uuid, client_uuid, subdomain)
 ) ENGINE = InnoDB
   DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE notify_device
+(
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    client_uuid VARCHAR(128) NOT NULL,
+    client_reg_key VARCHAR(128) NOT NULL,
+    device_id VARCHAR(128) NOT NULL,
+    platform VARCHAR(128) NOT NULL,
+    device_token VARCHAR(128) NOT NULL,
+    state INT DEFAULT 0,
+    created_by DATETIME,
+    updated_by DATETIME,
+    version INT DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_device (device_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE notify_message
+(
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(128) NOT NULL,
+    body TEXT NOT NULL,
+    ext_parameters TEXT NOT NULL,
+    client_uuid VARCHAR(128) NOT NULL,
+    message_id VARCHAR(128) NOT NULL,
+    state INT DEFAULT 0,
+    created_by DATETIME,
+    updated_by DATETIME,
+    version INT DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_message (message_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
