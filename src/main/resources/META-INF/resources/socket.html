@@ -79,11 +79,14 @@
       var connect = function() {
           if (! connected) {
               var deviceId = $("#name").val();
-              socket = new WebSocket("ws://" + location.host + "/session/" + deviceId);
+              console.log("location : " + location);
+              var path = location.pathname.substring(0,location.pathname.lastIndexOf('/'));
+              //path = "/root";
+              socket = new WebSocket("ws://" + location.host + path);
               console.log("Val: " + deviceId);
               socket.onopen = function() {
                   connected = true;
-                  var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"ios\",\"clientUUID\":\"cu_ungacy\",\"clientRegKey\":\"crk_ungacy\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
+                  var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"ios\",\"deviceId\":\"0d533d6d-6086-451b-a2aa-7b25ee3becbe\",\"clientUUID\":\"cu_ungacy\",\"clientRegKey\":\"crk_ungacy\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
                   socket.send(loginJson);
                   console.log("Connected to the web socket");
                   $("#send").attr("disabled", false);

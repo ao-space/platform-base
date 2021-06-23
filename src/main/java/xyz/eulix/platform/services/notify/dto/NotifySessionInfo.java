@@ -10,21 +10,20 @@ public class NotifySessionInfo {
 
     @Getter
     private final Session session;
-
-    @Getter
-    private final String deviceId;
     ///登录超时时间，超过这个时间，则自动断开连接
     private final long loginExpiredIntervalMillis = 5 * 1000;
     ///心跳超时时间，超过这个时间，则自动断开连接
     private final long heartbeatExpiredIntervalMillis = 60 * 1000;
     @Getter
     @Setter
+    private String deviceId;
+    @Getter
+    @Setter
     private String clientUUID;
     private long activeTimestampMillis;
 
-    public NotifySessionInfo(Session session, String deviceId) {
+    public NotifySessionInfo(Session session) {
         this.session = session;
-        this.deviceId = deviceId;
         markAsActive();
     }
 

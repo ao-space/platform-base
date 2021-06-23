@@ -16,13 +16,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.websocket.*;
-import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/session/{deviceId}")
+@ServerEndpoint("/{placeholder}")
 @ApplicationScoped
 public class NotifySessionService {
 
@@ -32,32 +31,34 @@ public class NotifySessionService {
     @Inject
     NotifyDeviceService deviceService;
     Map<String, NotifySessionInfo> sessions = new ConcurrentHashMap<>();
+    Map<String, String> deviceIdMappingToSessionId = new ConcurrentHashMap<>();
     @Inject
     OperationUtils utils;
     private Timer timer;
 
     @OnMessage
-    public void onMessage(String message, @PathParam("deviceId") String deviceId) {
-        ///TODO
+    public void onMessage(Session session, String message) {
+        /// TODO
         /// quarkus.websocket.dispatch-to-worker=true
+        /// logged("Session [" + session.getId() + "] onMessage : " + message);
+        String sessionId = session.getId();
         try {
-            HashMap request =
-                    new ObjectMapper().readValue(message, HashMap.class);
+            HashMap request = new ObjectMapper().readValue(message, HashMap.class);
             Method method = Method.methodOf((String) request.get("method"));
             String messageId = (String) request.get("messageId");
             HashMap parameters = (HashMap) request.get("parameters");
             switch (method) {
                 case LOGIN:
-                    onLogin(deviceId, messageId, parameters);
+                    onLogin(sessions.get(sessionId), messageId, parameters);
                     break;
                 case PING:
-                    onPing(deviceId);
+                    onPing(sessions.get(sessionId));
+                    break;
+                case QUERY:
+                    onQuery(sessions.get(sessionId), messageId, parameters);
                     break;
                 case ACK:
                     onACK(messageId, parameters);
-                    break;
-                case QUERY:
-                    onQuery(deviceId, messageId, parameters);
                     break;
                 default:
                     break;
@@ -68,26 +69,35 @@ public class NotifySessionService {
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("deviceId") String deviceId) {
+    public void onOpen(Session session) {
         setupTimer();
-        logged("Device [" + deviceId + "] connected");
-        sessions.put(deviceId, new NotifySessionInfo(session, deviceId));
+        sessions.put(session.getId(), new NotifySessionInfo(session));
+        logged("Session [" + session.getId() + "] onOpen");
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("deviceId") String deviceId) {
-        clearDevice(deviceId);
-        logged("Device [" + deviceId + "] close");
+    public void onClose(Session session) {
+        String deviceId = sessions.get(session.getId()).getDeviceId();
+        if (deviceId != null) {
+            clearDevice(deviceId);
+            logged("Device [" + deviceId + "] close");
+        } else {
+            logged("Session [" + session.getId() + "] onClose");
+        }
+        sessions.remove(session.getId());
     }
 
     @OnError
-    public void onError(Session session, @PathParam("deviceId") String deviceId, Throwable throwable) {
-        logged("Device [" + deviceId + "] left on error: " + throwable);
+    public void onError(Session session, Throwable throwable) {
+        String deviceId = sessions.get(session.getId()).getDeviceId();
+        if (deviceId != null) {
+            logged("Device [" + deviceId + "] left on error: " + throwable);
+        }
     }
 
     @Logged
-    private void onLogin(String deviceId, String messageId, HashMap parameters) {
-        NotifySessionInfo info = sessions.get(deviceId);
+    private void onLogin(NotifySessionInfo info, String messageId, HashMap parameters) {
+        String deviceId = (String) parameters.get("deviceId");
         String platform = (String) parameters.get("platform");
         String clientUUID = (String) parameters.get("clientUUID");
         if (clientUUID != null && platform != null) {
@@ -98,8 +108,10 @@ public class NotifySessionService {
                 throw new IllegalArgumentException(msg);
             }
             info.setClientUUID(clientUUID);
+            info.setDeviceId(deviceId);
+            deviceIdMappingToSessionId.put(deviceId, info.getSession().getId());
             deviceService.deviceOnline(deviceId);
-            logged("deviceId [" + deviceId + "]" + " logged in with clientUUID : [" +
+            logged("sessionId [" + info.getSession().getId() + "]" + "with deviceId [" + deviceId + "]" + " logged in with clientUUID : [" +
                     clientUUID + "] on platform : [" + platform + "]");
             notify(resultBuilder(Method.LOGIN, messageId, ImmutableMap.of("code", 0)), info.getSession());
         } else {
@@ -110,46 +122,7 @@ public class NotifySessionService {
         }
     }
 
-    private void setupTimer() {
-        if (timer == null) {
-            ///开启定时器，1s扫描一次，是否有超时的session
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    clear();
-                }
-            }, 0, 1000);
-        }
-    }
-
-    private void clear() {
-        List<NotifySessionInfo> expiredList = new ArrayList<>();
-        sessions.values().forEach(info -> {
-            boolean isActive = info.isActive();
-            if (!isActive) {
-                expiredList.add(info);
-            }
-        });
-        expiredList.forEach(info -> {
-            try {
-                String reason;
-                if (info.getDeviceId() == null) {
-                    reason = "Please login";
-                } else {
-                    reason = "No beating";
-                }
-                info.getSession().close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, reason));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            logged("Device [" + info.getDeviceId() + "] left on expired");
-            sessions.remove(info.getDeviceId());
-        });
-    }
-
-    private void onPing(String deviceId) {
-        NotifySessionInfo info = sessions.get(deviceId);
+    private void onPing(NotifySessionInfo info) {
         if (info == null) {
             return;
         }
@@ -158,8 +131,7 @@ public class NotifySessionService {
         notify(resultBuilder(Method.PONG), info.getSession());
     }
 
-    private void onQuery(String deviceId, String messageId, HashMap parameters) {
-        NotifySessionInfo info = sessions.get(deviceId);
+    private void onQuery(NotifySessionInfo info, String messageId, HashMap parameters) {
         int page = (int) parameters.getOrDefault("page", 0);
         int pageSize = (int) parameters.getOrDefault("pageSize", 10);
         Long count = messageRepository.offlineMessageCount(info.getClientUUID());
@@ -213,6 +185,44 @@ public class NotifySessionService {
         deviceService.deviceOffline(deviceId);
     }
 
+    private void setupTimer() {
+        if (timer == null) {
+            ///开启定时器，1s扫描一次，是否有超时的session
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    clear();
+                }
+            }, 0, 1000);
+        }
+    }
+
+    private void clear() {
+        List<NotifySessionInfo> expiredList = new ArrayList<>();
+        sessions.values().forEach(info -> {
+            boolean isActive = info.isActive();
+            if (!isActive) {
+                expiredList.add(info);
+            }
+        });
+        expiredList.forEach(info -> {
+            try {
+                String reason;
+                if (info.getDeviceId() == null) {
+                    reason = "Please login";
+                } else {
+                    reason = "No beating";
+                }
+                info.getSession().close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, reason));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            logged("Device [" + info.getDeviceId() + "] left on expired");
+            sessions.remove(info.getDeviceId());
+        });
+    }
+
     private void logged(String message) {
         System.out.println("broadcast : " + message);
 //        sessions.values().forEach(session -> {
@@ -234,11 +244,19 @@ public class NotifySessionService {
 
 
     public boolean online(String deviceId) {
-        return sessions.get(deviceId) != null;
+        String sessionId = deviceIdMappingToSessionId.get(deviceId);
+        if (sessionId == null) {
+            return false;
+        }
+        return sessions.containsKey(sessionId);
     }
 
     public boolean notify(String message, String deviceId) {
-        NotifySessionInfo info = sessions.get(deviceId);
+        String sessionId = deviceIdMappingToSessionId.get(deviceId);
+        if (sessionId == null) {
+            return false;
+        }
+        NotifySessionInfo info = sessions.get(sessionId);
         if (info != null) {
             info.getSession().getAsyncRemote().sendObject(message, result -> {
                 if (result.getException() != null) {
