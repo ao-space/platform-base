@@ -170,6 +170,17 @@ public class NotifySessionService {
         notify(resultBuilder(Method.QUERY, messageId, result), info.getSession());
     }
 
+    @Transactional
+    public void onACK(String messageId, HashMap parameters) {
+        if (messageId != null) {
+            messageRepository.markMessageSent(messageId);
+        }
+        if (parameters != null) {
+            ArrayList<String> list = (ArrayList<String>) parameters.get("list");
+            list.forEach(id -> messageRepository.markMessageSent(id));
+        }
+    }
+
     public String resultBuilder(Method method) {
         return resultBuilder(method, null);
     }
@@ -194,17 +205,6 @@ public class NotifySessionService {
         parameters.put("body", message.getBody());
         parameters.put("extParameters", utils.jsonToObject(message.getExtParameters(), HashMap.class));
         return resultBuilder(Method.PUSH, message.getMessageId(), parameters);
-    }
-
-    @Transactional
-    public void onACK(String messageId, HashMap parameters) {
-        if (messageId != null) {
-            messageRepository.markMessageSent(messageId);
-        }
-        if (parameters != null) {
-            ArrayList<String> list = (ArrayList<String>) parameters.get("list");
-            list.forEach(id -> messageRepository.markMessageSent(id));
-        }
     }
 
     @Transactional

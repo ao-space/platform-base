@@ -26,12 +26,12 @@ public class NotifyDeviceService {
         }
         device = new NotifyDevice();
         fillData(info, device);
-        deviceRepository.persist(device);
+        deviceRepository.registerDevice(device);
         return device;
     }
 
     private void fillData(NotifyDeviceInfo info, NotifyDevice device) {
-        device.setPlatform(info.getPlatform());
+        device.setPlatform(info.getPlatform().toLowerCase());
         device.setDeviceId(info.getDeviceId());
         device.setClientUUID(info.getClientUUID());
         device.setDeviceToken(info.getDeviceToken());
