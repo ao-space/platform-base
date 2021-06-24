@@ -36,8 +36,8 @@ public class NotifyMessageRepository implements PanacheRepository<NotifyMessage>
      * Returns offline message of the specified clientUUID.
      *
      * @param clientUUID the specified clientUUID
-     * @param page page
-     * @param pageSize pageSize
+     * @param page       page
+     * @param pageSize   pageSize
      * @return offline message of the specified clientUUID.
      */
     public List<NotifyMessage> listOfflineMessage(String clientUUID, int page, int pageSize) {
@@ -52,7 +52,7 @@ public class NotifyMessageRepository implements PanacheRepository<NotifyMessage>
      */
     public void markMessageSent(String messageId) {
         this.update(
-                " state=?1 WHERE message_id=?2",
+                "state=?1 WHERE message_id=?2",
                 SENT.getValue(), messageId);
     }
 }

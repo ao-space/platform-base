@@ -27,11 +27,6 @@ public class IOSPusher {
     private static ApnsClient apnsClient = null;
 
     @Logged
-    public boolean push(final List<String> deviceTokens, String alertTitle, String alertBody) {
-        return push(deviceTokens, alertTitle, alertBody, null);
-    }
-
-    @Logged
     public boolean push(final List<String> deviceTokens, String alertTitle, String alertBody, HashMap<String, Object> extParameters) {
         if (apnsClient == null) {
             try {
@@ -59,6 +54,9 @@ public class IOSPusher {
                 final ApnsPayloadBuilder payloadBuilder = new SimpleApnsPayloadBuilder();
                 payloadBuilder.setAlertTitle(alertTitle);
                 payloadBuilder.setAlertBody(alertBody);
+                if (extParameters != null) {
+                    extParameters.forEach(payloadBuilder::addCustomProperty);
+                }
 
                 final String payload = payloadBuilder.build();
                 final String token = TokenUtil.sanitizeTokenString(deviceToken);

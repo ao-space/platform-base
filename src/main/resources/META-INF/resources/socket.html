@@ -75,15 +75,18 @@
           $("#name").focus();
       });
 
-
+      $("#name").val("0d533d6d-6086-451b-a2aa-7b25ee3becbe");
       var connect = function() {
           if (! connected) {
-              var deviceId = "bad57d2e-4679-4bd4-9103-0957b965316e";
-              socket = new WebSocket("ws://" + location.host + "/session/" + deviceId);
+              var deviceId = $("#name").val();
+              console.log("location : " + location);
+              var path = location.pathname.substring(0,location.pathname.lastIndexOf('/'));
+              //path = "/root";
+              socket = new WebSocket("ws://" + location.host + path);
               console.log("Val: " + deviceId);
               socket.onopen = function() {
                   connected = true;
-                  var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"iOS\",\"clientUUID\":\"cu_offline\",\"clientRegKey\":\"crk_ungacy\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
+                  var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"ios\",\"deviceId\":\"0d533d6d-6086-451b-a2aa-7b25ee3becbe\",\"clientUUID\":\"cu_ungacy\",\"clientRegKey\":\"crk_ungacy\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
                   socket.send(loginJson);
                   console.log("Connected to the web socket");
                   $("#send").attr("disabled", false);
@@ -91,6 +94,7 @@
                   $("#name").attr("disabled", true);
                   $("#msg").focus();
                   window.setInterval(ping, 10000);
+                  window.setTimeout(ack, 10000);
               };
               socket.onmessage =function(m) {
                   console.log("Got message: " + m.data);
@@ -99,7 +103,8 @@
               };
 
               socket.onclose = function (err) {
-
+                  $("#chat").append(err + "\n");
+                  scrollToBottom();
               }
           }
       };
@@ -116,6 +121,12 @@
       var ping = function() {
           if (connected) {
               sendJsonMessage("{\"method\":\"ping\"}");
+          }
+      };
+
+      var ack = function() {
+          if (connected) {
+              sendJsonMessage("{\"method\":\"ack\",\"messageId\":\"a23188be-1100-4246-b897-5dce29ae0c87\"}");
           }
       };
 
