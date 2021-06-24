@@ -26,8 +26,8 @@ CREATE TABLE notify_device
     platform VARCHAR(128) NOT NULL,
     device_token VARCHAR(128) NOT NULL,
     state INT DEFAULT 0,
-    created_by DATETIME,
-    updated_by DATETIME,
+    created_at DATETIME,
+    updated_at DATETIME,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_device (device_id)
@@ -43,8 +43,8 @@ CREATE TABLE notify_message
     client_uuid VARCHAR(128) NOT NULL,
     message_id VARCHAR(128) NOT NULL,
     state INT DEFAULT 0,
-    created_by DATETIME,
-    updated_by DATETIME,
+    created_at DATETIME,
+    updated_at DATETIME,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_message (message_id)
