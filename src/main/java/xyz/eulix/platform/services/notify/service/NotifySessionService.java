@@ -3,25 +3,25 @@ package xyz.eulix.platform.services.notify.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
 import xyz.eulix.platform.services.notify.dto.NotifySessionInfo;
 import xyz.eulix.platform.services.notify.entity.NotifyMessage;
 import xyz.eulix.platform.services.notify.repository.NotifyMessageRepository;
-import xyz.eulix.platform.services.support.model.PageInfo;
-import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.OperationUtils;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.model.PageInfo;
+import xyz.eulix.platform.services.support.model.PageListResult;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.websocket.*;
-import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/session/{deviceId}")
+@ServerEndpoint("/{placeholder}")
 @ApplicationScoped
 public class NotifySessionService {
 
@@ -31,32 +31,34 @@ public class NotifySessionService {
     @Inject
     NotifyDeviceService deviceService;
     Map<String, NotifySessionInfo> sessions = new ConcurrentHashMap<>();
+    Map<String, String> deviceIdMappingToSessionId = new ConcurrentHashMap<>();
     @Inject
     OperationUtils utils;
     private Timer timer;
 
     @OnMessage
-    public void onMessage(String message, @PathParam("deviceId") String deviceId) {
-        ///TODO
+    public void onMessage(Session session, String message) {
+        /// TODO
         /// quarkus.websocket.dispatch-to-worker=true
+        /// logged("Session [" + session.getId() + "] onMessage : " + message);
+        String sessionId = session.getId();
         try {
-            HashMap request =
-                    new ObjectMapper().readValue(message, HashMap.class);
+            HashMap request = new ObjectMapper().readValue(message, HashMap.class);
             Method method = Method.methodOf((String) request.get("method"));
             String messageId = (String) request.get("messageId");
             HashMap parameters = (HashMap) request.get("parameters");
             switch (method) {
                 case LOGIN:
-                    onLogin(deviceId, messageId, parameters);
+                    onLogin(sessions.get(sessionId), messageId, parameters);
                     break;
                 case PING:
-                    onPing(deviceId);
+                    onPing(sessions.get(sessionId));
+                    break;
+                case QUERY:
+                    onQuery(sessions.get(sessionId), messageId, parameters);
                     break;
                 case ACK:
                     onACK(messageId, parameters);
-                    break;
-                case QUERY:
-                    onQuery(deviceId, messageId, parameters);
                     break;
                 default:
                     break;
@@ -67,45 +69,120 @@ public class NotifySessionService {
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("deviceId") String deviceId) {
+    public void onOpen(Session session) {
         setupTimer();
-        logged("Device [" + deviceId + "] connected");
-        sessions.put(deviceId, new NotifySessionInfo(session, deviceId));
+        sessions.put(session.getId(), new NotifySessionInfo(session));
+        logged("Session [" + session.getId() + "] onOpen");
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("deviceId") String deviceId) {
-        clearDevice(deviceId);
-        logged("Device [" + deviceId + "] close");
+    public void onClose(Session session) {
+        String deviceId = sessions.get(session.getId()).getDeviceId();
+        if (deviceId != null) {
+            clearDevice(deviceId);
+            logged("Device [" + deviceId + "] close");
+        } else {
+            logged("Session [" + session.getId() + "] onClose");
+        }
+        sessions.remove(session.getId());
     }
 
     @OnError
-    public void onError(Session session, @PathParam("deviceId") String deviceId, Throwable throwable) {
-        clearDevice(deviceId);
-        logged("Device [" + deviceId + "] left on error: " + throwable);
+    public void onError(Session session, Throwable throwable) {
+        String deviceId = sessions.get(session.getId()).getDeviceId();
+        if (deviceId != null) {
+            logged("Device [" + deviceId + "] left on error: " + throwable);
+        }
     }
 
     @Logged
-    private void onLogin(String deviceId, String messageId, HashMap parameters) {
-        NotifySessionInfo info = sessions.get(deviceId);
+    private void onLogin(NotifySessionInfo info, String messageId, HashMap parameters) {
+        String deviceId = (String) parameters.get("deviceId");
         String platform = (String) parameters.get("platform");
         String clientUUID = (String) parameters.get("clientUUID");
         if (clientUUID != null && platform != null) {
             if (!deviceService.deviceExist(deviceId)) {
                 String msg = "Unknown device [" + deviceId + "], please register device first!";
                 notify(resultBuilder(Method.LOGIN, messageId, ImmutableMap.of("code", -1, "msg", msg)), info.getSession());
+                clearDevice(deviceId);
                 throw new IllegalArgumentException(msg);
             }
             info.setClientUUID(clientUUID);
+            info.setDeviceId(deviceId);
+            deviceIdMappingToSessionId.put(deviceId, info.getSession().getId());
             deviceService.deviceOnline(deviceId);
-            logged("deviceId [" + deviceId + "]" + " logged in with clientUUID : [" +
+            logged("sessionId [" + info.getSession().getId() + "]" + "with deviceId [" + deviceId + "]" + " logged in with clientUUID : [" +
                     clientUUID + "] on platform : [" + platform + "]");
             notify(resultBuilder(Method.LOGIN, messageId, ImmutableMap.of("code", 0)), info.getSession());
         } else {
             String msg = "clientUUID && platform must not be null";
             notify(resultBuilder(Method.LOGIN, messageId, ImmutableMap.of("code", -1, "msg", msg)), info.getSession());
+            clearDevice(deviceId);
             throw new IllegalArgumentException(msg);
         }
+    }
+
+    private void onPing(NotifySessionInfo info) {
+        if (info == null) {
+            return;
+        }
+        info.markAsActive();
+        logged("Device [" + info.getDeviceId() + "] ping");
+        notify(resultBuilder(Method.PONG), info.getSession());
+    }
+
+    private void onQuery(NotifySessionInfo info, String messageId, HashMap parameters) {
+        int page = (int) parameters.getOrDefault("page", 0);
+        int pageSize = (int) parameters.getOrDefault("pageSize", 10);
+        Long count = messageRepository.offlineMessageCount(info.getClientUUID());
+        List<NotifyMessage> offlineMessages = messageRepository.listOfflineMessage(info.getClientUUID(), page, pageSize);
+        PageListResult<? extends NotifyMessage> result = PageListResult.of(offlineMessages, PageInfo.of(
+                count, page, pageSize
+        ));
+        notify(resultBuilder(Method.QUERY, messageId, result), info.getSession());
+    }
+
+    @Transactional
+    public void onACK(String messageId, HashMap parameters) {
+        if (messageId != null) {
+            messageRepository.markMessageSent(messageId);
+        }
+        if (parameters != null) {
+            ArrayList<String> list = (ArrayList<String>) parameters.get("list");
+            list.forEach(id -> messageRepository.markMessageSent(id));
+        }
+    }
+
+    public String resultBuilder(Method method) {
+        return resultBuilder(method, null);
+    }
+
+    public String resultBuilder(Method method, String messageId) {
+        return resultBuilder(method, messageId, null);
+    }
+
+    public String resultBuilder(Method method, String messageId, Object result) {
+        HashMap<String, Object> messageMap = new HashMap<>();
+        messageMap.put("messageId", messageId);
+        messageMap.put("method", method.getValue());
+        if (result != null) {
+            messageMap.put("result", utils.jsonToObject(utils.objectToJson(result), HashMap.class));
+        }
+        return utils.objectToJson(messageMap);
+    }
+
+    public String resultBuilder(NotifyMessage message) {
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("title", message.getTitle());
+        parameters.put("body", message.getBody());
+        parameters.put("extParameters", utils.jsonToObject(message.getExtParameters(), HashMap.class));
+        return resultBuilder(Method.PUSH, message.getMessageId(), parameters);
+    }
+
+    @Transactional
+    public void clearDevice(String deviceId) {
+        sessions.remove(deviceId);
+        deviceService.deviceOffline(deviceId);
     }
 
     private void setupTimer() {
@@ -146,59 +223,6 @@ public class NotifySessionService {
         });
     }
 
-    private void onPing(String deviceId) {
-        NotifySessionInfo info = sessions.get(deviceId);
-        info.markAsActive();
-        logged("Device [" + info.getDeviceId() + "] ping");
-        notify(resultBuilder(Method.PONG), info.getSession());
-    }
-
-    private void onQuery(String deviceId, String messageId, HashMap parameters) {
-        NotifySessionInfo info = sessions.get(deviceId);
-        int page = (int) parameters.getOrDefault("page", 0);
-        int pageSize = (int) parameters.getOrDefault("pageSize", 10);
-        Long count = messageRepository.offlineMessageCount(info.getClientUUID());
-        List<NotifyMessage> offlineMessages = messageRepository.listOfflineMessage(info.getClientUUID(), page, pageSize);
-        PageListResult<? extends NotifyMessage> result = PageListResult.of(offlineMessages, PageInfo.of(
-                count, page, pageSize
-        ));
-        notify(resultBuilder(Method.QUERY, messageId, result), info.getSession());
-    }
-
-    public String resultBuilder(Method method) {
-        return resultBuilder(method, null);
-    }
-
-    public String resultBuilder(Method method, String messageId) {
-        return resultBuilder(method, messageId, null);
-    }
-
-    public String resultBuilder(Method method, String messageId, Object result) {
-        HashMap<String, Object> messageMap = new HashMap<>();
-        messageMap.put("messageId", messageId);
-        messageMap.put("method", method.raw());
-        if (result != null) {
-            messageMap.put("result", utils.jsonToObject(utils.objectToJson(result), HashMap.class));
-        }
-        return utils.objectToJson(messageMap);
-    }
-
-    private void onACK(String messageId, HashMap parameters) {
-        if (messageId != null) {
-            messageRepository.markMessageSent(messageId);
-        }
-        if (parameters != null) {
-            ArrayList<String> list = (ArrayList<String>) parameters.get("list");
-            list.forEach(id -> messageRepository.markMessageSent(id));
-        }
-    }
-
-    @Transactional
-    private void clearDevice(String deviceId) {
-        sessions.remove(deviceId);
-        deviceService.deviceOffline(deviceId);
-    }
-
     private void logged(String message) {
         System.out.println("broadcast : " + message);
 //        sessions.values().forEach(session -> {
@@ -218,28 +242,21 @@ public class NotifySessionService {
         });
     }
 
-    public String messageBuilder(NotifyMessage message) {
-        HashMap<String, Object> parameters = new HashMap<>();
-        parameters.put("title", message.getTitle());
-        parameters.put("body", message.getBody());
-        parameters.put("messageId", message.getMessageId());
-        parameters.put("extParameters", utils.jsonToObject(message.getExtParameters(), HashMap.class));
-        return messageBuilder(Method.PUSH, parameters);
-    }
-
-    public String messageBuilder(Method method, HashMap<String, Object> parameters) {
-        HashMap<String, Object> messageMap = new HashMap<>();
-        messageMap.put("method", method);
-        messageMap.put("parameters", parameters);
-        return utils.objectToJson(messageMap);
-    }
 
     public boolean online(String deviceId) {
-        return sessions.get(deviceId) != null;
+        String sessionId = deviceIdMappingToSessionId.get(deviceId);
+        if (sessionId == null) {
+            return false;
+        }
+        return sessions.containsKey(sessionId);
     }
 
     public boolean notify(String message, String deviceId) {
-        NotifySessionInfo info = sessions.get(deviceId);
+        String sessionId = deviceIdMappingToSessionId.get(deviceId);
+        if (sessionId == null) {
+            return false;
+        }
+        NotifySessionInfo info = sessions.get(sessionId);
         if (info != null) {
             info.getSession().getAsyncRemote().sendObject(message, result -> {
                 if (result.getException() != null) {
@@ -250,6 +267,7 @@ public class NotifySessionService {
         return info != null;
     }
 
+    @Getter
     public enum Method {
         LOGIN("login"),
         PING("ping"),
@@ -271,10 +289,6 @@ public class NotifySessionService {
 
             return any.orElseThrow(
                     () -> new IllegalArgumentException("this value is illegal for message method - " + value));
-        }
-
-        public String raw() {
-            return value;
         }
     }
 }
