@@ -83,9 +83,9 @@
               var path = location.pathname.substring(0,location.pathname.lastIndexOf('/'));
               //path = "/root";
               if (location.protocol == 'http:') {
-                  socket = new WebSocket("ws://" + location.host + path);
+                  socket = new WebSocket("ws://" + location.host + path + "/");
               } else {
-                  socket = new WebSocket("wss://" + location.host + path);
+                  socket = new WebSocket("wss://" + location.host + path+ "/");
               }
 
               console.log("Val: " + deviceId);
