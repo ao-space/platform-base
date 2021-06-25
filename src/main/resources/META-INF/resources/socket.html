@@ -79,10 +79,15 @@
       var connect = function() {
           if (! connected) {
               var deviceId = $("#name").val();
-              console.log("location : " + location);
+              console.log("location origin : " + location.protocol);
               var path = location.pathname.substring(0,location.pathname.lastIndexOf('/'));
               //path = "/root";
-              socket = new WebSocket("ws://" + location.host + path);
+              if (location.protocol == 'http:') {
+                  socket = new WebSocket("ws://" + location.host + path);
+              } else {
+                  socket = new WebSocket("wss://" + location.host + path);
+              }
+
               console.log("Val: " + deviceId);
               socket.onopen = function() {
                   connected = true;
