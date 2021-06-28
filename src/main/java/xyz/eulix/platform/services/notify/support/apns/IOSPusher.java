@@ -24,21 +24,44 @@ import java.util.concurrent.atomic.AtomicLong;
 public class IOSPusher {
     private static final String topic = "xyz.eulix.space";
     private static final Semaphore semaphore = new Semaphore(10000);
-    private static ApnsClient apnsClient = null;
+    private static ApnsClient developmentApnsClient = null;
+    private static ApnsClient productionApnsClient = null;
 
     @Logged
-    public boolean push(final List<String> deviceTokens, String alertTitle, String alertBody, HashMap<String, Object> extParameters) {
-        if (apnsClient == null) {
-            try {
-                EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-                ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-                InputStream inputStream = classloader.getResourceAsStream("cert.p12");
-                apnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
-                        .setClientCredentials(inputStream, "2021")
-                        .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
-            } catch (Exception e) {
-                throw new IllegalStateException("ios get pushy apns client failed!");
+    public boolean push(final List<String> deviceTokens,
+                        String alertTitle,
+                        String alertBody,
+                        HashMap<String, Object> extParameters,
+                        boolean sandbox) {
+        ApnsClient apnsClient = null;
+        if (sandbox) {
+            if (developmentApnsClient == null) {
+                try {
+                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+                    InputStream inputStream = classloader.getResourceAsStream("development.p12");
+                    developmentApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
+                            .setClientCredentials(inputStream, "2021")
+                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
+                } catch (Exception e) {
+                    throw new IllegalStateException("ios get pushy apns client failed!");
+                }
             }
+            apnsClient = developmentApnsClient;
+        } else  {
+            if (productionApnsClient == null) {
+                try {
+                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+                    InputStream inputStream = classloader.getResourceAsStream("production.p12");
+                    productionApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
+                            .setClientCredentials(inputStream, "2021")
+                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
+                } catch (Exception e) {
+                    throw new IllegalStateException("ios get pushy apns client failed!");
+                }
+            }
+            apnsClient = productionApnsClient;
         }
 
         long startTime = System.currentTimeMillis();

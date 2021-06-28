@@ -63,7 +63,7 @@ public class NotifyMessageService {
         if (device.iOS()) {
             List<String> deviceTokens = new ArrayList<>(1);
             deviceTokens.add(device.getDeviceToken());
-            pushToIOSResult = pusher.push(deviceTokens, message.getTitle(), message.getBody(), utils.jsonToObject(message.getExtParameters(), HashMap.class));
+            pushToIOSResult = pusher.push(deviceTokens, message.getTitle(), message.getBody(), utils.jsonToObject(message.getExtParameters(), HashMap.class), device.sandbox());
         }
 
         boolean pushToSocket = sessionService.online(device.getDeviceId());

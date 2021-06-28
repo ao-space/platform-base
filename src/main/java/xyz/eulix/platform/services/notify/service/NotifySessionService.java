@@ -91,7 +91,7 @@ public class NotifySessionService {
     public void onError(Session session, Throwable throwable) {
         String deviceId = sessions.get(session.getId()).getDeviceId();
         if (deviceId != null) {
-            logged("Device [" + deviceId + "] left on error: " + throwable);
+            logged("Device [" + deviceId + "] trigger on error: " + throwable);
         }
     }
 
