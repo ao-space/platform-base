@@ -36,6 +36,7 @@ public class NotifyDeviceService {
         device.setClientUUID(info.getClientUUID());
         device.setDeviceToken(info.getDeviceToken());
         device.setClientRegKey(info.getClientRegKey());
+        device.setEnv(info.getEnv());
         device.setState(ACTIVE.getValue());
     }
 

@@ -19,6 +19,8 @@ public class NotifyDeviceInfo {
     @NotBlank
     private final String deviceId;
 
+    private final String env; //dev or production
+
     private final String deviceToken;
 
     @NotBlank

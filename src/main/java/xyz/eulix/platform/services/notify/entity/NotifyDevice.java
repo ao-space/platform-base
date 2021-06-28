@@ -40,6 +40,9 @@ public class NotifyDevice extends BaseEntity {
     @Column(name = "device_token")
     private String deviceToken;
 
+    @Column(name = "env")
+    private String env;
+
     @NotNull
     @ValueOfEnum(enumClass = State.class, valueMethod = "getValue")
     @Column(name = "state")
@@ -47,6 +50,10 @@ public class NotifyDevice extends BaseEntity {
 
     public boolean iOS() {
         return platform.toLowerCase().contentEquals("ios");
+    }
+
+    public boolean sandbox() {
+        return env!= null && env.toLowerCase().contentEquals("dev");
     }
 
     @Getter
