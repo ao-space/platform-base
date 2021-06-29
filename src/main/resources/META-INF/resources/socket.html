@@ -53,12 +53,12 @@
       var socket;
 
       $( document ).ready(function() {
-          $("#connect").click(connect);
+          $("#connect").click(registerAndConnect);
           $("#send").click(sendMessage);
 
           $("#name").keypress(function(event){
               if(event.keyCode == 13 || event.which == 13) {
-                  connect();
+                  registerAndConnect();
               }
           });
 
@@ -75,44 +75,70 @@
           $("#name").focus();
       });
 
-      $("#name").val("0d533d6d-6086-451b-a2aa-7b25ee3becbe");
-      var connect = function() {
+      $("#name").val("r2VTgYrvX2ujIsAddnsHD7H3xMPHFp8q");
+      var registerAndConnect = function() {
+
           if (! connected) {
-              var deviceId = $("#name").val();
-              console.log("location origin : " + location.protocol);
-              var path = location.pathname.substring(0,location.pathname.lastIndexOf('/'));
-              //path = "/root";
-              if (location.protocol == 'http:') {
-                  socket = new WebSocket("ws://" + location.host + path + "/");
-              } else {
-                  socket = new WebSocket("wss://" + location.host + path+ "/");
-              }
+              var clientUUID = $("#name").val();
+              $.ajax({
+                  type: "POST",
+                  url: "/platform/v1/api/register/device",
+                  data: JSON.stringify({
+                      clientRegKey: "clientRegKey",
+                      clientUUID: clientUUID,
+                      deviceId: "deviceId",
+                      deviceToken: "deviceToken",
+                      env: "env",
+                      platform: "web"
+                  }),
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  success: ret => {
+                      console.log(ret);
+                      connectToSocket();
+                  },
+                  dataType: "json"
+              });
 
-              console.log("Val: " + deviceId);
-              socket.onopen = function() {
-                  connected = true;
-                  var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"ios\",\"deviceId\":\"0d533d6d-6086-451b-a2aa-7b25ee3becbe\",\"clientUUID\":\"cu_ungacy\",\"clientRegKey\":\"crk_ungacy\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
-                  socket.send(loginJson);
-                  console.log("Connected to the web socket");
-                  $("#send").attr("disabled", false);
-                  $("#connect").attr("disabled", true);
-                  $("#name").attr("disabled", true);
-                  $("#msg").focus();
-                  window.setInterval(ping, 10000);
-                  window.setTimeout(ack, 10000);
-              };
-              socket.onmessage =function(m) {
-                  console.log("Got message: " + m.data);
-                  $("#chat").append(m.data + "\n");
-                  scrollToBottom();
-              };
-
-              socket.onclose = function (err) {
-                  $("#chat").append(err + "\n");
-                  scrollToBottom();
-              }
           }
       };
+
+      function connectToSocket() {
+          var clientUUID = $("#name").val();
+          var path = location.pathname.substring(0,location.pathname.lastIndexOf('/'));
+          var uri = location.host + path + "/";
+          if (location.protocol == 'http:') {
+              socket = new WebSocket("ws://" + uri);
+          } else {
+              socket = new WebSocket("wss://" + uri);
+          }
+
+          console.log("Val: " + clientUUID);
+          socket.onopen = function () {
+              connected = true;
+              var loginJson = "{\"method\":\"login\",\"parameters\":{\"platform\":\"web\",\"deviceId\":\"deviceId\",\"clientUUID\":\""+ clientUUID +"\",\"clientRegKey\":\"r2VTgYrvX2ujIsAddnsHD7H3xMPHFp8q\",\"clientId\":\"bad57d2e-4679-4bd4-9103-0957b965316e\"}}";
+              socket.send(loginJson);
+              console.log("Connected to the web socket");
+              $("#send").attr("disabled", false);
+              $("#connect").attr("disabled", true);
+              $("#name").attr("disabled", true);
+              $("#msg").focus();
+              window.setInterval(ping, 10000);
+              window.setTimeout(ack, 10000);
+          };
+          socket.onmessage = function (m) {
+              console.log("Got message: " + m.data);
+              $("#chat").append(m.data + "\n");
+              scrollToBottom();
+          };
+
+          socket.onclose = function (err) {
+              $("#chat").append(err + "\n");
+              scrollToBottom();
+          }
+      }
+
       var query = function(page) {
           json = "{\"method\":\"query\",\"messageId\":\"query-xxx-xx\",\"parameters\":{\"page\":" + page + ",\"pageSize\":10}}";
           console.log("query message: " + json);
