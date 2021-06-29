@@ -48,7 +48,7 @@ public class IOSPusher {
                 }
             }
             apnsClient = developmentApnsClient;
-        } else  {
+        } else {
             if (productionApnsClient == null) {
                 try {
                     EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);

@@ -53,7 +53,7 @@ public class NotifyDevice extends BaseEntity {
     }
 
     public boolean sandbox() {
-        return env!= null && env.toLowerCase().contentEquals("dev");
+        return env != null && env.toLowerCase().contentEquals("dev");
     }
 
     @Getter
