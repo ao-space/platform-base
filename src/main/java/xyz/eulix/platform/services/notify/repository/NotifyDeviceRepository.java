@@ -28,7 +28,7 @@ public class NotifyDeviceRepository implements PanacheRepository<NotifyDevice> {
      * @return all active device of the specified clientUUID.
      */
     public List<NotifyDevice> activeDevicesByClientUUID(String clientUUID) {
-        return this.list("client_uuid=?1 AND state=?2", clientUUID, ACTIVE.getValue());
+        return this.list("client_uuid=?1 AND (state=?2 OR platform=?3) ", clientUUID, ACTIVE.getValue(), "ios");
     }
 
     /**
