@@ -218,8 +218,10 @@ public class NotifySessionService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            logged("Device [" + info.getDeviceId() + "] left on expired");
-            sessions.remove(info.getDeviceId());
+            if (info.getDeviceId() != null) {
+                logged("Device [" + info.getDeviceId() + "] left on expired");
+                sessions.remove(info.getDeviceId());
+            }
         });
     }
 
