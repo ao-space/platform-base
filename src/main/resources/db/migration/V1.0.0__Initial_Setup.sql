@@ -51,3 +51,19 @@ CREATE TABLE notify_message
     UNIQUE KEY uk_message (message_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE box_info
+(
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    pkey VARCHAR(128) NOT NULL,
+    bkey VARCHAR(128) NULL,
+    box_domain VARCHAR(128) NULL,
+    box_pub_key VARCHAR(1024) NULL,
+    created_at DATETIME,
+    updated_at DATETIME,
+    expires_at DATETIME,
+    version INT DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_pkey (pkey)
+) ENGINE = InnoDB
+  DEFAULT CHARSET=utf8mb4;
