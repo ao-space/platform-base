@@ -56,7 +56,7 @@ public class AuthResource {
     @Logged
     @Operation(description = "Poll box info by new client.")
     public PollPkeyRsp pkeyPoll(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                                @Valid PollPkeyReq pollPkeyReq) {
-        return authService.pollBoxInfo(pollPkeyReq);
+                                @Valid @NotBlank @QueryParam("pkey") String pkey) {
+        return authService.pollBoxInfo(pkey);
     }
 }
