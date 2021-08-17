@@ -66,8 +66,8 @@ padding-top:3vh;
 padding-bottom:3vh;
 }
 #qrcode {
-  width:23vh;
-  height:23vh;
+  width:160px;
+  height:160px;
   display: inline-block;
 }  
 .pic
@@ -115,18 +115,24 @@ padding-bottom:3vh;
 	</footer>
 
 <script type="text/javascript">
-
+function requestId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
 $(function(){
 	var key;
 	$.ajax({
 		type: "get",
 		async:false,
-		url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen",
+		url: "https://test-services.eulix.xyz/platform/v1/api/auth/pkey/gen",
 		headers: {
-			//'Content-Type': 'application/json',
-			"request-Id": "123"
+			"request-Id": requestId()
 		},
 		success:function(result){
+		console.log(result);
 		key=result.pkey;
 		},
 		dataType: "json"
@@ -150,26 +156,16 @@ $(function(){
 		type: "get",
 		url: "https://test-services.eulix.xyz/platform/v1/api/auth/pkey/poll?pkey="+key,
 		headers: {
-			//'Content-Type': 'application/json',
-			"request-Id": "123"
+			"request-Id": requestId()
 		},
-		//contentType: "application/json",
-//		data:{
-//			"pkey" : key
-//		},
-//		JSON.stringify({
-//    	"pkey" : key
-//    }),
 		success:function(result){
-		 console.log(result);
+		console.log(result);
+		if(result.bkey!=null)
+			window.location.href=result.boxDomain+"/#/login?bkey="+result.bkey+"&+publickey="+result.boxPubKey
 		},
-		// dataType: "json"
 	});
 	
 	}
-	
-	
-	
 	window.setInterval(poll,3000);
 
 })
