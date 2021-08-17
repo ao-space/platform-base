@@ -53,13 +53,13 @@ public class AuthService {
 
     /**
      * 从中间件获取box info
-     * @param pollPkeyReq pollPkeyReq
+     * @param pkey pkey
      * @return PollPkeyRsp
      */
-    public PollPkeyRsp pollBoxInfo(PollPkeyReq pollPkeyReq) {
-        BoxInfoEntity boxInfoEntity = getBoxInfo(pollPkeyReq.getPkey());
+    public PollPkeyRsp pollBoxInfo(String pkey) {
+        BoxInfoEntity boxInfoEntity = getBoxInfo(pkey);
         if (boxInfoEntity == null) {
-            LOG.warnf("pkey is invalid, pkey:{}", pollPkeyReq.getPkey());
+            LOG.warnf("pkey is invalid, pkey:{}", pkey);
             throw new ServiceOperationException(ServiceError.PKEY_INVALID_ERROR);
         }
         return boxInfoEntityToPollPkeyRsp(boxInfoEntity);
