@@ -161,7 +161,7 @@ $(function(){
 		success:function(result){
 		console.log(result);
 		if(result.bkey!=null)
-			window.location.href=result.boxDomain+"/#/login?bkey="+result.bkey+"&+publickey="+result.boxPubKey
+			window.location.href=result.boxDomain+"/space/dist/#/login?bkey="+result.bkey+"&publickey="+encodeURIComponent(result.boxPubKey)
 		},
 	});
 	
