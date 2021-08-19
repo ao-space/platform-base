@@ -161,11 +161,9 @@ $(function(){
 		success:function(result){
 		console.log(result);
 		console.log(result.boxDomain);
-//		if(result.bkey!=null)
-//			window.location.href="https://"+result.boxDomain+"/space/dist/#/login?bkey="+result.bkey+"&publickey="+encodeURIComponent(result.boxPubKey)
 		if(result.bkey!=null)
-			window.location.href=result.boxDomain+"/space/dist/#/login?bkey="+result.bkey+"&publickey="+encodeURIComponent(result.boxPubKey)
-		},
+			window.location.href="https://"+result.boxDomain+"/space/dist/#/login?bkey="+result.bkey+"&publickey="+encodeURIComponent(result.boxPubKey)+"&"+Math.random();
+			}
 	});
 	
 	}
