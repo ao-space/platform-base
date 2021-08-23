@@ -2,6 +2,7 @@ package xyz.eulix.platform.services.registry.rest;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.service.RegistryService;
 import xyz.eulix.platform.services.support.log.Logged;
@@ -24,6 +25,9 @@ public class RegistryResource {
   @Inject
   RegistryService registryService;
 
+  @Inject
+  ApplicationProperties properties;
+
   @Logged
   @POST
   @Path("/registry")
@@ -36,9 +40,10 @@ public class RegistryResource {
     return RegistryResult.of(
         "crk_s92Szxk",
         "brk_98skLwf",
-        registryInfo.getSubdomain() + ".space.eulix.xyz",
+        registryInfo.getSubdomain() + "." + properties.getRegistrySubdomain(),
         TunnelServer.of(
-            "ts.platform.eulix.xyz", 59000, TunnelServer.Auth.of("n/a", "n/a"))
+            properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
+            TunnelServer.Auth.of("n/a", "n/a"))
     );
   }
 
