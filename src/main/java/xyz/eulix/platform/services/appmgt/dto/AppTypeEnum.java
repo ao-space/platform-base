@@ -24,6 +24,6 @@ public enum AppTypeEnum {
                 return true;
             }
             return false;
-        }).findFirst().orElse(null);
+        }).findFirst().orElseThrow();
     }
 }
