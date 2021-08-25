@@ -10,7 +10,7 @@ public class AppInfoRes {
     private final String appName;
 
     // App类型 ios、android
-    private final AppTypeEnum appType;
+    private final String appType;
 
     // 版本号 长度0-20个字符
     private final String appVersion;
@@ -28,5 +28,5 @@ public class AppInfoRes {
     private final String md5;
 
     // 是否强制更新 1-强制更新;0-可选更新
-    private final Boolean forceUpdate;
+    private final Boolean isForceUpdate;
 }

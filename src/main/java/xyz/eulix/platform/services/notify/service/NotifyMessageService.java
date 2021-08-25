@@ -5,7 +5,7 @@ import xyz.eulix.platform.services.notify.entity.NotifyDevice;
 import xyz.eulix.platform.services.notify.entity.NotifyMessage;
 import xyz.eulix.platform.services.notify.repository.NotifyMessageRepository;
 import xyz.eulix.platform.services.notify.support.apns.IOSPusher;
-import xyz.eulix.platform.services.support.OperationUtils;
+import xyz.eulix.platform.services.support.serialization.OperationUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

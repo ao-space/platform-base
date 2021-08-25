@@ -3,7 +3,7 @@ package xyz.eulix.platform.services.support.log;
 import com.google.common.base.Stopwatch;
 import lombok.SneakyThrows;
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.support.OperationUtils;
+import xyz.eulix.platform.services.support.serialization.OperationUtils;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
