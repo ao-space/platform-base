@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8"> 
 <meta name="robots" content="noindex, nofollow">
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript" src="./js/qrcode.min.js"></script>
 <style type="text/css">
 body
 {
@@ -23,10 +25,11 @@ body
 .login
 {
   width: 47vw;
-  height: 47vh; 
+  height: 47vh;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 0.7px;
   margin-left: 27vw;
+  padding-top:3vh;
   margin-top: 13vh;  
   text-align:center;
 }
@@ -38,13 +41,13 @@ body
   color: #333333;
   margin-block-start: 7px;
   margin-block-end:7px;
-  padding-top: 3vh;
 }
 .pb
 {
   line-height:1;
   font-size:13px;
   color: #333333;
+  margin-bottom:3vh;
 }
 .pc
 {
@@ -57,12 +60,21 @@ body
   line-height:1;
   font-size:13px;
   color: #85899C;
-  margin-top:3vh;
 }
+.img{
+padding-top:3vh;
+padding-bottom:3vh;
+}
+#qrcode {
+  width:160px;
+  height:160px;
+  display: inline-block;
+}  
 .pic
 {
-  width:23vh;
-  height:23vh;
+  width:160px;
+  height:160px;;
+  display:inline;
 }
 .foot
 {
@@ -89,7 +101,10 @@ body
         <span class="pc">傲来空间App</span>
         <span class="pb">扫码登录</span>
         <div class="img">
-          <span><img class="pic" src="./img/pic.png"/><img  class="pic" src="./img/denglu.png"/></span>
+			 
+				<div id="qrcode" ></div> 
+				<img  class="pic" src="./img/denglu.png"/>
+			 
         </div> 
         <p class="pd">最新版傲来空间App-首页-扫一扫</p>
     </div>
@@ -99,21 +114,68 @@ body
           <li>copyright &copy 2020-2021 中国科学院软件研究所</li>
 	</footer>
 
+<script type="text/javascript">
+function requestId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+var urlstr=document.location.toString();
+console.log(urlstr);
+
+$(function(){
+	var key;
+	$.ajax({
+		type: "get",
+		async:false,
+		//url: urlstr+"v1/api/auth/pkey/gen",		
+		url: "/platform/v1/api/auth/pkey/gen",
+		headers: {
+			"request-Id": requestId()
+		},
+		success:function(result){
+		console.log(result);
+		key=result.pkey;
+		},
+		dataType: "json"
+	});
+	var qrcode = new QRCode(document.getElementById("qrcode"), {
+	width : 160,
+	height : 160,
+	});   
+	qrcode.makeCode(key);
+	function clear(){
+		qrcode.clear();	
+		//document.getElementById("qrcode").style.background="#fff  no-repeat 57px 37px url(./img/shibai.png)";	
+		document.getElementById("qrcode").style.background="#fff  no-repeat center  url(./img/shibai.png)";	
+		document.getElementById("qrcode").style.cursor="pointer";	
+		document.getElementById("qrcode").setAttribute("onclick","document.location.reload()")		
+	}
+	window.setTimeout(clear,60000);
+	
+	function poll(){
+	$.ajax({
+		type: "get",
+		url: "/platform/v1/api/auth/pkey/poll?pkey="+key,
+		headers: {
+			"request-Id": requestId()
+		},
+		success:function(result){
+		console.log(result);
+		console.log(result.boxDomain);
+		if(result.bkey!=null)
+			window.location.href="https://"+result.boxDomain+"/space/index.html?bkey="+result.bkey+"&publickey="+encodeURIComponent(result.boxPubKey);
+			}
+	});
+	
+	}
+	window.setInterval(poll,3000);
+
+})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</script>
 </body>
