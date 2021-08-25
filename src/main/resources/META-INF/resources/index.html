@@ -122,12 +122,17 @@ function requestId() {
         return v.toString(16);
     });
 }
+
+var urlstr=document.location.toString();
+console.log(urlstr);
+
 $(function(){
 	var key;
 	$.ajax({
 		type: "get",
 		async:false,
-		url: "https://test-services.eulix.xyz/platform/v1/api/auth/pkey/gen",
+		//url: urlstr+"v1/api/auth/pkey/gen",		
+		url: "/platform/v1/api/auth/pkey/gen",
 		headers: {
 			"request-Id": requestId()
 		},
@@ -154,7 +159,7 @@ $(function(){
 	function poll(){
 	$.ajax({
 		type: "get",
-		url: "https://test-services.eulix.xyz/platform/v1/api/auth/pkey/poll?pkey="+key,
+		url: "/platform/v1/api/auth/pkey/poll?pkey="+key,
 		headers: {
 			"request-Id": requestId()
 		},
@@ -173,18 +178,4 @@ $(function(){
 
 
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
