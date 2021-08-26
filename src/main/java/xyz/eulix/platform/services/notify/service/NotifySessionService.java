@@ -242,7 +242,7 @@ public class NotifySessionService {
     private void notify(String message, Session session) {
         session.getAsyncRemote().sendObject(message, result -> {
             if (result.getException() != null) {
-                LOG.errorf(("Unable to send message: " + result.getException());
+                LOG.errorf("Unable to send message: " + result.getException());
             }
         });
     }
