@@ -20,9 +20,11 @@ public enum ServiceError {
    * Indicates a unknown error that might be somehow undefined currently.
    */
   UNKNOWN(-1, "unknown error"),
-  PKEY_INVALID_ERROR(2000, "pkey invalid error"),
-  PKEY_EXPIRED_ERROR(2001, "pkey expired error"),
+  PKEY_INVALID(2000, "pkey is invalid"),
+  PKEY_EXPIRED(2001, "pkey has expired"),
 
+  APP_VERSION_INVALID(2002, "app version invalid error"),
+  APP_VERSION_EXISTED(2003, "app version has already existed"),
   ;
 
   /**

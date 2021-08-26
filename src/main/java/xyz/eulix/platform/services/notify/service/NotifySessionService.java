@@ -7,7 +7,7 @@ import lombok.Getter;
 import xyz.eulix.platform.services.notify.dto.NotifySessionInfo;
 import xyz.eulix.platform.services.notify.entity.NotifyMessage;
 import xyz.eulix.platform.services.notify.repository.NotifyMessageRepository;
-import xyz.eulix.platform.services.support.OperationUtils;
+import xyz.eulix.platform.services.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;

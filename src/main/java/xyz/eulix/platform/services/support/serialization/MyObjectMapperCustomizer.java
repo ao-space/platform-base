@@ -1,4 +1,4 @@
-package xyz.eulix.platform.services.support;
+package xyz.eulix.platform.services.support.serialization;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
