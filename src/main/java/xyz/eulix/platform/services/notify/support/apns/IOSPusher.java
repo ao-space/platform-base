@@ -33,36 +33,7 @@ public class IOSPusher {
                         String alertBody,
                         HashMap<String, Object> extParameters,
                         boolean sandbox) {
-        ApnsClient apnsClient = null;
-        if (sandbox) {
-            if (developmentApnsClient == null) {
-                try {
-                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-                    InputStream inputStream = classloader.getResourceAsStream("development.p12");
-                    developmentApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
-                            .setClientCredentials(inputStream, "2021")
-                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
-                } catch (Exception e) {
-                    throw new IllegalStateException("ios get pushy apns client failed!");
-                }
-            }
-            apnsClient = developmentApnsClient;
-        } else {
-            if (productionApnsClient == null) {
-                try {
-                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-                    InputStream inputStream = classloader.getResourceAsStream("production.p12");
-                    productionApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
-                            .setClientCredentials(inputStream, "2021")
-                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
-                } catch (Exception e) {
-                    throw new IllegalStateException("ios get pushy apns client failed!");
-                }
-            }
-            apnsClient = productionApnsClient;
-        }
+        ApnsClient apnsClient = prepareClient(sandbox);
 
         long startTime = System.currentTimeMillis();
 
@@ -73,19 +44,7 @@ public class IOSPusher {
         for (String deviceToken : deviceTokens) {
             final SimpleApnsPushNotification pushNotification;
 
-            {
-                final ApnsPayloadBuilder payloadBuilder = new SimpleApnsPayloadBuilder();
-                payloadBuilder.setAlertTitle(alertTitle);
-                payloadBuilder.setAlertBody(alertBody);
-                if (extParameters != null) {
-                    extParameters.forEach(payloadBuilder::addCustomProperty);
-                }
-
-                final String payload = payloadBuilder.build();
-                final String token = TokenUtil.sanitizeTokenString(deviceToken);
-
-                pushNotification = new SimpleApnsPushNotification(token, topic, payload);
-            }
+            pushNotification = getSimpleApnsPushNotification(alertTitle, alertBody, extParameters, deviceToken);
 
             try {
                 semaphore.acquire();
@@ -135,7 +94,7 @@ public class IOSPusher {
             });
             try {
                 if (latch.await(20, TimeUnit.SECONDS)) {
-                    System.out.println("timeout with 20s");
+                    System.err.println("timeout with 20s");
                 }
             } catch (InterruptedException e) {
                 System.out.println("ios push latch await failed!");
@@ -148,5 +107,55 @@ public class IOSPusher {
         System.out.println("pushMessage success. total : [" + total + "] success : [" + (successCnt.get()) +
                 "], total cost = " + (endPushTime - startTime) + ", pushCost = " + (endPushTime - startPushTime));
         return total == successCnt.get();
+    }
+
+    private SimpleApnsPushNotification getSimpleApnsPushNotification(String alertTitle, String alertBody, HashMap<String, Object> extParameters, String deviceToken) {
+        final SimpleApnsPushNotification pushNotification;
+        final ApnsPayloadBuilder payloadBuilder = new SimpleApnsPayloadBuilder();
+        payloadBuilder.setAlertTitle(alertTitle);
+        payloadBuilder.setAlertBody(alertBody);
+        if (extParameters != null) {
+            extParameters.forEach(payloadBuilder::addCustomProperty);
+        }
+
+        final String payload = payloadBuilder.build();
+        final String token = TokenUtil.sanitizeTokenString(deviceToken);
+
+        pushNotification = new SimpleApnsPushNotification(token, topic, payload);
+        return pushNotification;
+    }
+
+    private ApnsClient prepareClient(boolean sandbox) {
+        ApnsClient apnsClient = null;
+        if (sandbox) {
+            if (developmentApnsClient == null) {
+                try {
+                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+                    InputStream inputStream = classloader.getResourceAsStream("development.p12");
+                    developmentApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
+                            .setClientCredentials(inputStream, "2021")
+                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
+                } catch (Exception e) {
+                    throw new IllegalStateException("ios get pushy apns client failed!");
+                }
+            }
+            apnsClient = developmentApnsClient;
+        } else {
+            if (productionApnsClient == null) {
+                try {
+                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+                    InputStream inputStream = classloader.getResourceAsStream("production.p12");
+                    productionApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
+                            .setClientCredentials(inputStream, "2021")
+                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
+                } catch (Exception e) {
+                    throw new IllegalStateException("ios get pushy apns client failed!");
+                }
+            }
+            apnsClient = productionApnsClient;
+        }
+        return apnsClient;
     }
 }
