@@ -27,8 +27,8 @@ public class IOSPusher {
 
     private static final String topic = "xyz.eulix.space";
     private static final Semaphore semaphore = new Semaphore(10000);
-    private static ApnsClient developmentApnsClient = null;
-    private static ApnsClient productionApnsClient = null;
+    private ApnsClient developmentApnsClient;
+    private ApnsClient productionApnsClient;
 
     public IOSPusher() {
         {
