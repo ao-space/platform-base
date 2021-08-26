@@ -10,6 +10,7 @@ import com.eatthepath.pushy.apns.util.TokenUtil;
 import com.eatthepath.pushy.apns.util.concurrent.PushNotificationFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.support.log.Logged;
 
 import java.io.InputStream;
@@ -22,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class IOSPusher {
+    private static final Logger LOG = Logger.getLogger("app.log");
+
     private static final String topic = "xyz.eulix.space";
     private static final Semaphore semaphore = new Semaphore(10000);
     private static ApnsClient developmentApnsClient = null;
@@ -61,9 +64,9 @@ public class IOSPusher {
 
                 if (pushNotificationResponse.isAccepted()) {
                     successCnt.incrementAndGet();
-                    System.out.println("Push notification accepted by APNs gateway.");
+                    LOG.infof("Push notification accepted by APNs gateway.");
                 } else {
-                    System.out.println("Notification rejected by the APNs gateway: " +
+                    LOG.errorf("Notification rejected by the APNs gateway: " +
                             pushNotificationResponse.getRejectionReason());
 
                     pushNotificationResponse.getTokenInvalidationTimestamp().ifPresent(timestamp -> {
@@ -73,10 +76,10 @@ public class IOSPusher {
                 latch.countDown();
                 semaphore.release();
             } catch (final ExecutionException e) {
-                System.err.println("ExecutionException : Failed to send push notification.");
+                LOG.errorf("ExecutionException : Failed to send push notification.");
                 e.printStackTrace();
             } catch (final InterruptedException e) {
-                System.err.println("InterruptedException : Failed to send push notification.");
+                LOG.errorf("InterruptedException : Failed to send push notification.");
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
             }
@@ -94,17 +97,17 @@ public class IOSPusher {
             });
             try {
                 if (latch.await(20, TimeUnit.SECONDS)) {
-                    System.err.println("timeout with 20s");
+                    LOG.errorf("timeout with 20s");
                 }
             } catch (InterruptedException e) {
-                System.out.println("ios push latch await failed!");
+                LOG.errorf("ios push latch await failed!");
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException("ios push latch await failed!");
             }
         }
         long endPushTime = System.currentTimeMillis();
-        System.out.println("pushMessage success. total : [" + total + "] success : [" + (successCnt.get()) +
+        LOG.infof("pushMessage success. total : [" + total + "] success : [" + (successCnt.get()) +
                 "], total cost = " + (endPushTime - startTime) + ", pushCost = " + (endPushTime - startPushTime));
         return total == successCnt.get();
     }
