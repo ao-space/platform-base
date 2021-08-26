@@ -30,6 +30,33 @@ public class IOSPusher {
     private static ApnsClient developmentApnsClient = null;
     private static ApnsClient productionApnsClient = null;
 
+    public IOSPusher() {
+        {
+            try {
+                EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+                ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+                InputStream inputStream = classloader.getResourceAsStream("production.p12");
+                productionApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
+                        .setClientCredentials(inputStream, "2021")
+                        .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
+            } catch (Exception e) {
+                throw new IllegalStateException("ios get pushy apns client failed!");
+            }
+        }
+        {
+            try {
+                EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+                ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+                InputStream inputStream = classloader.getResourceAsStream("development.p12");
+                developmentApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
+                        .setClientCredentials(inputStream, "2021")
+                        .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
+            } catch (Exception e) {
+                throw new IllegalStateException("ios get pushy apns client failed!");
+            }
+        }
+    }
+
     @Logged
     public boolean push(final List<String> deviceTokens,
                         String alertTitle,
@@ -45,71 +72,79 @@ public class IOSPusher {
         final AtomicLong successCnt = new AtomicLong(0);
         long startPushTime = System.currentTimeMillis();
         for (String deviceToken : deviceTokens) {
-            final SimpleApnsPushNotification pushNotification;
-
-            pushNotification = getSimpleApnsPushNotification(alertTitle, alertBody, extParameters, deviceToken);
-
-            try {
-                semaphore.acquire();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("ios push get semaphore failed, deviceToken:{" + deviceToken + "}");
-            }
-            final PushNotificationFuture<SimpleApnsPushNotification, PushNotificationResponse<SimpleApnsPushNotification>>
-                    sendNotificationFuture = apnsClient.sendNotification(pushNotification);
-
-            try {
-                final PushNotificationResponse<SimpleApnsPushNotification> pushNotificationResponse =
-                        sendNotificationFuture.get();
-
-                if (pushNotificationResponse.isAccepted()) {
-                    successCnt.incrementAndGet();
-                    LOG.infof("Push notification accepted by APNs gateway.");
-                } else {
-                    LOG.errorf("Notification rejected by the APNs gateway: " +
-                            pushNotificationResponse.getRejectionReason());
-
-                    pushNotificationResponse.getTokenInvalidationTimestamp().ifPresent(timestamp -> {
-                        System.out.println("\t…and the token is invalid as of " + timestamp);
-                    });
-                }
-                latch.countDown();
-                semaphore.release();
-            } catch (final ExecutionException e) {
-                LOG.errorf("ExecutionException : Failed to send push notification.");
-                e.printStackTrace();
-            } catch (final InterruptedException e) {
-                LOG.errorf("InterruptedException : Failed to send push notification.");
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
-
-            sendNotificationFuture.whenComplete((response, cause) -> {
-                if (response != null) {
-                    // Handle the push notification response as before from here.
-                } else {
-                    // Something went wrong when trying to send the notification to the
-                    // APNs server. Note that this is distinct from a rejection from
-                    // the server, and indicates that something went wrong when actually
-                    // sending the notification or waiting for a reply.
-                    cause.printStackTrace();
-                }
-            });
-            try {
-                if (latch.await(20, TimeUnit.SECONDS)) {
-                    LOG.errorf("timeout with 20s");
-                }
-            } catch (InterruptedException e) {
-                LOG.errorf("ios push latch await failed!");
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("ios push latch await failed!");
-            }
+            pushToDevice(alertTitle, alertBody, extParameters, apnsClient, latch, successCnt, deviceToken);
         }
         long endPushTime = System.currentTimeMillis();
         LOG.infof("pushMessage success. total : [" + total + "] success : [" + (successCnt.get()) +
                 "], total cost = " + (endPushTime - startTime) + ", pushCost = " + (endPushTime - startPushTime));
         return total == successCnt.get();
+    }
+
+    private void pushToDevice(String alertTitle,
+                              String alertBody,
+                              HashMap<String, Object> extParameters,
+                              ApnsClient apnsClient,
+                              CountDownLatch latch,
+                              AtomicLong successCnt,
+                              String deviceToken) {
+        final SimpleApnsPushNotification pushNotification;
+        pushNotification = getSimpleApnsPushNotification(alertTitle, alertBody, extParameters, deviceToken);
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("ios push get semaphore failed, deviceToken:{" + deviceToken + "}");
+        }
+        final PushNotificationFuture<SimpleApnsPushNotification, PushNotificationResponse<SimpleApnsPushNotification>>
+                sendNotificationFuture = apnsClient.sendNotification(pushNotification);
+
+        try {
+            final PushNotificationResponse<SimpleApnsPushNotification> pushNotificationResponse =
+                    sendNotificationFuture.get();
+
+            if (pushNotificationResponse.isAccepted()) {
+                successCnt.incrementAndGet();
+                LOG.infof("Push notification accepted by APNs gateway.");
+            } else {
+                LOG.errorf("Notification rejected by the APNs gateway: " +
+                        pushNotificationResponse.getRejectionReason());
+
+                pushNotificationResponse.getTokenInvalidationTimestamp().ifPresent(timestamp -> {
+                    System.out.println("\t…and the token is invalid as of " + timestamp);
+                });
+            }
+            latch.countDown();
+            semaphore.release();
+        } catch (final ExecutionException e) {
+            LOG.errorf("ExecutionException : Failed to send push notification.");
+            e.printStackTrace();
+        } catch (final InterruptedException e) {
+            LOG.errorf("InterruptedException : Failed to send push notification.");
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        }
+
+        sendNotificationFuture.whenComplete((response, cause) -> {
+            if (response != null) {
+                // Handle the push notification response as before from here.
+            } else {
+                // Something went wrong when trying to send the notification to the
+                // APNs server. Note that this is distinct from a rejection from
+                // the server, and indicates that something went wrong when actually
+                // sending the notification or waiting for a reply.
+                cause.printStackTrace();
+            }
+        });
+        try {
+            if (latch.await(20, TimeUnit.SECONDS)) {
+                LOG.errorf("timeout with 20s");
+            }
+        } catch (InterruptedException e) {
+            LOG.errorf("ios push latch await failed!");
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("ios push latch await failed!");
+        }
     }
 
     private SimpleApnsPushNotification getSimpleApnsPushNotification(String alertTitle, String alertBody, HashMap<String, Object> extParameters, String deviceToken) {
@@ -131,32 +166,8 @@ public class IOSPusher {
     private ApnsClient prepareClient(boolean sandbox) {
         ApnsClient apnsClient = null;
         if (sandbox) {
-            if (developmentApnsClient == null) {
-                try {
-                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-                    InputStream inputStream = classloader.getResourceAsStream("development.p12");
-                    developmentApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
-                            .setClientCredentials(inputStream, "2021")
-                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
-                } catch (Exception e) {
-                    throw new IllegalStateException("ios get pushy apns client failed!");
-                }
-            }
             apnsClient = developmentApnsClient;
         } else {
-            if (productionApnsClient == null) {
-                try {
-                    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-                    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-                    InputStream inputStream = classloader.getResourceAsStream("production.p12");
-                    productionApnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
-                            .setClientCredentials(inputStream, "2021")
-                            .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
-                } catch (Exception e) {
-                    throw new IllegalStateException("ios get pushy apns client failed!");
-                }
-            }
             apnsClient = productionApnsClient;
         }
         return apnsClient;
