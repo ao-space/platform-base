@@ -90,6 +90,7 @@ public class IOSPusher {
             try {
                 semaphore.acquire();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new IllegalStateException("ios push get semaphore failed, deviceToken:{" + deviceToken + "}");
             }
             final PushNotificationFuture<SimpleApnsPushNotification, PushNotificationResponse<SimpleApnsPushNotification>>
@@ -118,6 +119,7 @@ public class IOSPusher {
             } catch (final InterruptedException e) {
                 System.err.println("InterruptedException : Failed to send push notification.");
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
 
             sendNotificationFuture.whenComplete((response, cause) -> {
@@ -132,10 +134,13 @@ public class IOSPusher {
                 }
             });
             try {
-                latch.await(20, TimeUnit.SECONDS);
+                if (latch.await(20, TimeUnit.SECONDS)) {
+                    System.out.println("timeout with 20s");
+                }
             } catch (InterruptedException e) {
                 System.out.println("ios push latch await failed!");
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
                 throw new IllegalStateException("ios push latch await failed!");
             }
         }
