@@ -11,9 +11,9 @@ public class NotifySessionInfo {
     @Getter
     private final Session session;
     ///登录超时时间，超过这个时间，则自动断开连接
-    private final long loginExpiredIntervalMillis = 5 * 1000;
+    private static final long LOGIN_EXPIRED_INTERVAL_MILLIS = 5 * 1000L;
     ///心跳超时时间，超过这个时间，则自动断开连接
-    private final long heartbeatExpiredIntervalMillis = 60 * 1000;
+    private static final long HEARTBEAT_EXPIRED_INTERVAL_MILLIS = 60 * 1000L;
     @Getter
     @Setter
     private String deviceId;
@@ -34,8 +34,8 @@ public class NotifySessionInfo {
     public boolean isActive() {
         long interval = System.currentTimeMillis() - activeTimestampMillis;
         if (deviceId == null) {
-            return interval < loginExpiredIntervalMillis;
+            return interval < LOGIN_EXPIRED_INTERVAL_MILLIS;
         }
-        return interval < heartbeatExpiredIntervalMillis;
+        return interval < HEARTBEAT_EXPIRED_INTERVAL_MILLIS;
     }
 }

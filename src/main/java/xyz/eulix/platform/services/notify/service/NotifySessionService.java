@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
+import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.notify.dto.NotifySessionInfo;
 import xyz.eulix.platform.services.notify.entity.NotifyMessage;
 import xyz.eulix.platform.services.notify.repository.NotifyMessageRepository;
@@ -24,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint("/{placeholder}")
 @ApplicationScoped
 public class NotifySessionService {
+
+    private static final Logger LOG = Logger.getLogger("app.log");
 
     @Inject
     NotifyMessageRepository messageRepository;
@@ -226,7 +229,7 @@ public class NotifySessionService {
     }
 
     private void logged(String message) {
-        System.out.println("broadcast : " + message);
+        LOG.infof("broadcast : " + message);
 //        sessions.values().forEach(session -> {
 //            session.getSession().getAsyncRemote().sendObject(message, result -> {
 //                if (result.getException() != null) {
@@ -239,7 +242,7 @@ public class NotifySessionService {
     private void notify(String message, Session session) {
         session.getAsyncRemote().sendObject(message, result -> {
             if (result.getException() != null) {
-                System.out.println("Unable to send message: " + result.getException());
+                LOG.errorf("Unable to send message: " + result.getException());
             }
         });
     }
@@ -262,7 +265,7 @@ public class NotifySessionService {
         if (info != null) {
             info.getSession().getAsyncRemote().sendObject(message, result -> {
                 if (result.getException() != null) {
-                    System.out.println("Unable to send message: " + result.getException());
+                    LOG.errorf("Unable to send message: " + result.getException());
                 }
             });
         }
