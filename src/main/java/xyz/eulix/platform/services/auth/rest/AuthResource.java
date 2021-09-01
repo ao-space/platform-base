@@ -1,10 +1,11 @@
 package xyz.eulix.platform.services.auth.rest;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.auth.dto.GenPkeyRsp;
-import xyz.eulix.platform.services.auth.dto.PollPkeyReq;
 import xyz.eulix.platform.services.auth.dto.PollPkeyRsp;
 import xyz.eulix.platform.services.auth.dto.TransBoxInfoReq;
 import xyz.eulix.platform.services.auth.entity.BoxInfoEntity;
@@ -15,6 +16,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
@@ -37,7 +40,7 @@ public class AuthResource {
     @Path("/auth/pkey/gen")
     @Logged
     @Operation(description = "Generate pkey for new client.")
-    public GenPkeyRsp pkeyGen(@Valid @NotBlank @HeaderParam("Request-Id") String requestId) {
+    public GenPkeyRsp pkeyGen(@NotBlank @HeaderParam("Request-Id") String requestId) {
         BoxInfoEntity boxInfoEntity = authService.genPkey();
         return GenPkeyRsp.of(boxInfoEntity.getPkey(), boxInfoEntity.getExpiresAt().toString());
     }
@@ -46,7 +49,7 @@ public class AuthResource {
     @Path("/auth/pkey/boxinfo")
     @Logged
     @Operation(description = "Receive box info from app(old client).")
-    public void boxinfoTrans(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
+    public void boxinfoTrans(@NotBlank @HeaderParam("Request-Id") String requestId,
                              @Valid TransBoxInfoReq boxInfoReq) {
         authService.saveBoxInfo(boxInfoReq);
     }
@@ -55,8 +58,10 @@ public class AuthResource {
     @Path("auth/pkey/poll")
     @Logged
     @Operation(description = "Poll box info by new client.")
-    public PollPkeyRsp pkeyPoll(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                                @Valid @NotBlank @QueryParam("pkey") String pkey) {
+    public PollPkeyRsp pkeyPoll(@NotBlank @HeaderParam("Request-Id") String requestId,
+                                @NotNull @Pattern(regexp = "[a-zA-Z0-9-]{36}")
+                                @Parameter(schema = @Schema(pattern = "[a-zA-Z0-9-]{36}"))
+                                @QueryParam("pkey") String pkey) {
         return authService.pollBoxInfo(pkey);
     }
 }
