@@ -154,7 +154,7 @@ $(function(){
 		document.getElementById("qrcode").style.cursor="pointer";	
 		document.getElementById("qrcode").setAttribute("onclick","document.location.reload()")		
 	}
-	window.setTimeout(clear,60000);
+	window.setTimeout(clear,300000);
 	
 	function poll(){
 	$.ajax({
@@ -172,7 +172,7 @@ $(function(){
 	});
 	
 	}
-	window.setInterval(poll,3000);
+	window.setInterval(poll,1000);
 
 })
 
