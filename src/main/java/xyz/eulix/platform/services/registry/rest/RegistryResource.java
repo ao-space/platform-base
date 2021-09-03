@@ -16,11 +16,10 @@ import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @RequestScoped
 @Path("/v1/api")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Platform Registry Service",
     description = "Provides box and client registry related APIs.")
 public class RegistryResource {
@@ -34,6 +33,8 @@ public class RegistryResource {
   @Logged
   @POST
   @Path("/registry")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   @Operation(description =
       "初始化注册盒子，建立盒子与客户端的绑定关系，成功后返回盒子和客户端的注册码，以及网络相关的穿透服务器信息。")
   public RegistryResult registry(@Valid RegistryInfo registryInfo,
@@ -43,8 +44,8 @@ public class RegistryResource {
       throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
     }
 
-    final RegistryEntity registry = registryService.findByBoxUUID(registryInfo.getBoxUUID());
-    if (registry == null) {
+    final Optional<RegistryEntity> rop = registryService.findByBoxUUID(registryInfo.getBoxUUID());
+    if (rop.isEmpty()) {
       final TunnelServer server = TunnelServer.of(
           properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
           TunnelServer.Auth.of("n/a", "n/a"));
@@ -56,13 +57,15 @@ public class RegistryResource {
           server
       );
     } else {
-      throw new WebApplicationException("box uuid had already registered. Pls reset and try again.");
+      throw new WebApplicationException("box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
     }
   }
 
   @Logged
   @POST
   @Path("/registry/reset")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   @Operation(description = "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。")
   public RegistryResetResult reset(@Valid RegistryResetInfo resetInfo,
                                    @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {

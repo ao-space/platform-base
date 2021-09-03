@@ -12,6 +12,7 @@ import xyz.eulix.platform.services.support.serialization.OperationUtils;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -39,9 +40,9 @@ public class RegistryService {
   @PostConstruct
   void init() {
     final String policy = properties.getRegistryBoxUUIDPolicy().trim();
-    if ("*".equals(policy)) {
+    if ("all".equals(policy)) {
       boxUUIDCheckByPass = true;
-    } else if (policy.startsWith("file$")) {
+    } else if (policy.startsWith("list$")) {
       boxUUIDWhiteSet.addAll(Splitter.on(",").trimResults().splitToList(policy.substring(5)));
     } else {
       throw new IllegalArgumentException("not support yet!");
@@ -56,26 +57,31 @@ public class RegistryService {
     }
   }
 
+  @Transactional
   public boolean verifyClient(String clientRegKey, String clientUUID) {
     Optional<RegistryEntity> rp = registryRepository.find(
         "client_uuid", clientUUID).singleResultOptional();
     return rp.filter(r -> clientRegKey.equals(r.getClientRegKey())).isPresent();
   }
 
+  @Transactional
   public boolean verifyBox(String boxRegKey, String boxUUID) {
     Optional<RegistryEntity> rp = registryRepository.find(
         "box_uuid", boxUUID).singleResultOptional();
     return rp.filter(r -> boxRegKey.equals(r.getBoxRegKey())).isPresent();
   }
 
+  @Transactional
   public void deleteByBoxRegKey(String key) {
     registryRepository.delete("box_reg_key", key);
   }
 
-  public RegistryEntity findByBoxUUID(String uuid) {
-    return registryRepository.find("box_uuid", uuid).singleResult();
+  @Transactional
+  public Optional<RegistryEntity> findByBoxUUID(String uuid) {
+    return registryRepository.find("box_uuid", uuid).singleResultOptional();
   }
 
+  @Transactional
   public RegistryEntity createRegistry(RegistryInfo info, TunnelServer server) {
     RegistryEntity entity = new RegistryEntity();
     {
@@ -84,7 +90,6 @@ public class RegistryService {
       entity.setBoxUUID(info.getBoxUUID());
       entity.setClientUUID(info.getClientUUID());
       entity.setSubdomain(info.getSubdomain() + "." + properties.getRegistrySubdomain());
-      entity.setState(RegistryEntity.State.READY);
       entity.setTunnelServer(utils.objectToJson(server));
     }
     registryRepository.persist(entity);

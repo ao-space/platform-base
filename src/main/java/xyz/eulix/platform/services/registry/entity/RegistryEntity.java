@@ -4,13 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import xyz.eulix.platform.services.support.model.BaseEntity;
-import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter @Setter @ToString(callSuper = true)
 @Entity @Table(name = "registries")
@@ -32,10 +30,6 @@ public class RegistryEntity extends BaseEntity {
   @Column(name = "client_uuid")
   private String clientUUID;
 
-  @NotNull
-  @ValueOfEnum(enumClass = State.class)
-  @Column(name = "state")
-  private State state;
 
   @NotBlank
   @Column(name = "subdomain")
@@ -55,16 +49,4 @@ public class RegistryEntity extends BaseEntity {
   @NotBlank
   @Column(name = "tunnel_server")
   private String tunnelServer;
-
-  public enum State {
-    READY, REVOKED,
-    ;
-    public boolean isRevoked() {
-      return this == REVOKED;
-    }
-
-    public boolean isReady() {
-      return this == READY;
-    }
-  }
 }
