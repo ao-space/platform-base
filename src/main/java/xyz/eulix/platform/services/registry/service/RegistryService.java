@@ -23,7 +23,7 @@ import java.util.Set;
 @ApplicationScoped
 public class RegistryService {
 
-  private final Random random = new Random();
+  private final Random random = new java.security.SecureRandom();
 
   @Inject
   ApplicationProperties properties;

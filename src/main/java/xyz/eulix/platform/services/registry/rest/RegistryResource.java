@@ -74,7 +74,7 @@ public class RegistryResource {
       registryService.deleteByBoxRegKey(resetInfo.getBoxRegKey());
       return RegistryResetResult.of(resetInfo.getBoxUUID());
     } else {
-      throw new WebApplicationException("invalid registry info", Response.Status.FORBIDDEN);
+      throw new WebApplicationException("invalid registry reset info", Response.Status.FORBIDDEN);
     }
   }
 
@@ -86,7 +86,7 @@ public class RegistryResource {
                             @NotBlank @QueryParam("key") @Schema(description = "盒子的注册 key。") String key) {
     final boolean match = registryService.verifyBox(key, uuid);
     if (!match) {
-      throw new WebApplicationException("invalid registry info", Response.Status.FORBIDDEN);
+      throw new WebApplicationException("invalid registry box verify info", Response.Status.FORBIDDEN);
     }
     return Response.ok().build();
   }
@@ -99,7 +99,7 @@ public class RegistryResource {
                                @NotBlank @QueryParam("key") @Schema(description = "客户端的注册 key。") String key) {
     final boolean match = registryService.verifyClient(key, uuid);
     if (!match) {
-      throw new WebApplicationException("invalid registry info", Response.Status.FORBIDDEN);
+      throw new WebApplicationException("invalid registry client verify info", Response.Status.FORBIDDEN);
     }
     return Response.ok().build();
   }
