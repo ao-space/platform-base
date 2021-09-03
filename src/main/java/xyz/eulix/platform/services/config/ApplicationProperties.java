@@ -27,6 +27,9 @@ public interface ApplicationProperties {
     @ConfigProperty(name = "registry.tunnel-server.port")
     int getRegistryTunnelServerPort();
 
+    @ConfigProperty(name = "registry.box-uuid-policy")
+    String getRegistryBoxUUIDPolicy();
+
     @ConfigProperty(name = "constant.speed-of-sound-in-meter-per-second", defaultValue = "343")
     int getSpeedOfSound();
 

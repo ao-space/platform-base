@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.registry.dto.registry;
 
 import lombok.Data;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
 
@@ -11,8 +12,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class RegistryResetInfo {
   @NotBlank
+  @Schema(description = "盒子的 UUID")
   private String boxUUID;
 
   @NotBlank
+  @Schema(description = "盒子的注册码")
   private String boxRegKey;
 }
