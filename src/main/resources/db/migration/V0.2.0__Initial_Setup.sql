@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS registries (
     client_reg_key VARCHAR(128) NOT NULL,
     box_uuid VARCHAR(128) NOT NULL,
     client_uuid VARCHAR(128) NOT NULL,
-    state VARCHAR(64) NOT NULL,
     subdomain VARCHAR(128) NOT NULL,
     tunnel_server VARCHAR(512) NOT NULL,
     created_at DATETIME,
