@@ -1,7 +1,6 @@
 package xyz.eulix.platform.services.auth.entity;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import xyz.eulix.platform.services.support.model.BaseEntity;
@@ -11,7 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 @Getter @Setter @ToString(callSuper = true)
 @Entity @Table(name = "box_info")
@@ -24,7 +23,7 @@ public class BoxInfoEntity extends BaseEntity {
     // pkey超时时间
     @NotNull
     @Column(name = "expires_at")
-    private Date expiresAt;
+    private OffsetDateTime expiresAt;
 
     // 登录box端的key
     @Column(name = "bkey")
