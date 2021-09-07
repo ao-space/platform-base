@@ -100,11 +100,9 @@ padding-bottom:3vh;
         <span class="pb">请使用</span> 
         <span class="pc">傲来空间App</span>
         <span class="pb">扫码登录</span>
-        <div class="img">
-			 
+        <div class="img">			 
 				<div id="qrcode" ></div> 
-				<img  class="pic" src="./img/denglu.png"/>
-			 
+				<img  class="pic" src="./img/denglu.png"/>			 
         </div> 
         <p class="pd">最新版傲来空间App-首页-扫一扫</p>
     </div>
@@ -117,48 +115,45 @@ padding-bottom:3vh;
 <script type="text/javascript">
 function requestId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16 | 0,
+        let r = Math.random() * 16 | 0,
             v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
 }
-
-var urlstr=document.location.toString();
-console.log(urlstr);
-
-$(function(){
-	var key;
+var key;
+function gen(){
 	$.ajax({
 		type: "get",
 		async:false,
-		//url: urlstr+"v1/api/auth/pkey/gen",		
+		dataType: "json",
+		//url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen",		
 		url: "/platform/v1/api/auth/pkey/gen",
 		headers: {
 			"request-Id": requestId()
 		},
 		success:function(result){
-		console.log(result);
-		key=result.pkey;
+			console.log(result);
+			key=result.pkey;
 		},
-		dataType: "json"
+
 	});
-	var qrcode = new QRCode(document.getElementById("qrcode"), {
+}
+gen();
+var qrcode = new QRCode(document.getElementById("qrcode"), {
 	width : 160,
 	height : 160,
 	});   
+qrcode.makeCode(key);
+function refresh(){
+	gen();
+	qrcode.clear();	
 	qrcode.makeCode(key);
-	function clear(){
-		qrcode.clear();	
-		//document.getElementById("qrcode").style.background="#fff  no-repeat 57px 37px url(./img/shibai.png)";	
-		document.getElementById("qrcode").style.background="#fff  no-repeat center  url(./img/shibai.png)";	
-		document.getElementById("qrcode").style.cursor="pointer";	
-		document.getElementById("qrcode").setAttribute("onclick","document.location.reload()")		
-	}
-	window.setTimeout(clear,300000);
-	
-	function poll(){
+}
+window.setInterval(refresh,300000);	
+function poll(){
 	$.ajax({
 		type: "get",
+		//url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen/poll?pkey="+key,
 		url: "/platform/v1/api/auth/pkey/poll?pkey="+key,
 		headers: {
 			"request-Id": requestId()
@@ -169,13 +164,8 @@ $(function(){
 		if(result.bkey!=null)
 			window.location.href="https://"+result.boxDomain+"/space/index.html?bkey="+result.bkey+"&publickey="+encodeURIComponent(result.boxPubKey);
 			}
-	});
-	
+	});	
 	}
-	window.setInterval(poll,1000);
-
-})
-
-
+window.setInterval(poll,1000);
 </script>
 </body>
