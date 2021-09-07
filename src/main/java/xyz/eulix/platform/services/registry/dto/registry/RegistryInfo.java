@@ -12,11 +12,11 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class RegistryInfo {
-  @NotNull
+  @NotBlank
   @Schema(description = "盒子的 UUID")
   private String boxUUID;
 
-  @NotNull
+  @NotBlank
   @Schema(description = "客户端的 UUID")
   private String clientUUID;
 

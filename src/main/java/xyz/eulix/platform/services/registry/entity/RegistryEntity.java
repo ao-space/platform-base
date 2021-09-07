@@ -30,23 +30,7 @@ public class RegistryEntity extends BaseEntity {
   @Column(name = "client_uuid")
   private String clientUUID;
 
-
   @NotBlank
   @Column(name = "subdomain")
   private String subdomain;
-
-  /**
-   * The tunnel sever info (Json format):
-   * {
-   *   "address" : "",
-   *   "port" : "",
-   *   "auth": {
-   *     "clientId": "",
-   *     "secretKey": ""
-   *   }
-   * }
-   */
-  @NotBlank
-  @Column(name = "tunnel_server")
-  private String tunnelServer;
 }

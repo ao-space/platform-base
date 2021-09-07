@@ -36,7 +36,7 @@ public class RegistryResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   @Operation(description =
-      "初始化注册盒子，建立盒子与客户端的绑定关系，成功后返回盒子和客户端的注册码，以及网络相关的穿透服务器信息。")
+      "初始化注册盒子，建立盒子与客户端的绑定关系，成功后返回盒子和客户端的注册码，以及网络相关的服务器信息。")
   public RegistryResult registry(@Valid RegistryInfo registryInfo,
                                  @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
     final boolean validBoxUUID = registryService.isValidBoxUUID(registryInfo.getBoxUUID());
@@ -49,15 +49,11 @@ public class RegistryResource {
       final TunnelServer server = TunnelServer.of(
           properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
           TunnelServer.Auth.of("n/a", "n/a"));
-      final RegistryEntity re = registryService.createRegistry(registryInfo, server);
-      return RegistryResult.of(
-          re.getClientRegKey(),
-          re.getBoxRegKey(),
-          re.getSubdomain(),
-          server
-      );
+      final RegistryEntity re = registryService.createRegistry(registryInfo);
+      return RegistryResult.of(re.getClientRegKey(), re.getBoxRegKey(), re.getSubdomain(), server);
     } else {
-      throw new WebApplicationException("box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
+      throw new WebApplicationException(
+          "box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
     }
   }
 
