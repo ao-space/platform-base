@@ -4,10 +4,9 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryInfo;
-import xyz.eulix.platform.services.registry.dto.registry.TunnelServer;
 import xyz.eulix.platform.services.registry.entity.RegistryEntity;
 import xyz.eulix.platform.services.registry.repository.RegistryEntityRepository;
-import xyz.eulix.platform.services.support.serialization.OperationUtils;
+import xyz.eulix.platform.services.support.Utils;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -23,16 +22,11 @@ import java.util.Set;
 @ApplicationScoped
 public class RegistryService {
 
-  private final Random random = new java.security.SecureRandom();
-
   @Inject
   ApplicationProperties properties;
 
   @Inject
   RegistryEntityRepository registryRepository;
-
-  @Inject
-  OperationUtils utils;
 
   private volatile boolean boxUUIDCheckByPass = false;
   private final Set<String> boxUUIDWhiteSet = Sets.newConcurrentHashSet();
@@ -82,29 +76,17 @@ public class RegistryService {
   }
 
   @Transactional
-  public RegistryEntity createRegistry(RegistryInfo info, TunnelServer server) {
+  public RegistryEntity createRegistry(RegistryInfo info) {
     RegistryEntity entity = new RegistryEntity();
     {
-      entity.setBoxRegKey("brk_" + unifiedRandomCharters(8));
-      entity.setClientRegKey("crk_" + unifiedRandomCharters(8));
+      entity.setBoxRegKey("brk_" + Utils.createUnifiedRandomCharacters(10));
+      entity.setClientRegKey("crk_" + Utils.createUnifiedRandomCharacters(10));
       entity.setBoxUUID(info.getBoxUUID());
       entity.setClientUUID(info.getClientUUID());
       entity.setSubdomain(info.getSubdomain() + "." + properties.getRegistrySubdomain());
-      entity.setTunnelServer(utils.objectToJson(server));
     }
     registryRepository.persist(entity);
     return entity;
-  }
-
-  private String unifiedRandomCharters(int length) {
-    int startChar = '0';
-    int endChar = 'z';
-
-    return random.ints(startChar, endChar + 1)
-        .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-        .limit(length)
-        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-        .toString();
   }
 
 }
