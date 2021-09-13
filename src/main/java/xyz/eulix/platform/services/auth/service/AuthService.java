@@ -11,6 +11,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -36,8 +37,8 @@ public class AuthService {
             LOG.warnv("pkey is invalid, pkey:{0}", boxInfoReq.getPkey());
             throw new ServiceOperationException(ServiceError.PKEY_INVALID);
         }
-        Date now = new Date(System.currentTimeMillis());
-        if (now.after(boxInfoEntity.getExpiresAt())) {
+        OffsetDateTime now = OffsetDateTime.now();
+        if (now.isAfter(boxInfoEntity.getExpiresAt())) {
             LOG.infov("pkey is expired, pkey:{0}", boxInfoReq.getPkey());
             throw new ServiceOperationException(ServiceError.PKEY_EXPIRED);
         }
@@ -74,7 +75,7 @@ public class AuthService {
         // 生成pkey
         String uuid = UUID.randomUUID().toString();
         boxInfoEntity.setPkey(uuid);
-        Date expiresAt = new Date(System.currentTimeMillis() + PKEY_EXPIRE_TIME_MIN * 60 * 1000);
+        OffsetDateTime expiresAt = OffsetDateTime.now().plusMinutes(PKEY_EXPIRE_TIME_MIN);
         boxInfoEntity.setExpiresAt(expiresAt);
         // 保存pkey
         boxInfoEntityRepository.persist(boxInfoEntity);

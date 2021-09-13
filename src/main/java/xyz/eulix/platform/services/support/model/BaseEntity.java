@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 /**
  * Used to define a base entity from which you can derive your own entity.
@@ -37,11 +37,11 @@ public abstract class BaseEntity {
 
   @Column(name = "created_at")
   @CreationTimestamp
-  private Date createdAt;
+  private OffsetDateTime createdAt;
 
   @Column(name = "updated_at")
   @UpdateTimestamp
-  private Date updatedAt;
+  private OffsetDateTime updatedAt;
 
   @Column(name = "version")
   @Version

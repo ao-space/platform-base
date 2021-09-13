@@ -42,7 +42,7 @@ public class AuthResource {
     @Operation(description = "Generate pkey for new client.")
     public GenPkeyRsp pkeyGen(@NotBlank @HeaderParam("Request-Id") String requestId) {
         BoxInfoEntity boxInfoEntity = authService.genPkey();
-        return GenPkeyRsp.of(boxInfoEntity.getPkey(), boxInfoEntity.getExpiresAt().toString());
+        return GenPkeyRsp.of(boxInfoEntity.getPkey(), boxInfoEntity.getExpiresAt());
     }
 
     @POST
