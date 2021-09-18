@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.appmgt.rest;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -37,20 +38,20 @@ public class AppMgtResource {
     @Path("/appinfo/check")
     @Logged
     @Operation(description = "Check app version for client.")
-    public AppInfoCheckRes appInfoCheck(@NotBlank @HeaderParam("Request-Id") String requestId,
-                                        @NotBlank @QueryParam("app_name") String appName,
+    public AppInfoCheckRes appInfoCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                        @NotBlank @Parameter(required = true) @QueryParam("bundle_id") String bundleId,
                                         @NotNull @ValueOfEnum(enumClass = AppTypeEnum.class, valueMethod = "getName")
-                                        @QueryParam("app_type") String appType,
-                                        @Pattern(regexp = "[0-9\\.]{0,20}") @Parameter(schema = @Schema(pattern = "[0-9\\.]{0,20}"),
+                                            @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"})) @QueryParam("platform") String platform,
+                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9\\.]{0,20}") @Parameter(required = true, schema = @Schema(type = SchemaType.STRING, pattern = "[a-zA-Z0-9\\.]{0,20}"),
                                                 description = "当前版本") @QueryParam("cur_version") String curVersion) {
-        return appMgtService.checkAppInfo(appName, appType, curVersion);
+        return appMgtService.checkAppInfo(bundleId, platform, curVersion);
     }
 
     @POST
     @Path("/appinfo")
     @Logged
     @Operation(description = "Add app info.")
-    public AppInfoRes appInfoSave(@NotBlank @HeaderParam("Request-Id") String requestId,
+    public AppInfoRes appInfoSave(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                   @Valid AppInfoReq appInfoReq) {
         return appMgtService.saveAppinfo(appInfoReq);
     }
@@ -59,13 +60,13 @@ public class AppMgtResource {
     @Path("/appinfo")
     @Logged
     @Operation(description = "Delete app info.")
-    public BaseResultRes appInfoDel(@NotBlank @HeaderParam("Request-Id") String requestId,
-                                    @NotBlank @QueryParam("app_name") String appName,
+    public BaseResultRes appInfoDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                    @NotBlank @Parameter(required = true) @QueryParam("bundle_id") String bundleId,
                                     @NotNull @ValueOfEnum(enumClass = AppTypeEnum.class, valueMethod = "getName")
-                                        @QueryParam("app_type") String appType,
-                                    @NotNull @Pattern(regexp = "[0-9\\.]{0,20}") @Parameter(schema = @Schema(pattern = "[0-9\\.]{0,20}"))
+                                        @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"})) @QueryParam("platform") String platform,
+                                    @NotNull @Pattern(regexp = "[a-zA-Z0-9\\.]{0,20}") @Parameter(required = true, schema = @Schema(type = SchemaType.STRING, pattern = "[a-zA-Z0-9\\.]{0,20}"))
                                         @QueryParam("app_version") String appVersion) {
-        appMgtService.delAppinfo(appName, appType, appVersion);
+        appMgtService.delAppinfo(bundleId, platform, appVersion);
         return BaseResultRes.of(true);
     }
 }
