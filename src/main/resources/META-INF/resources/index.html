@@ -1,171 +1,174 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="utf-8"> 
-<meta name="robots" content="noindex, nofollow">
-<script type="text/javascript" src="./js/jquery.min.js"></script>
-<script type="text/javascript" src="./js/qrcode.min.js"></script>
-<style type="text/css">
-body
-{
-  background-image: url(./img/bg.png);
-  background-repeat:no-repeat;
-  background-attachment:fixed;
-  background-position:center; 
-  background-size: 100% 100%;   
-  height: 100vh;
-  margin:0px;
-}
-.log
-{
-  text-align: left;
-  height:7.7vh;
-  padding:1vh;
-}
-.login
-{
-  width: 47vw;
-  height: 47vh;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 0.7px;
-  margin-left: 27vw;
-  padding-top:3vh;
-  margin-top: 13vh;  
-  text-align:center;
-}
-.pa
-{
-  line-height:1.7;
-  font-size:1vw;
-  font-weight: bold;
-  color: #333333;
-  margin-block-start: 7px;
-  margin-block-end:7px;
-}
-.pb
-{
-  line-height:1;
-  font-size:13px;
-  color: #333333;
-  margin-bottom:3vh;
-}
-.pc
-{
-  line-height:1;
-  font-size:13px;
-  color: #337AFF;
-}
-.pd
-{
-  line-height:1;
-  font-size:13px;
-  color: #85899C;
-}
-.img{
-padding-top:3vh;
-padding-bottom:3vh;
-}
-#qrcode {
-  width:160px;
-  height:160px;
-  display: inline-block;
-}  
-.pic
-{
-  width:160px;
-  height:160px;;
-  display:inline;
-}
-.foot
-{
-  text-align:center;
-  position: fixed;
-  left:0px; 
-  right:0px; 
-  bottom:0px;
-  padding-bottom:3vh;
-  list-style:none;
-  color:#85899C;
-}
-</style>
-</head>
-
-<body>
-    <nav>
-		<img class="log" src="./img/logo.png"/>
-    </nav>
-	
-    <div class="login">
-        <p class="pa">扫一扫登录</p>
-        <span class="pb">请使用</span> 
-        <span class="pc">傲来空间App</span>
-        <span class="pb">扫码登录</span>
-        <div class="img">			 
-				<div id="qrcode" ></div> 
-				<img  class="pic" src="./img/denglu.png"/>			 
-        </div> 
-        <p class="pd">最新版傲来空间App-首页-扫一扫</p>
-    </div>
-  
-	<footer class="foot">
-          <li>帮助 | 隐私 | 条款</li>
-          <li>copyright &copy 2020-2021 中国科学院软件研究所</li>
-	</footer>
-
-<script type="text/javascript">
-function requestId() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-var key;
-function gen(){
-	$.ajax({
-		type: "get",
-		async:false,
-		dataType: "json",
-		//url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen",		
-		url: "/platform/v1/api/auth/pkey/gen",
-		headers: {
-			"request-Id": requestId()
-		},
-		success:function(result){
-			console.log(result);
-			key=result.pkey;
-		},
-
-	});
-}
-gen();
-var qrcode = new QRCode(document.getElementById("qrcode"), {
-	width : 160,
-	height : 160,
-	});   
-qrcode.makeCode(key);
-function refresh(){
-	gen();
-	qrcode.clear();	
-	qrcode.makeCode(key);
-}
-window.setInterval(refresh,300000);	
-function poll(){
-	$.ajax({
-		type: "get",
-		//url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen/poll?pkey="+key,
-		url: "/platform/v1/api/auth/pkey/poll?pkey="+key,
-		headers: {
-			"request-Id": requestId()
-		},
-		success:function(result){
-		console.log(result);
-		console.log(result.boxDomain);
-		if(result.bkey!=null)
-			window.location.href="https://"+result.boxDomain+"/space/index.html?bkey="+result.bkey+"&publickey="+encodeURIComponent(result.boxPubKey);
+	<head>
+		<meta charset="utf-8" />
+		<meta name="robots" content="noindex, nofollow" />
+		<script type="text/javascript" src="./js/jquery.min.js"></script>
+		<script type="text/javascript" src="./js/qrcode.min.js"></script>
+		<style type="text/css">
+			body {
+				background-image: url(./img/bg.png);
+				background-repeat: no-repeat;
+				background-attachment: fixed;
+				background-position: center;
+				background-size: 100% 100%;
+				height: 100vh;
+				margin: 0px;
 			}
-	});	
-	}
-window.setInterval(poll,1000);
-</script>
-</body>
+			.log {
+				text-align: left;
+				height: 7.7vh;
+				padding: 1vh;
+			}
+			.login {
+				width: 47vw;
+				height: 47vh;
+				background: rgba(255, 255, 255, 0.7);
+				border-radius: 0.7px;
+				margin-left: 27vw;
+				padding-top: 3vh;
+				margin-top: 13vh;
+				text-align: center;
+			}
+			.pa {
+				line-height: 1.7;
+				font-size: 1vw;
+				font-weight: bold;
+				color: #333333;
+				margin-block-start: 7px;
+				margin-block-end: 7px;
+			}
+			.pb {
+				line-height: 1;
+				font-size: 13px;
+				color: #333333;
+				margin-bottom: 3vh;
+			}
+			.pc {
+				line-height: 1;
+				font-size: 13px;
+				color: #337aff;
+			}
+			.pd {
+				line-height: 1;
+				font-size: 13px;
+				color: #85899c;
+			}
+			.img {
+				padding-top: 3vh;
+				padding-bottom: 3vh;
+			}
+			#qrcode {
+				width: 160px;
+				height: 160px;
+				display: inline-block;
+			}
+			.pic {
+				width: 160px;
+				height: 160px;
+				display: inline;
+			}
+			.foot {
+				text-align: center;
+				position: fixed;
+				left: 0px;
+				right: 0px;
+				bottom: 0px;
+				padding-bottom: 3vh;
+				list-style: none;
+				color: #85899c;
+			}
+		</style>
+	</head>
+
+	<body>
+		<nav>
+			<img class="log" src="./img/logo.png" />
+		</nav>
+
+		<div class="login">
+			<p class="pa">扫一扫登录</p>
+			<span class="pb">请使用</span>
+			<span class="pc">傲来空间App</span>
+			<span class="pb">扫码登录</span>
+			<div class="img">
+				<div id="qrcode"></div>
+				<img class="pic" src="./img/denglu.png" />
+			</div>
+			<p class="pd">最新版傲来空间App-首页-扫一扫</p>
+		</div>
+
+		<footer class="foot">
+			<li>帮助 | 隐私 | 条款</li>
+			<li>copyright &copy 2020-2021 中国科学院软件研究所</li>
+		</footer>
+
+		<script type="text/javascript">
+			function requestId() {
+				return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+					/[xy]/g,
+					function (c) {
+						let r = (Math.random() * 16) | 0,
+							v = c == "x" ? r : (r & 0x3) | 0x8;
+						return v.toString(16);
+					}
+				);
+			}
+			var key;
+			function gen() {
+				$.ajax({
+					type: "get",
+					async: false,
+					dataType: "json",
+					url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen",
+					// url: "/platform/v1/api/auth/pkey/gen",
+					headers: {
+						"request-Id": requestId(),
+					},
+					success: function (result) {
+						console.log(result);
+						key = result.pkey;
+					},
+				});
+			}
+			gen();
+			var qrcode = new QRCode(document.getElementById("qrcode"), {
+				width: 160,
+				height: 160,
+			});
+			qrcode.makeCode(key);
+			function refresh() {
+				gen();
+				qrcode.clear();
+				qrcode.makeCode(key);
+			}
+			window.setInterval(refresh, 300000);
+			let tmp = window.setInterval(poll, 1000);
+			function poll() {
+				$.ajax({
+					type: "get",
+					//url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen/poll?pkey="+key,
+					url: "/platform/v1/api/auth/pkey/poll?pkey=" + key,
+					headers: {
+						"request-Id": requestId(),
+					},
+					success: function (result) {
+						console.log(result);
+						console.log(result.boxDomain);
+						if (result.bkey != null) {
+							tmp && clearInterval(tmp);
+							window.location.href =
+								"https://" +
+								result.boxDomain +
+								"/space/index.html?bkey=" +
+								result.bkey +
+								"&publickey=" +
+								encodeURIComponent(result.boxPubKey) +
+								"#/login";
+						}
+					},
+				});
+			}
+		</script>
+	</body>
+</html>
