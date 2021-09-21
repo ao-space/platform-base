@@ -7,10 +7,10 @@ import javax.validation.constraints.*;
 @Data(staticConstructor = "of")
 public class AppInfoRes {
     // App名称
-    private final String appName;
+    private final String bundleId;
 
     // App类型 ios、android
-    private final String appType;
+    private final String platform;
 
     // 版本号 长度0-20个字符
     private final String appVersion;
