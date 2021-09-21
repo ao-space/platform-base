@@ -9,20 +9,21 @@ import javax.validation.constraints.*;
 
 @Data(staticConstructor = "of")
 public class AppInfoReq {
-    // App名称
+    // App标识符
     @NotBlank
-    private String appName;
+    @Schema(required = true)
+    private String bundleId;
 
     // App类型 ios、android
     @NotNull
     @ValueOfEnum(enumClass = AppTypeEnum.class, valueMethod = "getName")
     @Schema(enumeration = {"android", "ios"})
-    private String appType;
+    private String platform;
 
     // 版本号 长度0-20个字符
     @NotNull
-    @Pattern(regexp = "[0-9\\.]{0,20}")
-    @Schema(pattern = "[0-9\\.]{0,20}", description = "版本号")
+    @Pattern(regexp = "[a-zA-Z0-9\\.]{0,20}")
+    @Schema(pattern = "[a-zA-Z0-9\\.]{0,20}", description = "版本号")
     private String appVersion;
 
     // 版本文件大小(字节)，最大10GB
@@ -33,15 +34,15 @@ public class AppInfoReq {
 
     // 下载url
     @NotBlank
+    @Schema(required = true)
     private String downloadUrl;
 
     // 更新文案/版本特性 长度0-10000个字符
-    @Size(max = 10)
+    @Size(max = 10000)
     @Schema(description = "版本特性")
     private String updateDesc;
 
     // md5
-    @NotNull
     @Pattern(regexp = "[0-9a-fA-F]{32}")
     @Schema(pattern = "[0-9a-fA-F]{32}")
     private String md5;

@@ -33,11 +33,11 @@ public class AppMgtService {
     @Transactional
     public AppInfoRes saveAppinfo(AppInfoReq appInfoReq) {
         // 校验版本是否存在
-        AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getAppName(),
-                appInfoReq.getAppType(), appInfoReq.getAppVersion());
+        AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getBundleId(),
+                appInfoReq.getPlatform(), appInfoReq.getAppVersion());
         if (appInfoEntityOld != null) {
-            LOG.debugv("illeagal app version, appName:{0}, appType:{1}, appVersion:{2}", appInfoReq.getAppName(),
-                    appInfoReq.getAppType(), appInfoReq.getAppVersion());
+            LOG.debugv("illeagal app version, appName:{0}, appType:{1}, appVersion:{2}", appInfoReq.getBundleId(),
+                    appInfoReq.getPlatform(), appInfoReq.getAppVersion());
             throw new ServiceOperationException(ServiceError.APP_VERSION_EXISTED);
         }
         AppInfoEntity appInfoEntity = appInfoReqToEntity(appInfoReq);
@@ -69,8 +69,8 @@ public class AppMgtService {
         // 校验当前版本
         AppInfoEntity appInfoEntity = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appName, appType, curVersion);
         if (appInfoEntity == null) {
-            LOG.errorv("illeagal app version, appName:{0}, appType:{1}, appVersion:{2}", appName, appType, curVersion);
-            throw new ServiceOperationException(ServiceError.APP_VERSION_INVALID);
+            LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", appName, appType, curVersion);
+            return AppInfoCheckRes.of(appName, appType, null, null, null, null, null);
         }
         // 查询最新版本
         AppInfoEntity newestAppInfoEntity = appInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appName, appType);
@@ -114,8 +114,8 @@ public class AppMgtService {
     }
 
     private AppInfoEntity appInfoReqToEntity(AppInfoReq appInfoReq) {
-        return AppInfoEntity.of(appInfoReq.getAppName(),
-                appInfoReq.getAppType(),
+        return AppInfoEntity.of(appInfoReq.getBundleId(),
+                appInfoReq.getPlatform(),
                 appInfoReq.getAppVersion(),
                 appInfoReq.getAppSize(),
                 appInfoReq.getDownloadUrl(),

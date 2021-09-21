@@ -48,7 +48,6 @@ public class AppInfoEntity extends BaseEntity {
     private String updateDesc;
 
     // md5
-    @NotNull
     @Column(name = "md5")
     private String md5;
 
