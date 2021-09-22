@@ -23,7 +23,7 @@ public enum ServiceError {
   PKEY_INVALID(2000, "pkey is invalid"),
   PKEY_EXPIRED(2001, "pkey has expired"),
 
-  APP_VERSION_INVALID(2002, "app version invalid error"),
+  APP_VERSION_NOT_EXIST(2002, "app version does not exist"),
   APP_VERSION_EXISTED(2003, "app version has already existed"),
   ;
 

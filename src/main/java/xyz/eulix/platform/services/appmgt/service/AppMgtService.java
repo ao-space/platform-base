@@ -36,13 +36,35 @@ public class AppMgtService {
         AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getBundleId(),
                 appInfoReq.getPlatform(), appInfoReq.getAppVersion());
         if (appInfoEntityOld != null) {
-            LOG.debugv("illeagal app version, appName:{0}, appType:{1}, appVersion:{2}", appInfoReq.getBundleId(),
+            LOG.warnv("app version already exist, appName:{0}, appType:{1}, appVersion:{2}", appInfoReq.getBundleId(),
                     appInfoReq.getPlatform(), appInfoReq.getAppVersion());
             throw new ServiceOperationException(ServiceError.APP_VERSION_EXISTED);
         }
         AppInfoEntity appInfoEntity = appInfoReqToEntity(appInfoReq);
         appInfoEntityRepository.persist(appInfoEntity);
 
+        return appInfoEntityToRes(appInfoEntity);
+    }
+
+
+    /**
+     * 更新app版本
+     *
+     * @param appInfoReq app版本信息
+     * @return app版本信息
+     */
+    @Transactional
+    public AppInfoRes updateAppinfo(AppInfoReq appInfoReq) {
+        // 校验版本是否存在
+        AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getBundleId(),
+                appInfoReq.getPlatform(), appInfoReq.getAppVersion());
+        if (appInfoEntityOld == null) {
+            LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", appInfoReq.getBundleId(),
+                    appInfoReq.getPlatform(), appInfoReq.getAppVersion());
+            throw new ServiceOperationException(ServiceError.APP_VERSION_NOT_EXIST);
+        }
+        AppInfoEntity appInfoEntity = appInfoReqToEntity(appInfoReq);
+        appInfoEntityRepository.updateByAppNameAndTypeAndVersion(appInfoEntity);
         return appInfoEntityToRes(appInfoEntity);
     }
 

@@ -56,6 +56,15 @@ public class AppMgtResource {
         return appMgtService.saveAppinfo(appInfoReq);
     }
 
+    @PUT
+    @Path("/appinfo")
+    @Logged
+    @Operation(description = "Update app info.")
+    public AppInfoRes appInfoUpdate(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                  @Valid AppInfoReq appInfoReq) {
+        return appMgtService.updateAppinfo(appInfoReq);
+    }
+
     @DELETE
     @Path("/appinfo")
     @Logged
