@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.appmgt.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data(staticConstructor = "of")
@@ -14,10 +15,10 @@ public class AppInfoCheckRes {
     private Boolean isForceUpdate = false;
 
     // App名称
-    private final String appName;
+    private final String bundleId;
 
     // App类型
-    private final String appType;
+    private final String platform;
 
     // 最新版本号
     @Schema(description = "最新版本号")
