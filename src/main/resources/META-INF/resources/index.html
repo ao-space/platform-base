@@ -116,11 +116,14 @@
 			}
 			var key;
 			function gen() {
+				var timeStamp = new Date().getTime();
 				$.ajax({
 					type: "get",
 					async: false,
 					dataType: "json",
-					url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen",
+					url:
+						"https://services.eulix.xyz/platform/v1/api/auth/pkey/gen?timeStamp=" +
+						timeStamp,
 					// url: "/platform/v1/api/auth/pkey/gen",
 					headers: {
 						"request-Id": requestId(),
