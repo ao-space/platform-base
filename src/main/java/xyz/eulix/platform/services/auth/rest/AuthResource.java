@@ -56,7 +56,7 @@ public class AuthResource {
     }
 
     @GET
-    @Path("auth/pkey/poll")
+    @Path("/auth/pkey/poll")
     @Logged
     @Operation(description = "Poll box info by new client.")
     public PollPkeyRsp pkeyPoll(@NotBlank @HeaderParam("Request-Id") String requestId,

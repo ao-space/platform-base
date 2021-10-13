@@ -3,6 +3,7 @@ package xyz.eulix.platform.services.registry.rest;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.RegistryEntity;
@@ -16,6 +17,7 @@ import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 
 @RequestScoped
@@ -23,6 +25,7 @@ import java.util.Optional;
 @Tag(name = "Platform Registry Service",
     description = "Provides box and client registry related APIs.")
 public class RegistryResource {
+  private static final Logger LOG = Logger.getLogger("app.log");
 
   @Inject
   RegistryService registryService;
@@ -59,6 +62,44 @@ public class RegistryResource {
 
   @Logged
   @POST
+  @Path("/registry/client")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(description = "注册新客户端，建立盒子与客户端的绑定关系，成功后返回客户端的注册码，以及网络相关的服务器信息。")
+  public ClientRegistryResult registryClient(@Valid ClientRegistryInfo registryInfo,
+                                       @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
+    // 校验boxUuid有效性
+    final boolean validBoxUUID = registryService.isValidBoxUUID(registryInfo.getBoxUUID());
+    if (!validBoxUUID) {
+      LOG.warnv("invalid box uuid, boxUuid:{0}", registryInfo.getBoxUUID());
+      throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
+    }
+    // 校验boxUuid是否存在
+    final List<RegistryEntity> registryEntityList = registryService.findAllByBoxUUIDAndBoxRegKey(registryInfo.getBoxUUID(),
+            registryInfo.getBoxRegKey());
+    if (registryEntityList.isEmpty()) {
+      LOG.warnv("box uuid had not registered, boxUuid:{0}", registryInfo.getBoxUUID());
+      throw new WebApplicationException("box uuid had not registered. Pls register box.", Response.Status.FORBIDDEN);
+    }
+    // 过滤clientUuid
+    Optional<RegistryEntity> clientRegistryOp = registryEntityList.stream()
+            .filter(entity -> entity.getClientUUID().equals(registryInfo.getClientUUID()))
+            .findFirst();
+    if (clientRegistryOp.isPresent()) {
+      LOG.warnv("client uuid had already registered, boxUuid:{0}, clientUuid:{1}", registryInfo.getBoxUUID(),
+              registryInfo.getClientUUID());
+      throw new WebApplicationException("client uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
+    }
+
+    final TunnelServer server = TunnelServer.of(
+            properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
+            TunnelServer.Auth.of("n/a", "n/a"));
+    final RegistryEntity re = registryService.createClientRegistry(registryEntityList.get(0), registryInfo.getClientUUID());
+    return ClientRegistryResult.of(re.getClientRegKey(), re.getSubdomain(), server);
+  }
+
+  @Logged
+  @POST
   @Path("/registry/reset")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
@@ -67,10 +108,28 @@ public class RegistryResource {
                                    @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
     final boolean match = registryService.verifyBox(resetInfo.getBoxRegKey(), resetInfo.getBoxUUID());
     if (match) {
-      registryService.deleteByBoxRegKey(resetInfo.getBoxRegKey());
+      registryService.deleteByBoxUUID(resetInfo.getBoxUUID());
       return RegistryResetResult.of(resetInfo.getBoxUUID());
     } else {
       throw new WebApplicationException("invalid registry reset info", Response.Status.FORBIDDEN);
+    }
+  }
+
+  @Logged
+  @POST
+  @Path("/registry/client/reset")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(description = "重置客户端绑定关系，重置后可以为客户端重新注册绑定关系。")
+  public ClientRegistryResetResult clientReset(@Valid ClientRegistryResetInfo clientResetInfo,
+                                   @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
+    final boolean isExist = registryService.verifyClient(clientResetInfo.getClientRegKey(), clientResetInfo.getClientUUID());
+    if (isExist) {
+      registryService.deleteByClientUUID(clientResetInfo.getClientUUID());
+      return ClientRegistryResetResult.of(clientResetInfo.getClientUUID());
+    } else {
+      LOG.warnv("client uuid had not registered, clientUuid:{0}", clientResetInfo.getClientUUID());
+      throw new WebApplicationException("invalid client registry reset info", Response.Status.FORBIDDEN);
     }
   }
 

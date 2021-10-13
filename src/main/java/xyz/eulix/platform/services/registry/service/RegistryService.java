@@ -12,6 +12,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -58,21 +60,28 @@ public class RegistryService {
     return rp.filter(r -> clientRegKey.equals(r.getClientRegKey())).isPresent();
   }
 
-  @Transactional
   public boolean verifyBox(String boxRegKey, String boxUUID) {
-    Optional<RegistryEntity> rp = registryRepository.find(
-        "box_uuid", boxUUID).singleResultOptional();
-    return rp.filter(r -> boxRegKey.equals(r.getBoxRegKey())).isPresent();
+    List<RegistryEntity> registryEntities = findAllByBoxUUIDAndBoxRegKey(boxUUID, boxRegKey);
+    return !registryEntities.isEmpty();
   }
 
   @Transactional
-  public void deleteByBoxRegKey(String key) {
-    registryRepository.delete("box_reg_key", key);
+  public void deleteByBoxUUID(String boxUUID) {
+    registryRepository.delete("box_uuid", boxUUID);
+  }
+
+  @Transactional
+  public void deleteByClientUUID(String clientUUID) {
+    registryRepository.delete("client_uuid", clientUUID);
   }
 
   @Transactional
   public Optional<RegistryEntity> findByBoxUUID(String uuid) {
     return registryRepository.find("box_uuid", uuid).singleResultOptional();
+  }
+
+  public List<RegistryEntity> findAllByBoxUUIDAndBoxRegKey(String boxUuid, String boxRegKey) {
+    return registryRepository.findAllByBoxUUIDAndBoxRegKey(boxUuid, boxRegKey);
   }
 
   @Transactional
@@ -84,6 +93,20 @@ public class RegistryService {
       entity.setBoxUUID(info.getBoxUUID());
       entity.setClientUUID(info.getClientUUID());
       entity.setSubdomain(info.getSubdomain() + "." + properties.getRegistrySubdomain());
+    }
+    registryRepository.persist(entity);
+    return entity;
+  }
+
+  @Transactional
+  public RegistryEntity createClientRegistry(RegistryEntity boxRegistryEntity, String clientUUID) {
+    RegistryEntity entity = new RegistryEntity();
+    {
+      entity.setBoxRegKey(boxRegistryEntity.getBoxRegKey());
+      entity.setClientRegKey("crk_" + Utils.createUnifiedRandomCharacters(10));
+      entity.setBoxUUID(boxRegistryEntity.getBoxUUID());
+      entity.setClientUUID(clientUUID);
+      entity.setSubdomain(boxRegistryEntity.getSubdomain());
     }
     registryRepository.persist(entity);
     return entity;
