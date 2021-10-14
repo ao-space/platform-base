@@ -42,7 +42,7 @@ public class AppMgtResource {
                                         @NotBlank @Parameter(required = true) @QueryParam("bundle_id") String bundleId,
                                         @NotNull @ValueOfEnum(enumClass = AppTypeEnum.class, valueMethod = "getName")
                                             @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"})) @QueryParam("platform") String platform,
-                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9\\.]{0,20}") @Parameter(required = true, schema = @Schema(type = SchemaType.STRING, pattern = "[a-zA-Z0-9\\.]{0,20}"),
+                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @Parameter(required = true, schema = @Schema(type = SchemaType.STRING, pattern = "[a-zA-Z0-9.-]{0,50}"),
                                                 description = "当前版本") @QueryParam("cur_version") String curVersion) {
         return appMgtService.checkAppInfo(bundleId, platform, curVersion);
     }
@@ -73,7 +73,7 @@ public class AppMgtResource {
                                     @NotBlank @Parameter(required = true) @QueryParam("bundle_id") String bundleId,
                                     @NotNull @ValueOfEnum(enumClass = AppTypeEnum.class, valueMethod = "getName")
                                         @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"})) @QueryParam("platform") String platform,
-                                    @NotNull @Pattern(regexp = "[a-zA-Z0-9\\.]{0,20}") @Parameter(required = true, schema = @Schema(type = SchemaType.STRING, pattern = "[a-zA-Z0-9\\.]{0,20}"))
+                                    @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @Parameter(required = true, schema = @Schema(type = SchemaType.STRING, pattern = "[a-zA-Z0-9.-]{0,50}"))
                                         @QueryParam("app_version") String appVersion) {
         appMgtService.delAppinfo(bundleId, platform, appVersion);
         return BaseResultRes.of(true);

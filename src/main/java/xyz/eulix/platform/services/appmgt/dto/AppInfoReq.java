@@ -20,10 +20,10 @@ public class AppInfoReq {
     @Schema(enumeration = {"android", "ios"})
     private String platform;
 
-    // 版本号 长度0-20个字符
+    // 版本号 长度0-50个字符
     @NotNull
-    @Pattern(regexp = "[a-zA-Z0-9\\.]{0,20}")
-    @Schema(pattern = "[a-zA-Z0-9\\.]{0,20}", description = "版本号")
+    @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}")
+    @Schema(pattern = "[a-zA-Z0-9.-]{0,50}", description = "版本号")
     private String appVersion;
 
     // 版本文件大小(字节)，最大10GB
