@@ -12,10 +12,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -53,11 +51,9 @@ public class RegistryService {
     }
   }
 
-  @Transactional
-  public boolean verifyClient(String clientRegKey, String clientUUID) {
-    Optional<RegistryEntity> rp = registryRepository.find(
-        "client_uuid", clientUUID).singleResultOptional();
-    return rp.filter(r -> clientRegKey.equals(r.getClientRegKey())).isPresent();
+  public boolean verifyClient(String clientRegKey, String boxUUID, String clientUUID) {
+    List<RegistryEntity> registryEntities = findAllByClientUUIDAndClientRegKey(boxUUID, clientUUID, clientRegKey);
+    return !registryEntities.isEmpty();
   }
 
   public boolean verifyBox(String boxRegKey, String boxUUID) {
@@ -71,8 +67,8 @@ public class RegistryService {
   }
 
   @Transactional
-  public void deleteByClientUUID(String clientUUID) {
-    registryRepository.delete("client_uuid", clientUUID);
+  public void deleteByClientUUID(String boxUUID, String clientUUID) {
+    registryRepository.deleteByClientUUID(boxUUID, clientUUID);
   }
 
   @Transactional
@@ -80,8 +76,12 @@ public class RegistryService {
     return registryRepository.find("box_uuid", uuid).singleResultOptional();
   }
 
-  public List<RegistryEntity> findAllByBoxUUIDAndBoxRegKey(String boxUuid, String boxRegKey) {
-    return registryRepository.findAllByBoxUUIDAndBoxRegKey(boxUuid, boxRegKey);
+  public List<RegistryEntity> findAllByClientUUIDAndClientRegKey(String boxUUID, String clientUUID, String clientRegKey) {
+    return registryRepository.findAllByClientUUIDAndClientRegKey(boxUUID, clientUUID, clientRegKey);
+  }
+
+  public List<RegistryEntity> findAllByBoxUUIDAndBoxRegKey(String boxUUID, String boxRegKey) {
+    return registryRepository.findAllByBoxUUIDAndBoxRegKey(boxUUID, boxRegKey);
   }
 
   @Transactional

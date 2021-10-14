@@ -12,6 +12,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class ClientRegistryResetInfo {
   @NotBlank
+  @Schema(description = "盒子的 UUID")
+  private String boxUUID;
+
+  @NotBlank
   @Schema(description = "客户端的 UUID")
   private String clientUUID;
 
