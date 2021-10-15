@@ -123,12 +123,14 @@ public class RegistryResource {
   @Operation(description = "重置客户端绑定关系，重置后可以为客户端重新注册绑定关系。")
   public ClientRegistryResetResult clientReset(@Valid ClientRegistryResetInfo clientResetInfo,
                                    @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-    final boolean isExist = registryService.verifyClient(clientResetInfo.getClientRegKey(), clientResetInfo.getClientUUID());
+    final boolean isExist = registryService.verifyClient(clientResetInfo.getClientRegKey(), clientResetInfo.getBoxUUID(),
+            clientResetInfo.getClientUUID());
     if (isExist) {
-      registryService.deleteByClientUUID(clientResetInfo.getClientUUID());
-      return ClientRegistryResetResult.of(clientResetInfo.getClientUUID());
+      registryService.deleteByClientUUID(clientResetInfo.getBoxUUID(), clientResetInfo.getClientUUID());
+      return ClientRegistryResetResult.of(clientResetInfo.getBoxUUID(), clientResetInfo.getClientUUID());
     } else {
-      LOG.warnv("client uuid had not registered, clientUuid:{0}", clientResetInfo.getClientUUID());
+      LOG.warnv("client uuid had not registered, boxUuid:{0}, clientUuid:{1}", clientResetInfo.getBoxUUID(),
+              clientResetInfo.getClientUUID());
       throw new WebApplicationException("invalid client registry reset info", Response.Status.FORBIDDEN);
     }
   }
@@ -137,9 +139,9 @@ public class RegistryResource {
   @GET
   @Path("/registry/verify/box")
   @Operation(description = "校验盒子合法性。")
-  public Response verifyBox(@NotBlank @QueryParam("uuid") @Schema(description = "盒子的 uuid。") String uuid,
-                            @NotBlank @QueryParam("key") @Schema(description = "盒子的注册 key。") String key) {
-    final boolean match = registryService.verifyBox(key, uuid);
+  public Response verifyBox(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
+                            @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey) {
+    final boolean match = registryService.verifyBox(boxRegKey, boxUUID);
     if (!match) {
       throw new WebApplicationException("invalid registry box verify info", Response.Status.FORBIDDEN);
     }
@@ -150,9 +152,10 @@ public class RegistryResource {
   @GET
   @Path("/registry/verify/client")
   @Operation(description = "校验客户端合法性。")
-  public Response verifyClient(@NotBlank @QueryParam("uuid") @Schema(description = "客户端的 uuid。") String uuid,
-                               @NotBlank @QueryParam("key") @Schema(description = "客户端的注册 key。") String key) {
-    final boolean match = registryService.verifyClient(key, uuid);
+  public Response verifyClient(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
+                               @NotBlank @QueryParam("client_uuid") @Schema(description = "客户端的 uuid。") String clientUUID,
+                               @NotBlank @QueryParam("client_reg_key") @Schema(description = "客户端的注册 key。") String clientRegKey) {
+    final boolean match = registryService.verifyClient(clientRegKey, boxUUID, clientUUID);
     if (!match) {
       throw new WebApplicationException("invalid registry client verify info", Response.Status.FORBIDDEN);
     }

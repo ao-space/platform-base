@@ -130,8 +130,8 @@ class RegistryResourceTest {
 
     given()
         .header("Request-Id", "uuid")
-        .queryParam("uuid", bid)
-        .queryParam("key", result.getBoxRegKey())
+        .queryParam("box_uuid", bid)
+        .queryParam("box_reg_key", result.getBoxRegKey())
         .when().get("/v1/api/registry/verify/box")
         .then()
         .statusCode(200);
@@ -157,8 +157,9 @@ class RegistryResourceTest {
 
     given()
         .header("Request-Id", "uuid")
-        .queryParam("uuid", cid)
-        .queryParam("key", result.getClientRegKey())
+        .queryParam("box_uuid", bid)
+        .queryParam("client_uuid", cid)
+        .queryParam("client_reg_key", result.getClientRegKey())
         .when().get("/v1/api/registry/verify/client")
         .then()
         .statusCode(200);
