@@ -51,15 +51,58 @@
 
 
 <body>
-		<div class="container">
-			<img src="./img/dow.png" class="inv" />
+	<div class="container">
+		<img src="./img/dow.png" class="inv" />
+	</div>
+	<div style="display: flex;margin-top:43px;font-size: 3.7vw;font-weight: 500;color: #85899C;"class="flex x-center y-center xy-center">您的亲友Pillar邀请您加入他/她的傲来空间</div>
+	<div style="display: flex;margin-top:33px;font-size: 4.3vw;color: #333333;"class="flex x-center y-center xy-center">加入后可共享使用存储空间哦！</div>
+	<div style="display: flex;margin-top:134px;" class="flex x-center y-center xy-center">
+		<div style="display: flex;width: 33vw;height: 7vh;" class="button flex x-center y-center xy-center pointer" >
+		<div id="inv" style="font-size: 3.7vw;color: #FFFFFF;line-height: 22px;margin:11px 68px;" >立即体验</div>
 		</div>
-		<div style="display: flex;margin-top:43px;font-size: 3.7vw;font-weight: 500;color: #85899C;"class="flex x-center y-center xy-center">您的亲友Pillar邀请您加入他/她的傲来空间</div>
-		<div style="display: flex;margin-top:33px;font-size: 4.3vw;color: #333333;"class="flex x-center y-center xy-center">加入后可共享使用存储空间哦！</div>
-		<div style="display: flex;margin-top:134px;" class="flex x-center y-center xy-center">
-			<div style="display: flex;width: 33vw;height: 7vh;" class="button flex x-center y-center xy-center pointer" >
-			<div style="font-size: 3.7vw;color: #FFFFFF;line-height: 22px;margin:11px 68px;">立即体验</div>
-			</div>
-		</div>
-		<div style="font-size: 3vw;color: #85899C;margin:7px;" class="flex x-center y-center xy-center">此邀请2小时内有效</div>
+	</div>
+	<div style="font-size: 3vw;color: #85899C;margin:7px;" class="flex x-center y-center xy-center">此邀请2小时内有效</div>
+	<div id="test"></div>
+	<script type="text/javascript">
+	var downloader, 
+	scheme = 'bravephoenix://eulixspace:4031/sharelink',  
+	download_android='https://code.eulix.xyz/bp/cicada/-/packages'; 
+	download_ios='https://res.space.eulix.xyz/clients/ios/index.html'; 
+	document.getElementById('inv').onclick = function () {
+        window.location.href = scheme;  
+		downloader = setTimeout(function(){
+            if(detect()=="android")
+				window.location.href = download_android;
+			if(detect()=="ios")
+				window.location.href = download_ios;
+        }, 3000);
+    };
+	 document.addEventListener('visibilitychange webkitvisibilitychange', function () {
+        if (document.hidden || document.webkitHidden) {
+            clearTimeout(downloader);
+        }
+    });
+    window.addEventListener('pagehide', function() {
+        clearTimeout(downloader);
+    });
+	
+	function detect(){
+    let equipmentType = "";
+    let agent = navigator.userAgent.toLowerCase();
+    let android = agent.indexOf("android");
+    let iphone = agent.indexOf("iphone");
+    let ipad = agent.indexOf("ipad");
+    if(android != -1){
+        equipmentType = "android";
+    }
+    if(iphone != -1 || ipad != -1){
+        equipmentType = "ios";
+    }
+    return equipmentType;
+}
+
+</script>
+
 </body>
+
+
