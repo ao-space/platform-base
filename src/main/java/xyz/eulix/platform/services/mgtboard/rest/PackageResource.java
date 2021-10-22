@@ -35,7 +35,7 @@ public class PackageResource {
     @Path("/package/compatible")
     @Logged
     @Operation(description = "检查app、box版本兼容性")
-    public CompatibleCheckRes boxPkgCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+    public CompatibleCheckRes pkgCompatibleCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                        @NotBlank @Parameter(required = true) @QueryParam("bundle_id") String bundleId,
                                        @NotNull @ValueOfEnum(enumClass = AppTypeEnum.class, valueMethod = "getName")
                                            @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"}))
