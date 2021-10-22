@@ -1,7 +1,6 @@
-package xyz.eulix.platform.services.appmgt.dto;
+package xyz.eulix.platform.services.mgtboard.dto;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data(staticConstructor = "of")

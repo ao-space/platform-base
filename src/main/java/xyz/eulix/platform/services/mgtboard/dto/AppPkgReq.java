@@ -1,4 +1,4 @@
-package xyz.eulix.platform.services.appmgt.dto;
+package xyz.eulix.platform.services.mgtboard.dto;
 
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -8,7 +8,7 @@ import javax.validation.constraints.*;
 
 
 @Data(staticConstructor = "of")
-public class AppInfoReq {
+public class AppPkgReq {
     // App标识符
     @NotBlank
     @Schema(required = true)
@@ -50,4 +50,9 @@ public class AppInfoReq {
     // 是否强制更新 1-强制更新;0-可选更新
     @Schema(description = "是否强制更新")
     private Boolean isForceUpdate = false;
+
+    // 所需的最小盒子版本
+    @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}")
+    @Schema(pattern = "[a-zA-Z0-9.-]{0,50}", description = "所需的最小盒子版本")
+    private String minBoxVersion;
 }

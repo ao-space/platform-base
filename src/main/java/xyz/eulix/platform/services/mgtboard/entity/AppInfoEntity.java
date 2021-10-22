@@ -1,7 +1,7 @@
-package xyz.eulix.platform.services.appmgt.entity;
+package xyz.eulix.platform.services.mgtboard.entity;
 
 import lombok.*;
-import xyz.eulix.platform.services.appmgt.dto.AppTypeEnum;
+import xyz.eulix.platform.services.mgtboard.dto.AppTypeEnum;
 import xyz.eulix.platform.services.support.model.BaseEntity;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 

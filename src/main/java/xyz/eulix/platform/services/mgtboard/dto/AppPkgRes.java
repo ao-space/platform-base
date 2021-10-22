@@ -1,11 +1,10 @@
-package xyz.eulix.platform.services.appmgt.dto;
+package xyz.eulix.platform.services.mgtboard.dto;
 
 import lombok.Data;
-
-import javax.validation.constraints.*;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data(staticConstructor = "of")
-public class AppInfoRes {
+public class AppPkgRes {
     // App名称
     private final String bundleId;
 
@@ -22,11 +21,17 @@ public class AppInfoRes {
     private final String downloadUrl;
 
     // 更新文案/版本特性 长度0-10000个字符
+    @Schema(description = "版本特性")
     private final String updateDesc;
 
     // md5
     private final String md5;
 
     // 是否强制更新 1-强制更新;0-可选更新
+    @Schema(description = "是否强制更新")
     private final Boolean isForceUpdate;
+
+    // 所需的最小盒子版本
+    @Schema(description = "所需的最小盒子版本")
+    private String minBoxVersion;
 }

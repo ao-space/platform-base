@@ -1,11 +1,11 @@
-package xyz.eulix.platform.services.appmgt.service;
+package xyz.eulix.platform.services.mgtboard.service;
 
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.appmgt.dto.AppInfoCheckRes;
-import xyz.eulix.platform.services.appmgt.dto.AppInfoReq;
-import xyz.eulix.platform.services.appmgt.dto.AppInfoRes;
-import xyz.eulix.platform.services.appmgt.entity.AppInfoEntity;
-import xyz.eulix.platform.services.appmgt.repository.AppInfoEntityRepository;
+import xyz.eulix.platform.services.mgtboard.dto.AppInfoCheckRes;
+import xyz.eulix.platform.services.mgtboard.dto.AppPkgReq;
+import xyz.eulix.platform.services.mgtboard.dto.AppPkgRes;
+import xyz.eulix.platform.services.mgtboard.entity.AppInfoEntity;
+import xyz.eulix.platform.services.mgtboard.repository.AppInfoEntityRepository;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
@@ -31,7 +31,7 @@ public class AppMgtService {
      * @return app版本信息
      */
     @Transactional
-    public AppInfoRes saveAppinfo(AppInfoReq appInfoReq) {
+    public AppPkgRes saveAppinfo(AppPkgReq appInfoReq) {
         // 校验版本是否存在
         AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getBundleId(),
                 appInfoReq.getPlatform(), appInfoReq.getAppVersion());
@@ -54,7 +54,7 @@ public class AppMgtService {
      * @return app版本信息
      */
     @Transactional
-    public AppInfoRes updateAppinfo(AppInfoReq appInfoReq) {
+    public AppPkgRes updateAppinfo(AppPkgReq appInfoReq) {
         // 校验版本是否存在
         AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getBundleId(),
                 appInfoReq.getPlatform(), appInfoReq.getAppVersion());
@@ -124,8 +124,8 @@ public class AppMgtService {
                 appInfoEntity.getMd5());
     }
 
-    private AppInfoRes appInfoEntityToRes(AppInfoEntity appInfoEntity) {
-        return AppInfoRes.of(appInfoEntity.getAppName(),
+    private AppPkgRes appInfoEntityToRes(AppInfoEntity appInfoEntity) {
+        return AppPkgRes.of(appInfoEntity.getAppName(),
                 appInfoEntity.getAppType(),
                 appInfoEntity.getAppVersion(),
                 appInfoEntity.getAppSize(),
@@ -135,7 +135,7 @@ public class AppMgtService {
                 appInfoEntity.getIsForceUpdate());
     }
 
-    private AppInfoEntity appInfoReqToEntity(AppInfoReq appInfoReq) {
+    private AppInfoEntity appInfoReqToEntity(AppPkgReq appInfoReq) {
         return AppInfoEntity.of(appInfoReq.getBundleId(),
                 appInfoReq.getPlatform(),
                 appInfoReq.getAppVersion(),
