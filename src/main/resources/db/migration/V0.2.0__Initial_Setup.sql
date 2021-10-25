@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS registries (
     version INT DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_guards (box_uuid, client_uuid, subdomain)
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '注册表';
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS notify_device (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -56,4 +56,4 @@ CREATE TABLE IF NOT EXISTS box_info (
     version INT DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_pkey (pkey)
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = 'box鉴权信息表';
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
