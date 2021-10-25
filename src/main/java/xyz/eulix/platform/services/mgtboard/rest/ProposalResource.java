@@ -5,17 +5,19 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import xyz.eulix.platform.services.mgtboard.dto.*;
+import xyz.eulix.platform.services.mgtboard.service.ProposalService;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.model.PageListResult;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Proposal Rest类
@@ -24,6 +26,10 @@ import java.util.List;
 @Path("/v1/api")
 @Tag(name = "Platform Proposal Management Service", description = "提供意见反馈相关接口.")
 public class ProposalResource {
+
+    @Inject
+    ProposalService proposalService;
+
     @POST
     @Path("/proposal")
     @Produces(MediaType.APPLICATION_JSON)
@@ -32,7 +38,7 @@ public class ProposalResource {
     @Operation(description = "新增意见反馈")
     public ProposalRes proposalSave(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                    @Valid ProposalReq proposalReq) {
-        return ProposalRes.of(null, null, null, null, null);
+        return proposalService.saveProposal(proposalReq);
     }
 
     @PUT
@@ -42,9 +48,9 @@ public class ProposalResource {
     @Logged
     @Operation(description = "更新意见反馈")
     public ProposalRes proposalUpdate(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                     @NotBlank @Parameter(required = true) @PathParam("proposal_id") String proposalId,
+                                     @NotNull @Parameter(required = true) @PathParam("proposal_id") Long proposalId,
                                      @Valid ProposalReq proposalReq) {
-        return ProposalRes.of(null, null, null, null, null);
+        return proposalService.updateProposal(proposalId, proposalReq);
     }
 
     @DELETE
@@ -54,7 +60,8 @@ public class ProposalResource {
     @Logged
     @Operation(description = "删除意见反馈")
     public BaseResultRes proposalDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                    @NotBlank @PathParam("proposal_id") String proposalId) {
+                                    @NotNull @PathParam("proposal_id") Long proposalId) {
+        proposalService.deleteProposal(proposalId);
         return BaseResultRes.of(true);
     }
 
@@ -65,8 +72,8 @@ public class ProposalResource {
     @Logged
     @Operation(description = "查询意见反馈详情")
     public ProposalRes proposalGet(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                    @NotBlank @Parameter(required = true) @PathParam("proposal_id") String proposalId) {
-        return ProposalRes.of(null, null, null, null, null);
+                                    @NotNull @Parameter(required = true) @PathParam("proposal_id") Long proposalId) {
+        return proposalService.getProposal(proposalId);
     }
 
     @GET
@@ -75,10 +82,11 @@ public class ProposalResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Logged
     @Operation(description = "获取意见反馈列表")
-    public List<ProposalRes> proposalList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                          @Parameter(required = true) @QueryParam("current_page") Integer currentPage,
-                                          @Parameter(required = true) @Max(1000) @QueryParam("page_size") Integer pageSize) {
-        return new ArrayList<>();
+    public PageListResult<ProposalRes> proposalList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                                    @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
+                                                    @Parameter(required = true, description = "每页数量，最大1000") @Max(1000)
+                                                        @QueryParam("page_size") Integer pageSize) {
+        return proposalService.listProposal(currentPage, pageSize);
     }
 
     @POST

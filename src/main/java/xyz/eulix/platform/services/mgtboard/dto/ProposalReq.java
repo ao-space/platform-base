@@ -25,7 +25,6 @@ public class ProposalReq {
     private String phoneNumer;
 
     // 图片地址，最多4张
-    @NotBlank
     @Size(max = 4)
     @Schema(maxLength = 4 ,description = "图片地址")
     private List<String> imageUrls;
