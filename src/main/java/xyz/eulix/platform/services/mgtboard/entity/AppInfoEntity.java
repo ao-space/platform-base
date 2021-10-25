@@ -1,7 +1,7 @@
 package xyz.eulix.platform.services.mgtboard.entity;
 
 import lombok.*;
-import xyz.eulix.platform.services.mgtboard.dto.AppTypeEnum;
+import xyz.eulix.platform.services.mgtboard.dto.PkgTypeEnum;
 import xyz.eulix.platform.services.support.model.BaseEntity;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
@@ -26,7 +26,7 @@ public class AppInfoEntity extends BaseEntity {
 
     // App类型 ios、android
     @NotNull
-    @ValueOfEnum(enumClass = AppTypeEnum.class, valueMethod = "getName")
+    @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
     @Column(name = "app_type")
     private String appType;
 

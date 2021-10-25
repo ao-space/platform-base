@@ -9,7 +9,7 @@ public class AppTypeEnumTest {
 
     @Test
     public void testHelloEndpoint() {
-        Assertions.assertEquals(AppTypeEnum.IOS, AppTypeEnum.fromValue("ios"));
-        Assertions.assertThrows(NoSuchElementException.class, () -> AppTypeEnum.fromValue("ios2"));
+        Assertions.assertEquals(PkgTypeEnum.IOS, PkgTypeEnum.fromValue("ios"));
+        Assertions.assertThrows(NoSuchElementException.class, () -> PkgTypeEnum.fromValue("ios2"));
     }
 }

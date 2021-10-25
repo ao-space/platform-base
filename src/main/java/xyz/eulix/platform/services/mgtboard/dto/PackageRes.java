@@ -4,18 +4,21 @@ import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data(staticConstructor = "of")
-public class AppPkgRes {
-    // App名称
-    private final String bundleId;
+public class PackageRes {
+    // 软件包名称
+    @Schema(description = "软件包标识符")
+    private final String pkgName;
 
-    // App类型 ios、android
-    private final String platform;
+    // 软件包类型 ios、android、box
+    @Schema(description = "软件包类型", enumeration = {"android", "ios", "box"})
+    private final String pkgType;
 
     // 版本号 长度0-20个字符
-    private final String appVersion;
+    @Schema(description = "软件包版本")
+    private final String pkgVersion;
 
     // 版本文件大小(字节)，最大10GB
-    private final Long appSize;
+    private final Long pkgSize;
 
     // 下载url
     private final String downloadUrl;
@@ -32,6 +35,9 @@ public class AppPkgRes {
     private final Boolean isForceUpdate;
 
     // 所需的最小盒子版本
-    @Schema(description = "所需的最小盒子版本")
+    @Schema(description = "所需的最小盒子版本,用于app版本")
     private String minBoxVersion;
+
+    @Schema(description = "兼容的最小App版本,用于box版本")
+    private final String minAppVersion;
 }
