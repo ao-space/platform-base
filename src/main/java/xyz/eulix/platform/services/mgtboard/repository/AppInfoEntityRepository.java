@@ -1,8 +1,7 @@
-package xyz.eulix.platform.services.appmgt.repository;
+package xyz.eulix.platform.services.mgtboard.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
-import xyz.eulix.platform.services.appmgt.dto.AppTypeEnum;
-import xyz.eulix.platform.services.appmgt.entity.AppInfoEntity;
+import xyz.eulix.platform.services.mgtboard.entity.AppInfoEntity;
 
 import javax.enterprise.context.ApplicationScoped;
 

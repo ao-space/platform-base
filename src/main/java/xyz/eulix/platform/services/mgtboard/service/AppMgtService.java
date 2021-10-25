@@ -1,11 +1,11 @@
-package xyz.eulix.platform.services.appmgt.service;
+package xyz.eulix.platform.services.mgtboard.service;
 
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.appmgt.dto.AppInfoCheckRes;
-import xyz.eulix.platform.services.appmgt.dto.AppInfoReq;
-import xyz.eulix.platform.services.appmgt.dto.AppInfoRes;
-import xyz.eulix.platform.services.appmgt.entity.AppInfoEntity;
-import xyz.eulix.platform.services.appmgt.repository.AppInfoEntityRepository;
+import xyz.eulix.platform.services.mgtboard.dto.AppInfoCheckRes;
+import xyz.eulix.platform.services.mgtboard.dto.PackageReq;
+import xyz.eulix.platform.services.mgtboard.dto.PackageRes;
+import xyz.eulix.platform.services.mgtboard.entity.AppInfoEntity;
+import xyz.eulix.platform.services.mgtboard.repository.AppInfoEntityRepository;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
@@ -27,20 +27,20 @@ public class AppMgtService {
     /**
      * 新增app版本
      *
-     * @param appInfoReq app版本信息
+     * @param packageReq app版本信息
      * @return app版本信息
      */
     @Transactional
-    public AppInfoRes saveAppinfo(AppInfoReq appInfoReq) {
+    public PackageRes saveAppinfo(PackageReq packageReq) {
         // 校验版本是否存在
-        AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getBundleId(),
-                appInfoReq.getPlatform(), appInfoReq.getAppVersion());
+        AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(packageReq.getPkgName(),
+                packageReq.getPkgType(), packageReq.getPkgVersion());
         if (appInfoEntityOld != null) {
-            LOG.warnv("app version already exist, appName:{0}, appType:{1}, appVersion:{2}", appInfoReq.getBundleId(),
-                    appInfoReq.getPlatform(), appInfoReq.getAppVersion());
+            LOG.warnv("app version already exist, appName:{0}, appType:{1}, appVersion:{2}", packageReq.getPkgName(),
+                    packageReq.getPkgType(), packageReq.getPkgVersion());
             throw new ServiceOperationException(ServiceError.APP_VERSION_EXISTED);
         }
-        AppInfoEntity appInfoEntity = appInfoReqToEntity(appInfoReq);
+        AppInfoEntity appInfoEntity = appInfoReqToEntity(packageReq);
         appInfoEntityRepository.persist(appInfoEntity);
 
         return appInfoEntityToRes(appInfoEntity);
@@ -50,20 +50,20 @@ public class AppMgtService {
     /**
      * 更新app版本
      *
-     * @param appInfoReq app版本信息
+     * @param packageReq app版本信息
      * @return app版本信息
      */
     @Transactional
-    public AppInfoRes updateAppinfo(AppInfoReq appInfoReq) {
+    public PackageRes updateAppinfo(PackageReq packageReq) {
         // 校验版本是否存在
-        AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(appInfoReq.getBundleId(),
-                appInfoReq.getPlatform(), appInfoReq.getAppVersion());
+        AppInfoEntity appInfoEntityOld = appInfoEntityRepository.findByAppNameAndTypeAndVersion(packageReq.getPkgName(),
+                packageReq.getPkgType(), packageReq.getPkgVersion());
         if (appInfoEntityOld == null) {
-            LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", appInfoReq.getBundleId(),
-                    appInfoReq.getPlatform(), appInfoReq.getAppVersion());
+            LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", packageReq.getPkgName(),
+                    packageReq.getPkgType(), packageReq.getPkgVersion());
             throw new ServiceOperationException(ServiceError.APP_VERSION_NOT_EXIST);
         }
-        AppInfoEntity appInfoEntity = appInfoReqToEntity(appInfoReq);
+        AppInfoEntity appInfoEntity = appInfoReqToEntity(packageReq);
         appInfoEntityRepository.updateByAppNameAndTypeAndVersion(appInfoEntity);
         return appInfoEntityToRes(appInfoEntity);
     }
@@ -124,25 +124,26 @@ public class AppMgtService {
                 appInfoEntity.getMd5());
     }
 
-    private AppInfoRes appInfoEntityToRes(AppInfoEntity appInfoEntity) {
-        return AppInfoRes.of(appInfoEntity.getAppName(),
+    private PackageRes appInfoEntityToRes(AppInfoEntity appInfoEntity) {
+        return PackageRes.of(appInfoEntity.getAppName(),
                 appInfoEntity.getAppType(),
                 appInfoEntity.getAppVersion(),
                 appInfoEntity.getAppSize(),
                 appInfoEntity.getDownloadUrl(),
                 appInfoEntity.getUpdateDesc(),
                 appInfoEntity.getMd5(),
-                appInfoEntity.getIsForceUpdate());
+                appInfoEntity.getIsForceUpdate(),
+                null);
     }
 
-    private AppInfoEntity appInfoReqToEntity(AppInfoReq appInfoReq) {
-        return AppInfoEntity.of(appInfoReq.getBundleId(),
-                appInfoReq.getPlatform(),
-                appInfoReq.getAppVersion(),
-                appInfoReq.getAppSize(),
-                appInfoReq.getDownloadUrl(),
-                appInfoReq.getUpdateDesc(),
-                appInfoReq.getMd5(),
-                appInfoReq.getIsForceUpdate(), null);
+    private AppInfoEntity appInfoReqToEntity(PackageReq packageReq) {
+        return AppInfoEntity.of(packageReq.getPkgName(),
+                packageReq.getPkgType(),
+                packageReq.getPkgVersion(),
+                packageReq.getPkgSize(),
+                packageReq.getDownloadUrl(),
+                packageReq.getUpdateDesc(),
+                packageReq.getMd5(),
+                packageReq.getIsForceUpdate(), null);
     }
 }

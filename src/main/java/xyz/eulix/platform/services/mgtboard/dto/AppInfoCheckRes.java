@@ -1,9 +1,9 @@
-package xyz.eulix.platform.services.appmgt.dto;
+package xyz.eulix.platform.services.mgtboard.dto;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+@Deprecated
 @Data(staticConstructor = "of")
 public class AppInfoCheckRes {
     // 是否更新
