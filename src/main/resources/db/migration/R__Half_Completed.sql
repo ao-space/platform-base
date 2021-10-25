@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS pkg_info (
     updated_at DATETIME DEFAULT NULL,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_name_type_version (pkg_name,pkg_type,pkg_version)
+    UNIQUE KEY uk_pkg_name_type_version (pkg_name,pkg_type,pkg_version)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
