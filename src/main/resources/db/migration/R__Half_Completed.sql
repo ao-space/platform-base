@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS pkg_info (
     force_update INT DEFAULT 0 COMMENT '1-强制更新;0-可选更新',
     download_url VARCHAR(256) NOT NULL,
     md5 VARCHAR(128) DEFAULT NULL,
+    min_compatible_version VARCHAR(128) DEFAULT NULL COMMENT '最小兼容版本',
     extra VARCHAR(1024) DEFAULT NULL COMMENT '预留json格式',
     created_at DATETIME DEFAULT NULL,
     updated_at DATETIME DEFAULT NULL,
