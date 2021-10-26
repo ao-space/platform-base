@@ -1,4 +1,3 @@
--- 正式版本发布前临时脚本
 CREATE TABLE IF NOT EXISTS pkg_info (
     id BIGINT NOT NULL AUTO_INCREMENT,
     pkg_name VARCHAR(128) NOT NULL,
@@ -16,7 +15,7 @@ CREATE TABLE IF NOT EXISTS pkg_info (
     version INT DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_pkg_name_type_version (pkg_name,pkg_type,pkg_version)
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '软件包信息表';
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS proposal (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -29,4 +28,4 @@ CREATE TABLE IF NOT EXISTS proposal (
     version INT DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_content (content)
-) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '反馈内容表';
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
