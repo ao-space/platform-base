@@ -57,9 +57,17 @@ public class PkgInfoEntity extends BaseEntity {
   @Column(name = "md5")
   private String md5;
 
-  // 最小兼容版本
-  @Column(name = "min_compatible_version")
-  private String minCompatibleVersion;
+  // 最小 android 兼容版本
+  @Column(name = "min_compatible_android_version")
+  private String minCompatibleAndroidVersion;
+
+  // 最小 ios 兼容版本
+  @Column(name = "min_compatible_ios_version")
+  private String minCompatibleIOSVersion;
+
+  // 最小 box 兼容版本
+  @Column(name = "min_compatible_box_version")
+  private String minCompatibleBoxVersion;
 
   // 扩展信息，json结构
   @Column(name = "extra")

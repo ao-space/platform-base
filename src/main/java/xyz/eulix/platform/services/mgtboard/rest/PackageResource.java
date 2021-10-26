@@ -57,13 +57,21 @@ public class PackageResource {
                                        @NotBlank @Parameter(required = true, schema = @Schema(enumeration = {"app_check", "box_check"}))
                                            @ValueOfEnum(enumClass = PkgActionEnum.class, valueMethod = "getName") @QueryParam("action") String action,
                                        @NotBlank @Parameter(required = true) @QueryParam("pkg_name") String pkgName,
+                                        @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
+                                        @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"}))
+                                        @QueryParam("app_type") String appType,
                                        @NotNull @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios", "box"}))
                                            @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName") @QueryParam("pkg_type") String pkgType,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_box_version") String curBoxVersion,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_app_version") String curAppVersion) {
 
-
-      return pkgMgtService.checkPkgInfo(action, pkgName, pkgType, curBoxVersion, curAppVersion);
+        PkgActionEnum actionEnum = PkgActionEnum.fromValue(action);
+        switch (actionEnum){
+            case APP_CHECK: return pkgMgtService.checkAppInfo(pkgName, pkgType, curBoxVersion, curAppVersion);
+            case BOX_CHECK: return pkgMgtService.checkBoxInfo(pkgName, pkgType, curBoxVersion, curAppVersion, appType);
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     @POST
