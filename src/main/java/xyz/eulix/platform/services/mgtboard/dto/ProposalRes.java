@@ -11,7 +11,7 @@ import java.util.List;
 public class ProposalRes {
     // id
     @Schema(description = "id")
-    private final String proposalId;
+    private final Long proposalId;
 
     // 反馈内容
     @Schema(description = "反馈内容")

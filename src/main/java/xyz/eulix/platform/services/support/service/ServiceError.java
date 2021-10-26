@@ -25,6 +25,8 @@ public enum ServiceError {
 
   APP_VERSION_NOT_EXIST(2002, "app version does not exist"),
   APP_VERSION_EXISTED(2003, "app version has already existed"),
+
+  PROPOSAL_NOT_EXIST(2004, "proposal does not exist"),
   ;
 
   /**
