@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 @AllArgsConstructor
 public enum PkgActionEnum {
-    APP_SAVE("app_name", "保存app软件包"),
+    APP_SAVE("app_save", "保存app软件包"),
     BOX_SAVE("box_save", "保存box软件包"),
     APP_UPDATE("app_update", "更新app软件包"),
     BOX_UPDATE("box_update", "更新box软件包"),
