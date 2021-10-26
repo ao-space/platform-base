@@ -51,13 +51,8 @@ public class PackageReq {
     @Schema(description = "是否强制更新")
     private Boolean isForceUpdate = false;
 
-    // 所需的最小盒子版本
+    // 最小兼容版本（更新盒子，兼容的最小App版本；更新App，兼容的最小盒子版本；）
     @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}")
-    @Schema(pattern = "[a-zA-Z0-9.-]{0,50}", description = "所需的最小盒子版本,用于app版本")
-    private String minBoxVersion;
-
-    // 兼容的最小App版本
-    @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}")
-    @Schema(pattern = "[a-zA-Z0-9.-]{0,50}", description = "兼容的最小App版本,用于box版本")
+    @Schema(pattern = "[a-zA-Z0-9.-]{0,50}", description = "最小兼容版本（更新盒子，兼容的最小App版本；更新App，兼容的最小盒子版本；")
     private String minAppVersion;
 }

@@ -2,6 +2,7 @@ package xyz.eulix.platform.services.mgtboard.dto;
 
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
 
 @Data(staticConstructor = "of")
 public class PackageCheckRes {
@@ -19,9 +20,9 @@ public class PackageCheckRes {
 
     // 最新app软件包信息
     @Schema(description = "最新app软件包信息")
-    private final PackageRes lastestAppPkg;
+    private final PkgInfoEntity latestAppPkg;
 
     // 最新box软件包信息
     @Schema(description = "最新box软件包信息")
-    private final PackageRes lastestBoxPkg;
+    private final PkgInfoEntity latestBoxPkg;
 }
