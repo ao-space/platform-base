@@ -27,6 +27,8 @@ public enum ServiceError {
   APP_VERSION_EXISTED(2003, "app version has already existed"),
 
   PROPOSAL_NOT_EXIST(2004, "proposal does not exist"),
+  UPLOAD_FILE_FAILED(2005, "upload file failed"),
+  DOWNLOAD_FILE_FAILED(2005, "download file failed"),
   ;
 
   /**

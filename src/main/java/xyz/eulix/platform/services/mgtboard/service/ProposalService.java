@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.ProposalEntity;
 import xyz.eulix.platform.services.mgtboard.repository.ProposalEntityRepository;
+import xyz.eulix.platform.services.support.ResourceUtils;
 import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.service.ServiceError;
@@ -12,6 +13,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,5 +122,27 @@ public class ProposalService {
                 proposalReq.getEmail(),
                 proposalReq.getPhoneNumer(),
                 String.join(",", proposalReq.getImageUrls()));
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param multipartBody 文件内容
+     * @return 文件信息
+     */
+    public UploadFileRes upload(MultipartBody multipartBody) {
+        String imageFolder = "/data/forums/";
+        String imagePath = imageFolder + multipartBody.fileName;
+        try (FileOutputStream stream = new FileOutputStream(ResourceUtils.getFile(imagePath))) {
+            byte[] b = new byte[2048];
+            int length;
+            while ((length = multipartBody.file.read(b)) > 0) {
+                stream.write(b, 0, length);
+            }
+        } catch (Exception e) {
+            LOG.error("upload file failed, exception", e);
+            throw new ServiceOperationException(ServiceError.UPLOAD_FILE_FAILED);
+        }
+        return UploadFileRes.of(null, multipartBody.fileName, null, imagePath);
     }
 }

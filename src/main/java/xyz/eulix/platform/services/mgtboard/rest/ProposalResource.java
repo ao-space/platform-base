@@ -6,8 +6,11 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.service.ProposalService;
+import xyz.eulix.platform.services.support.ResourceUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
+import xyz.eulix.platform.services.support.service.ServiceError;
+import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,6 +21,8 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.FileOutputStream;
+import java.util.HashMap;
 
 /**
  * Proposal Rest类
@@ -93,18 +98,16 @@ public class ProposalResource {
     @Path("/file/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    @Logged
     @Operation(description = "文件上传接口")
     public UploadFileRes upload(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                   @MultipartForm MultipartBody proposalReq) {
-        return UploadFileRes.of(null, null, null, null);
+                                @MultipartForm MultipartBody multipartBody) {
+        return proposalService.upload(multipartBody);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/file/download")
-    @Logged
     @Operation(description = "文件下载接口")
     public Response download(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
                              @Valid DownloadFileReq downloadFileReq) {
