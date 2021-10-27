@@ -84,7 +84,7 @@ public class PkgMgtService {
      * @param curAppVersion App版本
      * @return 检查结果
      */
-    public PackageCheckRes checkAppInfo(String appName, String appType, String curBoxVersion, String curAppVersion) {
+    public PackageCheckRes checkAppInfo(String appName, String boxName, String appType, String curBoxVersion, String curAppVersion) {
         // 查询当前 app 版本
         PkgInfoEntity curAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(appName, appType, curAppVersion);
         if (curAppPkg == null){
@@ -92,16 +92,17 @@ public class PkgMgtService {
             return PackageCheckRes.of(null, null);
         }
         // 查询最新 app、box 版本
-        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appName, appType);
-
-        // 查询最新 app 版本
+        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, "box");
         PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appName, appType);
+
         // 判断是否需要更新
         if (curAppVersion.compareToIgnoreCase(latestAppPkg.getPkgVersion()) < 0) {
             LOG.infov(
                 "app version need to update, appName:{0}, appType:{1}, from curVersion:{2} to newVersion:{3}",
                 appName, appType, curAppVersion, latestAppPkg.getPkgVersion());
-            return PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), null);
+            PackageCheckRes packageCheckRes = PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), null);
+            packageCheckRes.setNewVersionExist(true);
+            return packageCheckRes;
         }
 
         // 判断 app 新版本与当前 box 版本兼容性
@@ -120,29 +121,30 @@ public class PkgMgtService {
     /**
      * 检查 Box 版本
      * @param boxName Box name
-     * @param boxType Box 类型
      * @param curBoxVersion 盒子版本
      * @param curAppVersion App版本
      * @return 检查结果
      */
-    public PackageCheckRes checkBoxInfo(String boxName, String boxType, String curBoxVersion, String curAppVersion, String appType) {
+    public PackageCheckRes checkBoxInfo(String appName, String boxName, String pkgType, String curBoxVersion, String curAppVersion, String appType) {
         // 查询当前 Box 版本
-        PkgInfoEntity curBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(boxName, boxType, curBoxVersion);
+        PkgInfoEntity curBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(boxName, pkgType, curBoxVersion);
         if (curBoxPkg == null){
-            LOG.warnv("box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxName, boxType, curBoxVersion);
+            LOG.warnv("box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxName, pkgType, curBoxVersion);
             return PackageCheckRes.of(null, null);
         }
         // 查询最新 box 版本
-        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
+        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, pkgType);
         // 判断是否需要更新
         if (curAppVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
             LOG.infov(
                 "box version need to update, boxName:{0}, boxType:{1}, from curVersion:{2} to newVersion:{3}",
-                boxName, boxType, curBoxVersion, latestBoxPkg.getPkgVersion());
-            return PackageCheckRes.of(null, pkgInfoEntityToRes(latestBoxPkg));
+                boxName, "box", curBoxVersion, latestBoxPkg.getPkgVersion());
+            PackageCheckRes  packageCheckRes= PackageCheckRes.of(null, pkgInfoEntityToRes(latestBoxPkg));
+            packageCheckRes.setNewVersionExist(true);
+            return packageCheckRes;
         }
-        // 查询最新 box 版本
-        PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
+        // 查询最新 app 版本
+        PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appName, appType);
 
         String latestMinAppVersion;
         if("ios".equals(appType)){
