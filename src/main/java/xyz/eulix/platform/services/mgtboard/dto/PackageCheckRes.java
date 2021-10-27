@@ -20,9 +20,9 @@ public class PackageCheckRes {
 
     // 最新app软件包信息
     @Schema(description = "最新app软件包信息")
-    private final PkgInfoEntity latestAppPkg;
+    private final PackageRes latestAppPkg;
 
     // 最新box软件包信息
     @Schema(description = "最新box软件包信息")
-    private final PkgInfoEntity latestBoxPkg;
+    private final PackageRes latestBoxPkg;
 }

@@ -34,10 +34,15 @@ public class PackageRes {
     @Schema(description = "是否强制更新")
     private final Boolean isForceUpdate;
 
-    // 所需的最小盒子版本
-    @Schema(description = "所需的最小盒子版本,用于app版本")
-    private String minBoxVersion;
+    @Schema(description = "兼容的最小App版本,用于box版本")
+    private final String minAndroidVersion;
 
     @Schema(description = "兼容的最小App版本,用于box版本")
-    private final String minAppVersion;
+    private final String minIOSVersion;
+
+    // 所需的最小盒子版本
+    @Schema(description = "所需的最小盒子版本,用于app版本")
+    private final String minBoxVersion;
+
+
 }
