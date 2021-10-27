@@ -205,6 +205,7 @@ public class PkgMgtService {
             targetAppPkgInfo = latestAppPkg;    // 目标app版本=最新app版本
             compatibleCheckRes.setIsAppForceUpdate(true);
             compatibleCheckRes.setLastestAppPkg(pkgInfoEntityToRes(latestAppPkg));
+            LOG.infov("app version needs to force upgrade, appName:{0}, appType:{1}, appVersion:{2}", appPkgName, appPkgType, curAppVersion);
         }
         // 2.检查当前box版本是否需要强制升级
         if (curBoxPkg.getIsForceUpdate()) {
@@ -215,6 +216,7 @@ public class PkgMgtService {
             targetBoxPkgInfo = latestBoxPkg;    // 目标box版本=最新box版本
             compatibleCheckRes.setIsBoxForceUpdate(true);
             compatibleCheckRes.setLastestBoxPkg(pkgInfoEntityToRes(latestBoxPkg));
+            LOG.infov("box version needs to force upgrade, boxName:{0}, boxType:{1}, boxVersion:{2}", boxPkgName, boxPkgType, curBoxVersion);
         }
         // 3.判断目标app版本与目标box版本是否兼容
         isCompatible(targetAppPkgInfo, latestAppPkg, targetBoxPkgInfo, latestBoxPkg, compatibleCheckRes);
@@ -251,6 +253,8 @@ public class PkgMgtService {
             // 目标app版本比“目标box所兼容的最小app版本”低
             compatibleCheckRes.setIsAppForceUpdate(true);
             compatibleCheckRes.setLastestAppPkg(pkgInfoEntityToRes(latestAppPkg));
+            LOG.infov("app version needs to force upgrade, appName:{0}, appType:{1}, appVersion:{2}", targetAppPkg.getPkgName(),
+                    targetAppPkg.getPkgType(), targetAppPkg.getPkgVersion());
 
             //目标app版本=最新app版本,递归调用
             targetAppPkg = latestAppPkg;
@@ -263,6 +267,8 @@ public class PkgMgtService {
             // 目标box的版本比“目标app所兼容的最小box版本”低
             compatibleCheckRes.setIsBoxForceUpdate(true);
             compatibleCheckRes.setLastestBoxPkg(pkgInfoEntityToRes(latestBoxPkg));
+            LOG.infov("box version needs to force upgrade, boxName:{0}, boxType:{1}, boxVersion:{2}", targetBoxPkg.getPkgName(),
+                    targetBoxPkg.getPkgType(), targetBoxPkg.getPkgVersion());
 
             //目标box版本=最新box版本,递归调用
             targetBoxPkg = latestBoxPkg;
