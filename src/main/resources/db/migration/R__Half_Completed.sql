@@ -28,6 +28,5 @@ CREATE TABLE IF NOT EXISTS proposal (
     created_at DATETIME DEFAULT NULL,
     updated_at DATETIME DEFAULT NULL,
     version INT DEFAULT 0,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_content (content)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
