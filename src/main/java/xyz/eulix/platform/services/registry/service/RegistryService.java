@@ -6,7 +6,7 @@ import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryInfo;
 import xyz.eulix.platform.services.registry.entity.RegistryEntity;
 import xyz.eulix.platform.services.registry.repository.RegistryEntityRepository;
-import xyz.eulix.platform.services.support.Utils;
+import xyz.eulix.platform.services.support.CommonUtils;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -88,8 +88,8 @@ public class RegistryService {
   public RegistryEntity createRegistry(RegistryInfo info) {
     RegistryEntity entity = new RegistryEntity();
     {
-      entity.setBoxRegKey("brk_" + Utils.createUnifiedRandomCharacters(10));
-      entity.setClientRegKey("crk_" + Utils.createUnifiedRandomCharacters(10));
+      entity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
+      entity.setClientRegKey("crk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setBoxUUID(info.getBoxUUID());
       entity.setClientUUID(info.getClientUUID());
       entity.setSubdomain(info.getSubdomain() + "." + properties.getRegistrySubdomain());
@@ -103,7 +103,7 @@ public class RegistryService {
     RegistryEntity entity = new RegistryEntity();
     {
       entity.setBoxRegKey(boxRegistryEntity.getBoxRegKey());
-      entity.setClientRegKey("crk_" + Utils.createUnifiedRandomCharacters(10));
+      entity.setClientRegKey("crk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setBoxUUID(boxRegistryEntity.getBoxUUID());
       entity.setClientUUID(clientUUID);
       entity.setSubdomain(boxRegistryEntity.getSubdomain());

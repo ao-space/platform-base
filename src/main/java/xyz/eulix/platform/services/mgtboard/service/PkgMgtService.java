@@ -1,7 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.mgtboard.dto.AppInfoCheckRes;
 import xyz.eulix.platform.services.mgtboard.dto.PackageCheckRes;
 import xyz.eulix.platform.services.mgtboard.dto.PackageReq;
 import xyz.eulix.platform.services.mgtboard.dto.PackageRes;
@@ -40,7 +39,7 @@ public class PkgMgtService {
         if (PkgInfoEntityOld != null) {
             LOG.warnv("app version already exist, appName:{0}, appType:{1}, appVersion:{2}", packageReq.getPkgName(),
                     packageReq.getPkgType(), packageReq.getPkgVersion());
-            throw new ServiceOperationException(ServiceError.APP_VERSION_EXISTED);
+            throw new ServiceOperationException(ServiceError.PKG_VERSION_EXISTED);
         }
         PkgInfoEntity PkgInfoEntity = pkgInfoReqToEntity(packageReq);
         pkgInfoEntityRepository.persist(PkgInfoEntity);
@@ -63,7 +62,7 @@ public class PkgMgtService {
         if (PkgInfoEntityOld == null) {
             LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", packageReq.getPkgName(),
                     packageReq.getPkgType(), packageReq.getPkgVersion());
-            throw new ServiceOperationException(ServiceError.APP_VERSION_NOT_EXIST);
+            throw new ServiceOperationException(ServiceError.PKG_VERSION_NOT_EXIST);
         }
         PkgInfoEntity PkgInfoEntity = pkgInfoReqToEntity(packageReq);
         pkgInfoEntityRepository.updateByAppNameAndTypeAndVersion(PkgInfoEntity);

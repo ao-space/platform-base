@@ -3,11 +3,17 @@ package xyz.eulix.platform.services.mgtboard.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ProposalServiceTest {
+    /**
+     * 用做单号
+     */
+    public static final String DEFAULT_DATE_FORMAT_ORDER = "yyyyMMdd";
 
     @Test
     public void testProposalReqToEntity() {
@@ -29,5 +35,12 @@ public class ProposalServiceTest {
 
         String [] strings3 = "".split(",");
         System.out.println(Arrays.asList(strings3));
+    }
+
+    @Test
+    public void testLocalDate() {
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT_ORDER );
+        System.out.println(localDate.format(fmt));
     }
 }

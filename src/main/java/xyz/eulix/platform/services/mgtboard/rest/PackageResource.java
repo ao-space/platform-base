@@ -36,10 +36,10 @@ public class PackageResource {
     @Logged
     @Operation(description = "检查app、box版本兼容性")
     public CompatibleCheckRes pkgCompatibleCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                       @NotBlank @Parameter(required = true) @QueryParam("bundle_id") String bundleId,
+                                       @NotBlank @Parameter(required = true) @QueryParam("app_pkg_name") String appPkgName,
                                        @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
                                            @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"}))
-                                           @QueryParam("platform") String platform,
+                                           @QueryParam("app_pkg_type") String appPkgType,
                                        @NotBlank @Parameter(required = true) @QueryParam("box_pkg_name") String boxPkgName,
                                        @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
                                            @Parameter(required = true, schema = @Schema(enumeration = {"box"}))
@@ -61,8 +61,6 @@ public class PackageResource {
                                            @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName") @QueryParam("pkg_type") String pkgType,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_box_version") String curBoxVersion,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_app_version") String curAppVersion) {
-
-
       return pkgMgtService.checkPkgInfo(action, pkgName, pkgType, curBoxVersion, curAppVersion);
     }
 
