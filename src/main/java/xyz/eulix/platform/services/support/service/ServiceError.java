@@ -23,10 +23,15 @@ public enum ServiceError {
   PKEY_INVALID(2000, "pkey is invalid"),
   PKEY_EXPIRED(2001, "pkey has expired"),
 
-  APP_VERSION_NOT_EXIST(2002, "app version does not exist"),
-  APP_VERSION_EXISTED(2003, "app version has already existed"),
+  PKG_VERSION_NOT_EXIST(2002, "pkg version does not exist"),
+  PKG_VERSION_EXISTED(2003, "pkg version has already existed"),
 
   PROPOSAL_NOT_EXIST(2004, "proposal does not exist"),
+  FILE_NOT_FOUND(2005, "file not found"),
+  UPLOAD_FILE_FAILED(2006, "upload file failed"),
+  DOWNLOAD_FILE_FAILED(2007, "download file failed"),
+  FILE_SIZE_EXCEED_PERMIT(2008, "file exceeds its maximum permitted size of {0} bytes"),
+  DIR_CREATE_FAILED(2009, "create directory failed");
   ;
 
   /**
