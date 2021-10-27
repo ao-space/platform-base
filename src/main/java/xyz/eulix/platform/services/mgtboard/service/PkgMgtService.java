@@ -1,9 +1,7 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.mgtboard.dto.PackageCheckRes;
-import xyz.eulix.platform.services.mgtboard.dto.PackageReq;
-import xyz.eulix.platform.services.mgtboard.dto.PackageRes;
+import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
 import xyz.eulix.platform.services.mgtboard.repository.PkgInfoEntityRepository;
 import xyz.eulix.platform.services.support.service.ServiceError;
@@ -21,10 +19,10 @@ public class PkgMgtService {
     PkgInfoEntityRepository pkgInfoEntityRepository;
 
     /**
-     * 新增app版本
+     * 新增pkg版本
      *
-     * @param packageReq app版本信息
-     * @return app版本信息
+     * @param packageReq pkg版本信息
+     * @return pkg版本信息
      */
     @Transactional
     public PackageRes savePkgInfo(PackageReq packageReq) {
@@ -32,7 +30,7 @@ public class PkgMgtService {
         PkgInfoEntity PkgInfoEntityOld = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(packageReq.getPkgName(),
                 packageReq.getPkgType(), packageReq.getPkgVersion());
         if (PkgInfoEntityOld != null) {
-            LOG.warnv("app version already exist, appName:{0}, appType:{1}, appVersion:{2}", packageReq.getPkgName(),
+            LOG.warnv("pkg version already exist, pkgName:{0}, pkgType:{1}, pkgVersion:{2}", packageReq.getPkgName(),
                     packageReq.getPkgType(), packageReq.getPkgVersion());
             throw new ServiceOperationException(ServiceError.PKG_VERSION_EXISTED);
         }
@@ -44,18 +42,18 @@ public class PkgMgtService {
 
 
     /**
-     * 更新app版本
+     * 更新pkg版本
      *
-     * @param packageReq app版本信息
-     * @return app版本信息
+     * @param packageReq pkg版本信息
+     * @return pkg版本信息
      */
     @Transactional
-    public PackageRes updateAppinfo(PackageReq packageReq) {
+    public PackageRes updatePkginfo(PackageReq packageReq) {
         // 校验版本是否存在
         PkgInfoEntity PkgInfoEntityOld = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(packageReq.getPkgName(),
                 packageReq.getPkgType(), packageReq.getPkgVersion());
         if (PkgInfoEntityOld == null) {
-            LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", packageReq.getPkgName(),
+            LOG.warnv("pkg version does not exist, pkgName:{0}, pkgType:{1}, pkgVersion:{2}", packageReq.getPkgName(),
                     packageReq.getPkgType(), packageReq.getPkgVersion());
             throw new ServiceOperationException(ServiceError.PKG_VERSION_NOT_EXIST);
         }
@@ -65,14 +63,14 @@ public class PkgMgtService {
     }
 
     /**
-     * 删除app版本
-     *  @param appName app名称
-     * @param appType app类型
-     * @param appVersion app版本号
+     * 删除pkg版本
+     *  @param pkgName pkg名称
+     * @param pkgType pkg类型
+     * @param pkgVersion pkg版本号
      */
     @Transactional
-    public void delAppinfo(String appName, String appType, String appVersion) {
-        pkgInfoEntityRepository.deleteByAppNameAndTypeAndVersion(appName, appType, appVersion);
+    public void delPkginfo(String pkgName, String pkgType, String pkgVersion) {
+        pkgInfoEntityRepository.deleteByAppNameAndTypeAndVersion(pkgName, pkgType, pkgVersion);
     }
 
 
@@ -166,6 +164,118 @@ public class PkgMgtService {
         return packageCheckRes;
     }
 
+    /**
+     * 强制升级 &兼容性 检测
+     *
+     * @param appPkgName app名称
+     * @param appPkgType app类型
+     * @param curAppVersion app当前版本
+     * @param boxPkgName box名称
+     * @param boxPkgType box类型
+     * @param curBoxVersion box当前版本
+     * @return 是否需要强制更新
+     */
+    public CompatibleCheckRes compatibleCheck(String appPkgName, String appPkgType, String curAppVersion, String boxPkgName,
+                                              String boxPkgType, String curBoxVersion) {
+        CompatibleCheckRes compatibleCheckRes = CompatibleCheckRes.of();
+        // 0.校验当前版本是否存在
+        PkgInfoEntity curAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(appPkgName, appPkgType, curAppVersion);
+        if (curAppPkg == null){
+            LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", appPkgName, appPkgType, curAppVersion);
+            return compatibleCheckRes;
+        }
+        PkgInfoEntity curBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(boxPkgName, boxPkgType, curBoxVersion);
+        if (curBoxPkg == null){
+            LOG.warnv("box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxPkgName, boxPkgType, curBoxVersion);
+            return compatibleCheckRes;
+        }
+
+        PkgInfoEntity targetAppPkgInfo = curAppPkg;     // 目标app版本=当前app版本
+        PkgInfoEntity targetBoxPkgInfo = curBoxPkg;     // 目标box版本=当前box版本
+        // 查询最新 app 版本
+        PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appPkgName, appPkgType);
+        // 查询最新 box 版本
+        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxPkgName, boxPkgType);
+        // 1.检查当前app版本是否需要强制升级
+        if (curAppPkg.getIsForceUpdate()) {
+            if (curAppVersion.compareToIgnoreCase(latestAppPkg.getPkgVersion()) >= 0) {
+                LOG.errorv("latest app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", appPkgName, appPkgType, curAppVersion);
+                throw new ServiceOperationException(ServiceError.LATEST_APP_VERSION_NOT_EXIST);
+            }
+            targetAppPkgInfo = latestAppPkg;    // 目标app版本=最新app版本
+            compatibleCheckRes.setIsAppForceUpdate(true);
+            compatibleCheckRes.setLastestAppPkg(pkgInfoEntityToRes(latestAppPkg));
+            LOG.infov("app version needs to force upgrade, appName:{0}, appType:{1}, appVersion:{2}", appPkgName, appPkgType, curAppVersion);
+        }
+        // 2.检查当前box版本是否需要强制升级
+        if (curBoxPkg.getIsForceUpdate()) {
+            if (curBoxVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) >= 0) {
+                LOG.errorv("latest box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxPkgName, boxPkgType, curBoxVersion);
+                throw new ServiceOperationException(ServiceError.LATEST_BOX_VERSION_NOT_EXIST);
+            }
+            targetBoxPkgInfo = latestBoxPkg;    // 目标box版本=最新box版本
+            compatibleCheckRes.setIsBoxForceUpdate(true);
+            compatibleCheckRes.setLastestBoxPkg(pkgInfoEntityToRes(latestBoxPkg));
+            LOG.infov("box version needs to force upgrade, boxName:{0}, boxType:{1}, boxVersion:{2}", boxPkgName, boxPkgType, curBoxVersion);
+        }
+        // 3.判断目标app版本与目标box版本是否兼容
+        isCompatible(targetAppPkgInfo, latestAppPkg, targetBoxPkgInfo, latestBoxPkg, compatibleCheckRes);
+        return compatibleCheckRes;
+    }
+
+    /**
+     * 判断app版本与box版本是否兼容
+     *
+     * @param targetAppPkg app版本
+     * @param latestAppPkg 最新box版本
+     * @param targetBoxPkg box版本
+     * @param latestBoxPkg 最新box版本
+     * @return 是否兼容
+     */
+    private void isCompatible(PkgInfoEntity targetAppPkg, PkgInfoEntity latestAppPkg, PkgInfoEntity targetBoxPkg,
+                                 PkgInfoEntity latestBoxPkg, CompatibleCheckRes compatibleCheckRes) {
+        if (compatibleCheckRes.getIsAppForceUpdate() && compatibleCheckRes.getIsBoxForceUpdate()) {
+            return;
+        }
+        // 1.检查目标app版本是否小于“目标box所兼容的最小app版本”
+        String minCompatibleAppVersion;
+        switch (PkgTypeEnum.fromValue(targetAppPkg.getPkgType())) {
+            case ANDROID:
+                minCompatibleAppVersion = targetBoxPkg.getMinCompatibleAndroidVersion();
+                break;
+            case IOS:
+                minCompatibleAppVersion = targetBoxPkg.getMinCompatibleIOSVersion();
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+        if (targetAppPkg.getPkgVersion().compareToIgnoreCase(minCompatibleAppVersion) < 0) {
+            // 目标app版本比“目标box所兼容的最小app版本”低
+            compatibleCheckRes.setIsAppForceUpdate(true);
+            compatibleCheckRes.setLastestAppPkg(pkgInfoEntityToRes(latestAppPkg));
+            LOG.infov("app version needs to force upgrade, appName:{0}, appType:{1}, appVersion:{2}", targetAppPkg.getPkgName(),
+                    targetAppPkg.getPkgType(), targetAppPkg.getPkgVersion());
+
+            //目标app版本=最新app版本,递归调用
+            targetAppPkg = latestAppPkg;
+            isCompatible(targetAppPkg, latestAppPkg, targetBoxPkg, latestBoxPkg, compatibleCheckRes);
+        }
+
+        // 2.检查目标box版本是否小于“目标app所兼容的最小box版本”
+        String minCompatibleBoxVersion = targetAppPkg.getMinCompatibleBoxVersion();
+        if (targetBoxPkg.getPkgVersion().compareToIgnoreCase(minCompatibleBoxVersion) < 0) {
+            // 目标box的版本比“目标app所兼容的最小box版本”低
+            compatibleCheckRes.setIsBoxForceUpdate(true);
+            compatibleCheckRes.setLastestBoxPkg(pkgInfoEntityToRes(latestBoxPkg));
+            LOG.infov("box version needs to force upgrade, boxName:{0}, boxType:{1}, boxVersion:{2}", targetBoxPkg.getPkgName(),
+                    targetBoxPkg.getPkgType(), targetBoxPkg.getPkgVersion());
+
+            //目标box版本=最新box版本,递归调用
+            targetBoxPkg = latestBoxPkg;
+            isCompatible(targetAppPkg, latestAppPkg, targetBoxPkg, latestBoxPkg, compatibleCheckRes);
+        }
+    }
+
     private PackageRes pkgInfoEntityToRes(PkgInfoEntity PkgInfoEntity) {
         return PackageRes.of(PkgInfoEntity.getPkgName(),
                 PkgInfoEntity.getPkgType(),
@@ -193,6 +303,4 @@ public class PkgMgtService {
                 packageReq.getMinIOSVersion(),
                 packageReq.getMinBoxVersion(), null);
     }
-
-
 }

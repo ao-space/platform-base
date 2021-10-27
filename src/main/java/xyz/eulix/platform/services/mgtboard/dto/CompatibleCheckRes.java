@@ -15,9 +15,9 @@ public class CompatibleCheckRes {
 
     // 最新app软件包信息
     @Schema(description = "最新app软件包信息")
-    private final PackageRes lastestAppPkg;
+    private PackageRes lastestAppPkg;
 
     // 最新box软件包信息
     @Schema(description = "最新box软件包信息")
-    private final PackageRes lastestBoxPkg;
+    private PackageRes lastestBoxPkg;
 }

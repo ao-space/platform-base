@@ -25,6 +25,8 @@ public enum ServiceError {
 
   PKG_VERSION_NOT_EXIST(2002, "pkg version does not exist"),
   PKG_VERSION_EXISTED(2003, "pkg version has already existed"),
+  LATEST_APP_VERSION_NOT_EXIST(2010, "latest app version does not exist"),
+  LATEST_BOX_VERSION_NOT_EXIST(2011, "latest box version does not exist"),
 
   PROPOSAL_NOT_EXIST(2004, "proposal does not exist"),
   FILE_NOT_FOUND(2005, "file not found"),

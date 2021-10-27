@@ -46,14 +46,14 @@ public class PackageResource {
                                            @QueryParam("box_pkg_type") String boxPkgType,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_box_version") String curBoxVersion,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_app_version") String curAppVersion) {
-        return CompatibleCheckRes.of(null, null);
+        return pkgMgtService.compatibleCheck(appPkgName, appPkgType, curAppVersion, boxPkgName, boxPkgType, curBoxVersion);
     }
 
     @GET
     @Path("/package/check")
     @Logged
     @Operation(description = "检查软件包版本更新")
-    public PackageCheckRes appPkgCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+    public PackageCheckRes packageCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                        @NotBlank @Parameter(required = true, schema = @Schema(enumeration = {"app_check", "box_check"}))
                                            @ValueOfEnum(enumClass = PkgActionEnum.class, valueMethod = "getName") @QueryParam("action") String action,
                                        @NotBlank @Parameter(required = true) @QueryParam("app_name") String appName,
@@ -79,7 +79,7 @@ public class PackageResource {
     @Path("/package")
     @Logged
     @Operation(description = "增加软件包版本")
-    public PackageRes appPkgSave(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+    public PackageRes packageSave(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                  @Valid PackageReq packageReq) {
         return pkgMgtService.savePkgInfo(packageReq);
     }
@@ -88,22 +88,22 @@ public class PackageResource {
     @Path("/package")
     @Logged
     @Operation(description = "更新软件包版本")
-    public PackageRes appPkgUpdate(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+    public PackageRes packageUpdate(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                    @Valid PackageReq packageReq) {
-        return pkgMgtService.updateAppinfo(packageReq);
+        return pkgMgtService.updatePkginfo(packageReq);
     }
 
     @DELETE
     @Path("/package")
     @Logged
     @Operation(description = "删除软件包版本")
-    public BaseResultRes appPkgDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+    public BaseResultRes packageDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                     @NotBlank @Parameter(required = true) @QueryParam("pkg_name") String pkgName,
                                     @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
                                         @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios", "box"}))
                                         @QueryParam("pkg_type") String pkgType,
                                     @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("pkg_version") String pkgVersion) {
-        pkgMgtService.delAppinfo(pkgName, pkgType, pkgVersion);
+        pkgMgtService.delPkginfo(pkgName, pkgType, pkgVersion);
         return BaseResultRes.of(true);
     }
 }
