@@ -1,15 +1,11 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
-import java.util.Objects;
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.mgtboard.dto.AppInfoCheckRes;
 import xyz.eulix.platform.services.mgtboard.dto.PackageCheckRes;
 import xyz.eulix.platform.services.mgtboard.dto.PackageReq;
 import xyz.eulix.platform.services.mgtboard.dto.PackageRes;
-import xyz.eulix.platform.services.mgtboard.dto.PkgActionEnum;
 import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
 import xyz.eulix.platform.services.mgtboard.repository.PkgInfoEntityRepository;
-import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
@@ -23,9 +19,6 @@ public class PkgMgtService {
 
     @Inject
     PkgInfoEntityRepository pkgInfoEntityRepository;
-
-    @Inject
-    ApplicationProperties properties;
 
     /**
      * 新增app版本
@@ -103,6 +96,13 @@ public class PkgMgtService {
 
         // 查询最新 app 版本
         PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appName, appType);
+        // 判断是否需要更新
+        if (curAppVersion.compareToIgnoreCase(latestAppPkg.getPkgVersion()) < 0) {
+            LOG.infov(
+                "app version need to update, appName:{0}, appType:{1}, from curVersion:{2} to newVersion:{3}",
+                appName, appType, curAppVersion, latestAppPkg.getPkgVersion());
+            return PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), null);
+        }
 
         // 判断 app 新版本与当前 box 版本兼容性
         if (curBoxVersion.compareToIgnoreCase(latestAppPkg.getMinCompatibleBoxVersion())  < 0) {
@@ -129,13 +129,19 @@ public class PkgMgtService {
         // 查询当前 Box 版本
         PkgInfoEntity curBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(boxName, boxType, curBoxVersion);
         if (curBoxPkg == null){
-            LOG.warnv("app version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxName, boxType, curBoxVersion);
+            LOG.warnv("box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxName, boxType, curBoxVersion);
             return PackageCheckRes.of(null, null);
         }
         // 查询最新 box 版本
         PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
-
-        // 查询最新 app 版本
+        // 判断是否需要更新
+        if (curAppVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
+            LOG.infov(
+                "box version need to update, boxName:{0}, boxType:{1}, from curVersion:{2} to newVersion:{3}",
+                boxName, boxType, curBoxVersion, latestBoxPkg.getPkgVersion());
+            return PackageCheckRes.of(null, pkgInfoEntityToRes(latestBoxPkg));
+        }
+        // 查询最新 box 版本
         PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
 
         String latestMinAppVersion;
