@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
@@ -7,7 +8,8 @@ import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 import javax.validation.constraints.*;
 
 
-@Data(staticConstructor = "of")
+@Data
+@AllArgsConstructor(staticName = "of")
 public class PackageReq {
     // package标识符
     @NotBlank

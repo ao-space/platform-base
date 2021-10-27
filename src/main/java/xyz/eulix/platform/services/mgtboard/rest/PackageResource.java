@@ -56,7 +56,8 @@ public class PackageResource {
     public PackageCheckRes packageCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                        @NotBlank @Parameter(required = true, schema = @Schema(enumeration = {"app_check", "box_check"}))
                                            @ValueOfEnum(enumClass = PkgActionEnum.class, valueMethod = "getName") @QueryParam("action") String action,
-                                       @NotBlank @Parameter(required = true) @QueryParam("pkg_name") String pkgName,
+                                       @NotBlank @Parameter(required = true) @QueryParam("app_name") String appName,
+                                        @NotBlank @Parameter(required = true) @QueryParam("box_name") String boxName,
                                         @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
                                         @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"}))
                                         @QueryParam("app_type") String appType,
@@ -67,8 +68,8 @@ public class PackageResource {
 
         PkgActionEnum actionEnum = PkgActionEnum.fromValue(action);
         switch (actionEnum){
-            case APP_CHECK: return pkgMgtService.checkAppInfo(pkgName, pkgType, curBoxVersion, curAppVersion);
-            case BOX_CHECK: return pkgMgtService.checkBoxInfo(pkgName, pkgType, curBoxVersion, curAppVersion, appType);
+            case APP_CHECK: return pkgMgtService.checkAppInfo(appName, boxName, pkgType, curBoxVersion, curAppVersion);
+            case BOX_CHECK: return pkgMgtService.checkBoxInfo(appName, boxName, pkgType, curBoxVersion, curAppVersion, appType);
             default:
                 throw new UnsupportedOperationException();
         }
