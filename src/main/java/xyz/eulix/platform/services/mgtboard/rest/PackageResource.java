@@ -56,20 +56,20 @@ public class PackageResource {
     public PackageCheckRes packageCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                        @NotBlank @Parameter(required = true, schema = @Schema(enumeration = {"app_check", "box_check"}))
                                            @ValueOfEnum(enumClass = PkgActionEnum.class, valueMethod = "getName") @QueryParam("action") String action,
-                                       @NotBlank @Parameter(required = true) @QueryParam("app_name") String appName,
-                                        @NotBlank @Parameter(required = true) @QueryParam("box_name") String boxName,
+                                       @NotBlank @Parameter(required = true) @QueryParam("app_pkg_name") String appName,
+                                        @NotBlank @Parameter(required = true) @QueryParam("box_pkg_name") String boxName,
                                         @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
                                         @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"}))
-                                        @QueryParam("app_type") String appType,
-                                       @NotNull @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios", "box"}))
-                                           @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName") @QueryParam("pkg_type") String pkgType,
+                                        @QueryParam("app_pkg_type") String appType,
+                                       @NotNull @Parameter(required = true, schema = @Schema(enumeration = {"box"}))
+                                           @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName") @QueryParam("box_pkg_type") String boxType,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_box_version") String curBoxVersion,
                                        @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("cur_app_version") String curAppVersion) {
 
         PkgActionEnum actionEnum = PkgActionEnum.fromValue(action);
         switch (actionEnum){
-            case APP_CHECK: return pkgMgtService.checkAppInfo(appName, boxName, pkgType, curBoxVersion, curAppVersion);
-            case BOX_CHECK: return pkgMgtService.checkBoxInfo(appName, boxName, pkgType, curBoxVersion, curAppVersion, appType);
+            case APP_CHECK: return pkgMgtService.checkAppInfo(appName, appType, curAppVersion, boxName, boxType, curBoxVersion);
+            case BOX_CHECK: return pkgMgtService.checkBoxInfo(appName, appType, curAppVersion, boxName, boxType, curBoxVersion);
             default:
                 throw new UnsupportedOperationException();
         }

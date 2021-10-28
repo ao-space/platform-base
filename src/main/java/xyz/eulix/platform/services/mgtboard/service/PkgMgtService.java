@@ -82,15 +82,17 @@ public class PkgMgtService {
      * @param curAppVersion App版本
      * @return 检查结果
      */
-    public PackageCheckRes checkAppInfo(String appName, String boxName, String appType, String curBoxVersion, String curAppVersion) {
+    public PackageCheckRes checkAppInfo(String appName, String appType, String curAppVersion,String boxName,String boxType, String curBoxVersion) {
+        PackageCheckRes packageCheckRes = new PackageCheckRes();
+
         // 查询当前 app 版本
         PkgInfoEntity curAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(appName, appType, curAppVersion);
         if (curAppPkg == null){
             LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", appName, appType, curAppVersion);
-            return PackageCheckRes.of(null, null);
+            return packageCheckRes;
         }
         // 查询最新 app、box 版本
-        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, "box");
+        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
         PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appName, appType);
 
         // 判断是否需要更新
@@ -98,22 +100,16 @@ public class PkgMgtService {
             LOG.infov(
                 "app version need to update, appName:{0}, appType:{1}, from curVersion:{2} to newVersion:{3}",
                 appName, appType, curAppVersion, latestAppPkg.getPkgVersion());
-            PackageCheckRes packageCheckRes = PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), null);
+            packageCheckRes.setLatestAppPkg(pkgInfoEntityToRes(latestAppPkg));
             packageCheckRes.setNewVersionExist(true);
-            return packageCheckRes;
-        }
 
-        // 判断 app 新版本与当前 box 版本兼容性
-        if (curBoxVersion.compareToIgnoreCase(latestAppPkg.getMinCompatibleBoxVersion())  < 0) {
-            // 当前盒子的版本比最新 app 兼容 box 版本低
-            PackageCheckRes packageCheckRes = PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), pkgInfoEntityToRes(latestBoxPkg));
-            packageCheckRes.setNewVersionExist(true);
-            packageCheckRes.setIsBoxNeedUpdate(true);
-            return packageCheckRes;
+            // 判断 app 新版本与当前 box 版本兼容性
+            if (curBoxVersion.compareToIgnoreCase(latestAppPkg.getMinCompatibleBoxVersion())  < 0) {
+                // 当前盒子的版本比最新 app 兼容 box 版本低
+                packageCheckRes.setLatestBoxPkg(pkgInfoEntityToRes(latestBoxPkg));
+                packageCheckRes.setIsBoxNeedUpdate(true);
+            }
         }
-        PackageCheckRes packageCheckRes = PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), pkgInfoEntityToRes(latestBoxPkg));
-        packageCheckRes.setNewVersionExist(true);
-
         return packageCheckRes;
     }
     /**
@@ -123,43 +119,40 @@ public class PkgMgtService {
      * @param curAppVersion App版本
      * @return 检查结果
      */
-    public PackageCheckRes checkBoxInfo(String appName, String boxName, String pkgType, String curBoxVersion, String curAppVersion, String appType) {
+    public PackageCheckRes checkBoxInfo(String appName, String appType, String curAppVersion,String boxName,String boxType, String curBoxVersion) {
+        PackageCheckRes packageCheckRes = new PackageCheckRes();
+
         // 查询当前 Box 版本
-        PkgInfoEntity curBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(boxName, pkgType, curBoxVersion);
+        PkgInfoEntity curBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(boxName, boxType, curBoxVersion);
         if (curBoxPkg == null){
-            LOG.warnv("box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxName, pkgType, curBoxVersion);
-            return PackageCheckRes.of(null, null);
-        }
-        // 查询最新 box 版本
-        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, pkgType);
-        // 判断是否需要更新
-        if (curAppVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
-            LOG.infov(
-                "box version need to update, boxName:{0}, boxType:{1}, from curVersion:{2} to newVersion:{3}",
-                boxName, "box", curBoxVersion, latestBoxPkg.getPkgVersion());
-            PackageCheckRes  packageCheckRes= PackageCheckRes.of(null, pkgInfoEntityToRes(latestBoxPkg));
-            packageCheckRes.setNewVersionExist(true);
+            LOG.warnv("box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxName, boxType, curBoxVersion);
             return packageCheckRes;
         }
+        // 查询最新 box 版本
+        PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
         // 查询最新 app 版本
         PkgInfoEntity latestAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(appName, appType);
-
         String latestMinAppVersion;
         if("ios".equals(appType)){
             latestMinAppVersion = latestBoxPkg.getMinCompatibleIOSVersion();
         }else {
             latestMinAppVersion = latestBoxPkg.getMinCompatibleAndroidVersion();
         }
-        // 判断 box 新版本与当前 app 版本兼容性
-        if (curAppVersion.compareToIgnoreCase(latestMinAppVersion)  < 0) {
-            // 当前 app 的版本比最新 box 兼容 app 版本低
-            PackageCheckRes packageCheckRes = PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), pkgInfoEntityToRes(latestBoxPkg));
+
+        // 判断是否需要更新
+        if (curAppVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
+            LOG.infov(
+                "box version need to update, boxName:{0}, boxType:{1}, from curVersion:{2} to newVersion:{3}",
+                boxName, "box", curBoxVersion, latestBoxPkg.getPkgVersion());
+            packageCheckRes.setLatestBoxPkg(pkgInfoEntityToRes(latestBoxPkg));
             packageCheckRes.setNewVersionExist(true);
-            packageCheckRes.setIsAppNeedUpdate(true);
-            return packageCheckRes;
+            // 判断 box 新版本与当前 app 版本兼容性
+            if (curAppVersion.compareToIgnoreCase(latestMinAppVersion)  < 0) {
+                // 当前 app 的版本比最新 box 兼容 app 版本低
+                packageCheckRes.setLatestAppPkg(pkgInfoEntityToRes(latestAppPkg));
+                packageCheckRes.setIsAppNeedUpdate(true);
+            }
         }
-        PackageCheckRes packageCheckRes = PackageCheckRes.of(pkgInfoEntityToRes(latestAppPkg), pkgInfoEntityToRes(latestBoxPkg));
-        packageCheckRes.setNewVersionExist(true);
 
         return packageCheckRes;
     }
