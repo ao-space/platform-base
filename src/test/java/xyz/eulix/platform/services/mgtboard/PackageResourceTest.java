@@ -15,6 +15,7 @@ import xyz.eulix.platform.services.mgtboard.dto.PackageReq;
 import xyz.eulix.platform.services.mgtboard.dto.PackageRes;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -32,13 +33,26 @@ public class PackageResourceTest {
       "http://box2.0", "box 1.0 版本", "12345678901234567890123456789012", true, "2.0",
       "2.0", "0");
 
+
+
+  @Test
+  @Order(1)
+  void appPkgSaveTest() {
+
+    PackageRes packageRes = add(app_1_0);
+
+    assert Objects.equals(packageRes.getPkgName(), app_1_0.getPkgName());
+  }
+
+
+
   @Test
   @Order(2)
   void appPkgCheckAppTest() {
 
     given()
         .header("Request-Id", "uuid")
-        .body(app_1_0)
+        .body(app_2_0)
         .contentType(ContentType.JSON)
         .when()
         .post("/v1/api/package");
@@ -52,10 +66,10 @@ public class PackageResourceTest {
     final Response resp = given()
         .header("Request-Id", "uuid")
         .queryParam("action","app_check")
-        .queryParam("app_name","app-1")
-        .queryParam("box_name","box-1")
-        .queryParam("pkg_type","ios")
-        .queryParam("app_type","ios")
+        .queryParam("app_pkg_name","app-1")
+        .queryParam("box_pkg_name","box-1")
+        .queryParam("box_pkg_type","box")
+        .queryParam("app_pkg_type","ios")
         .queryParam("cur_box_version","1.0")
         .queryParam("cur_app_version","1.0")
         .contentType(ContentType.JSON)
@@ -63,28 +77,28 @@ public class PackageResourceTest {
         .get("/v1/api/package/check");
     PackageCheckRes res = resp.body().as(PackageCheckRes.class);
 
-    assert res.getNewVersionExist();
+    assertEquals(res.getNewVersionExist(), true);
   }
 
   @Test
-  @Order(11)
-  void appPkgCheckAppUpdateBoxNotCompatible() {
+  @Order(3)
+  void appPkgUpdateTest() {
 
-
+    String url = "http://test";
+    app_1_0.setDownloadUrl(url);
     given()
         .header("Request-Id", "uuid")
         .body(app_1_0)
         .contentType(ContentType.JSON)
         .when()
-        .post("/v1/api/package");
+        .put("/v1/api/package")
+        .then()
+        .body(containsString(url));
+  }
 
-
-    given()
-        .header("Request-Id", "uuid")
-        .body(app_2_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
+  @Test
+  @Order(4)
+  void appPkgCheckAppUpdateBoxNotCompatible() {
 
     given()
         .header("Request-Id", "uuid")
@@ -104,10 +118,10 @@ public class PackageResourceTest {
     final Response resp = given()
         .header("Request-Id", "uuid")
         .queryParam("action","app_check")
-        .queryParam("app_name","app-1")
-        .queryParam("box_name","box-1")
-        .queryParam("pkg_type","ios")
-        .queryParam("app_type","ios")
+        .queryParam("app_pkg_name","app-1")
+        .queryParam("box_pkg_name","box-1")
+        .queryParam("box_pkg_type","box")
+        .queryParam("app_pkg_type","ios")
         .queryParam("cur_box_version","1.0")
         .queryParam("cur_app_version","1.0")
         .contentType(ContentType.JSON)
@@ -115,11 +129,11 @@ public class PackageResourceTest {
         .get("/v1/api/package/check");
     PackageCheckRes res = resp.body().as(PackageCheckRes.class);
 
-    assert res.getNewVersionExist();
+    assertEquals(res.getNewVersionExist(), true);
   }
 
   @Test
-  @Order(12)
+  @Order(5)
   void appPkgCheckTestBox() {
 
     given()
@@ -140,50 +154,24 @@ public class PackageResourceTest {
     final Response resp = given()
         .header("Request-Id", "uuid")
         .queryParam("action","box_check")
-        .queryParam("box_name","box-1")
-        .queryParam("pkg_type","box")
-        .queryParam("app_name", "app-1")
-        .queryParam("app_type","ios")
+        .queryParam("box_pkg_name","box-1")
+        .queryParam("box_pkg_type","box")
+        .queryParam("app_pkg_name", "app-1")
+        .queryParam("app_pkg_type","ios")
         .queryParam("cur_box_version","1.0")
         .queryParam("cur_app_version","1.0")
         .contentType(ContentType.JSON)
         .when()
         .get("/v1/api/package/check");
     PackageCheckRes res = resp.body().as(PackageCheckRes.class);
-
-    assert res.getNewVersionExist();
-  }
-
-  @Test
-  @Order(1)
-  void appPkgSaveTest() {
-
-    PackageRes packageRes = add(app_1_0);
-
-    assert Objects.equals(packageRes.getPkgName(), app_1_0.getPkgName());
+    assertEquals(res.getNewVersionExist(), true);
   }
 
 
-  @Test
-  @Order(3)
-  void appPkgUpdateTest() {
 
-    String url = "http://test";
-    app_1_0.setDownloadUrl(url);
-    final Response resp1 = given()
-        .header("Request-Id", "uuid")
-        .body(app_1_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .put("/v1/api/package");
-
-    PackageRes packageRes = resp1.body().as(PackageRes.class);
-    assert Objects.equals(packageRes.getDownloadUrl(), url);
-
-  }
 
   @Test
-  @Order(4)
+  @Order(6)
   void appPkgDelTest() {
 
 
