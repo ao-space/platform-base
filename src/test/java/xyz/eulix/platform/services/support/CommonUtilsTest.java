@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UtilsTest {
+class CommonUtilsTest {
 
   @Test
   void createUnifiedRandomCharacters() {
-    final String characters = Utils.createUnifiedRandomCharacters(12);
+    final String characters = CommonUtils.createUnifiedRandomCharacters(12);
     assertEquals(12, characters.length());
   }
 }

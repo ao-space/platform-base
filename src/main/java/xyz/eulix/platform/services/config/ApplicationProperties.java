@@ -42,6 +42,6 @@ public interface ApplicationProperties {
     @ConfigProperty(name = "display.unit.factor")
     BigDecimal getDisplayUnitFactor();
 
-    @ConfigProperty(name = "forceupdate.minVersion")
-    String getForceUpdateMinVersion();
+    @ConfigProperty(name = "file.location")
+    String getFileLocation();
 }
