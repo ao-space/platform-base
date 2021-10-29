@@ -188,6 +188,22 @@ public class PackageResourceTest {
         .body(containsString("true"));
   }
 
+  @Test
+  @Order(7)
+  void packageBoxCheckTest() {
+
+    given()
+        .header("Request-Id", "uuid")
+        .queryParam("box_pkg_name","box-1")
+        .queryParam("box_pkg_type","box")
+        .contentType(ContentType.JSON)
+        .when()
+        .get("/v1/api/package/box")
+        .then()
+        .statusCode(OK.getStatusCode())
+        .body(containsString("true"));
+  }
+
   public PackageRes add(PackageReq req){
     final Response resp = given()
         .header("Request-Id", "uuid")

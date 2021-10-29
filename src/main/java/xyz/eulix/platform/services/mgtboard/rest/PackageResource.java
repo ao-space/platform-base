@@ -75,6 +75,15 @@ public class PackageResource {
         }
     }
 
+    @GET
+    @Path("/package/box")
+    @Logged
+    @Operation(description = "检查 box 最新版本")
+    public PackageRes packageBoxCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+        @NotBlank @QueryParam("box_pkg_name") String boxName, @NotBlank @QueryParam("box_pkg_type") String boxType) {
+        return pkgMgtService.getBoxLatestVersion(boxName, boxType);
+    }
+
     @POST
     @Path("/package")
     @Logged

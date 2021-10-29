@@ -296,4 +296,8 @@ public class PkgMgtService {
                 packageReq.getMinIOSVersion(),
                 packageReq.getMinBoxVersion(), null);
     }
+
+  public PackageRes getBoxLatestVersion(String boxName, String boxType) {
+      return pkgInfoEntityToRes(pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType));
+  }
 }
