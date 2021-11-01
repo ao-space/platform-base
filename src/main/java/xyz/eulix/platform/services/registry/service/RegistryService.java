@@ -78,7 +78,7 @@ public class RegistryService {
 
   @Transactional
   public Optional<RegistryEntity> findByBoxUUID(String uuid) {
-    return registryRepository.find("box_uuid", uuid).singleResultOptional();
+    return registryRepository.findByBoxUUIDAndType(uuid, RegistryTypeEnum.BOX.getName()).singleResultOptional();
   }
 
   public List<RegistryEntity> findAllByClientUUIDAndClientRegKey(String boxUUID, String clientUUID, String clientRegKey) {

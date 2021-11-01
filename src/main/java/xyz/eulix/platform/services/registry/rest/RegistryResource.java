@@ -114,6 +114,7 @@ public class RegistryResource {
       registryService.deleteByBoxUUID(resetInfo.getBoxUUID());
       return RegistryResetResult.of(resetInfo.getBoxUUID());
     } else {
+      LOG.warnv("box uuid had not registered, boxUuid:{0}", resetInfo.getBoxUUID());
       throw new WebApplicationException("invalid registry reset info", Response.Status.FORBIDDEN);
     }
   }

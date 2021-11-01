@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.registry.repository;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import xyz.eulix.platform.services.registry.entity.RegistryEntity;
 
@@ -21,6 +22,9 @@ public class RegistryEntityRepository implements PanacheRepository<RegistryEntit
     // 根据box_uuid、client_uuid查询资源
     private static final String FIND_BY_CLIENTUUID = "box_uuid=?1 AND client_uuid=?2";
 
+    // 根据box_uuid、type查询资源
+    private static final String FIND_BY_BOXUUID_TYPE = "box_uuid=?1 AND type=?2";
+
     public List<RegistryEntity> findAllByBoxUUIDAndBoxRegKey(String boxUUID, String boxRegKey) {
         return this.find(FIND_BY_BOXUUID_BOXREGKEY, boxUUID, boxRegKey).list();
     }
@@ -31,5 +35,9 @@ public class RegistryEntityRepository implements PanacheRepository<RegistryEntit
 
     public void deleteByClientUUID(String boxUUID, String clientUUID) {
         this.delete(FIND_BY_CLIENTUUID, boxUUID, clientUUID);
+    }
+
+    public PanacheQuery<RegistryEntity> findByBoxUUIDAndType(String boxUUID, String type) {
+        return this.find(FIND_BY_BOXUUID_TYPE, boxUUID, type);
     }
 }
