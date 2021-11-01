@@ -52,8 +52,11 @@ public class RegistryResource {
       final TunnelServer server = TunnelServer.of(
           properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
           TunnelServer.Auth.of("n/a", "n/a"));
-      final RegistryEntity re = registryService.createRegistry(registryInfo);
-      return RegistryResult.of(re.getClientRegKey(), re.getBoxRegKey(), re.getSubdomain(), server);
+      // box 注册
+      final RegistryEntity reBox = registryService.createRegistry(registryInfo);
+      // 管理员 client 注册
+      final RegistryEntity reClient = registryService.createClientRegistry(reBox, registryInfo.getClientUUID());
+      return RegistryResult.of(reClient.getClientRegKey(), reClient.getBoxRegKey(), reClient.getSubdomain(), server);
     } else {
       throw new WebApplicationException(
           "box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);

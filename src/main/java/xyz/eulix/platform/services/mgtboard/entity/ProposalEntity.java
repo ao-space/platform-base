@@ -25,8 +25,8 @@ public class ProposalEntity extends BaseEntity {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "phone_numer")
-    private String phoneNumer;
+    @Column(name = "phone_number")
+    private String phoneNumber;
 
     @Column(name = "image_urls")
     private String imageUrls;

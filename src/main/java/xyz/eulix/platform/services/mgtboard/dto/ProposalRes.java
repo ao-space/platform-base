@@ -23,7 +23,7 @@ public class ProposalRes {
 
     // 手机号码
     @Schema(description = "手机号码")
-    private final String phoneNumer;
+    private final String phoneNumber;
 
     // 图片地址
     @Schema(description = "图片地址")

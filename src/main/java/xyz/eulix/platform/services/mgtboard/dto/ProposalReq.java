@@ -22,7 +22,7 @@ public class ProposalReq {
     // 手机号码
     @Pattern(regexp = "^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$")
     @Schema(pattern = "^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$", description = "手机号码")
-    private String phoneNumer;
+    private String phoneNumber;
 
     // 图片地址，最多4张
     @Size(max = 4)

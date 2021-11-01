@@ -33,7 +33,9 @@ public enum ServiceError {
   UPLOAD_FILE_FAILED(2006, "upload file failed"),
   DOWNLOAD_FILE_FAILED(2007, "download file failed"),
   FILE_SIZE_EXCEED_PERMIT(2008, "file exceeds its maximum permitted size of {0} bytes"),
-  DIR_CREATE_FAILED(2009, "create directory failed");
+  DIR_CREATE_FAILED(2009, "create directory failed"),
+
+  INPUT_PARAMETER_ERROR(2012, "input parameter error:{0}"),
   ;
 
   /**

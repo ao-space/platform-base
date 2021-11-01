@@ -6,11 +6,13 @@ CREATE TABLE IF NOT EXISTS registries (
     box_uuid VARCHAR(128) NOT NULL,
     client_uuid VARCHAR(128) NOT NULL,
     subdomain VARCHAR(128) NOT NULL,
+    type VARCHAR(128) NOT NULL COMMENT '注册类型box/client',
     created_at DATETIME,
     updated_at DATETIME,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_guards (box_uuid, client_uuid, subdomain)
+    UNIQUE KEY uk_boxid_clientid (box_uuid, client_uuid),
+    UNIQUE KEY uk_subdomain (subdomain)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS notify_device (
