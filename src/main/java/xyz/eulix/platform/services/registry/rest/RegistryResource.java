@@ -52,8 +52,10 @@ public class RegistryResource {
       final TunnelServer server = TunnelServer.of(
           properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
           TunnelServer.Auth.of("n/a", "n/a"));
-      final RegistryEntity re = registryService.createRegistry(registryInfo);
-      return RegistryResult.of(re.getClientRegKey(), re.getBoxRegKey(), re.getSubdomain(), server);
+      // box 注册 & 管理员 client 注册
+      String subDomain = registryInfo.getSubdomain() + "." + properties.getRegistrySubdomain();
+      final RegistryEntity reClient = registryService.createRegistry(registryInfo, registryInfo.getClientUUID(), subDomain);
+      return RegistryResult.of(reClient.getClientRegKey(), reClient.getBoxRegKey(), subDomain, server);
     } else {
       throw new WebApplicationException(
           "box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
@@ -95,7 +97,7 @@ public class RegistryResource {
             properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
             TunnelServer.Auth.of("n/a", "n/a"));
     final RegistryEntity re = registryService.createClientRegistry(registryEntityList.get(0), registryInfo.getClientUUID());
-    return ClientRegistryResult.of(re.getClientRegKey(), re.getSubdomain(), server);
+    return ClientRegistryResult.of(re.getClientRegKey(), registryEntityList.get(0).getSubdomain(), server);
   }
 
   @Logged
@@ -111,6 +113,7 @@ public class RegistryResource {
       registryService.deleteByBoxUUID(resetInfo.getBoxUUID());
       return RegistryResetResult.of(resetInfo.getBoxUUID());
     } else {
+      LOG.warnv("box uuid had not registered, boxUuid:{0}", resetInfo.getBoxUUID());
       throw new WebApplicationException("invalid registry reset info", Response.Status.FORBIDDEN);
     }
   }

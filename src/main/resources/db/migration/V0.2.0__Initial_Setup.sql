@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS registries (
     updated_at DATETIME,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_guards (box_uuid, client_uuid, subdomain)
+    UNIQUE INDEX uk_guards (box_uuid, client_uuid, subdomain)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS notify_device (

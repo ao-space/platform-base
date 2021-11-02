@@ -62,11 +62,11 @@ public class ProposalService {
             throw new ServiceOperationException(ServiceError.PROPOSAL_NOT_EXIST);
         }
         proposalEntityRepository.updateById(proposalId, proposalReq.getContent(), proposalReq.getEmail(),
-                proposalReq.getPhoneNumer(), String.join(",", proposalReq.getImageUrls()));
+                proposalReq.getPhoneNumber(), String.join(",", proposalReq.getImageUrls()));
         return ProposalRes.of(proposalId,
                 proposalReq.getContent(),
                 proposalReq.getEmail(),
-                proposalReq.getPhoneNumer(),
+                proposalReq.getPhoneNumber(),
                 proposalReq.getImageUrls());
     }
 
@@ -122,14 +122,14 @@ public class ProposalService {
         return ProposalRes.of(proposalEntity.getId(),
                 proposalEntity.getContent(),
                 proposalEntity.getEmail(),
-                proposalEntity.getPhoneNumer(),
+                proposalEntity.getPhoneNumber(),
                 Arrays.asList(proposalEntity.getImageUrls().split(",")));
     }
 
     private ProposalEntity proposalReqToEntity(ProposalReq proposalReq) {
         return ProposalEntity.of(proposalReq.getContent(),
                 proposalReq.getEmail(),
-                proposalReq.getPhoneNumer(),
+                proposalReq.getPhoneNumber(),
                 String.join(",", proposalReq.getImageUrls()));
     }
 
@@ -140,6 +140,10 @@ public class ProposalService {
      * @return 文件信息
      */
     public UploadFileRes upload(MultipartBody multipartBody) {
+        if (multipartBody.file == null) {
+            LOG.debug("input parameter file is null");
+            throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "multipartBody.file");
+        }
         String folderPath = properties.getFileLocation() + "/" + CommonUtils.getDayOrderFormat();
         initDirectory(folderPath);
         String filePath = folderPath + "/" + fileRename(multipartBody.fileName);

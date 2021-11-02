@@ -21,42 +21,58 @@ class RegistryResourceTest {
   void registry() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
       info.setSubdomain(subdomain);
       info.setClientUUID(cid);
     }
-    given()
+    final RegistryResult result = given()
         .header("Request-Id", "uuid")
         .body(info)
         .contentType(ContentType.JSON)
         .when().post("/v1/api/registry")
+        .body()
+        .as(RegistryResult.class);
+    assertTrue(result.getUserDomain().contains(info.getSubdomain()));
+
+    RegistryResetInfo reset = new RegistryResetInfo();
+    {
+      reset.setBoxUUID(bid);
+      reset.setBoxRegKey(result.getBoxRegKey());
+    }
+
+    given()
+        .header("Request-Id", "uuid")
+        .body(reset)
+        .contentType(ContentType.JSON)
+        .when().post("/v1/api/registry/reset")
         .then()
         .statusCode(200)
-        .body(containsString("hello"));
+        .body(containsString(bid));
   }
 
   @Test
   void registryDuplicated() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
       info.setSubdomain(subdomain);
       info.setClientUUID(cid);
     }
-    given()
+    final RegistryResult result = given()
         .header("Request-Id", "uuid")
         .body(info)
         .contentType(ContentType.JSON)
         .when().post("/v1/api/registry")
-        .then()
-        .statusCode(200)
-        .body(containsString("hello"));
+        .body()
+        .as(RegistryResult.class);
+
+    assertTrue(result.getUserDomain().contains(info.getSubdomain()));
 
     given()
         .header("Request-Id", "uuid")
@@ -65,13 +81,28 @@ class RegistryResourceTest {
         .when().post("/v1/api/registry")
         .then()
         .statusCode(406);
+
+    RegistryResetInfo reset = new RegistryResetInfo();
+    {
+      reset.setBoxUUID(bid);
+      reset.setBoxRegKey(result.getBoxRegKey());
+    }
+
+    given()
+            .header("Request-Id", "uuid")
+            .body(reset)
+            .contentType(ContentType.JSON)
+            .when().post("/v1/api/registry/reset")
+            .then()
+            .statusCode(200)
+            .body(containsString(bid));
   }
 
   @Test
   void reset() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
@@ -99,22 +130,13 @@ class RegistryResourceTest {
         .then()
         .statusCode(200)
         .body(containsString(bid));
-
-    given()
-        .header("Request-Id", "uuid")
-        .body(info)
-        .contentType(ContentType.JSON)
-        .when().post("/v1/api/registry")
-        .then()
-        .statusCode(200)
-        .body(containsString("hello"));
   }
 
   @Test
   void verifyBox() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
@@ -135,13 +157,28 @@ class RegistryResourceTest {
         .when().get("/v1/api/registry/verify/box")
         .then()
         .statusCode(200);
+
+    RegistryResetInfo reset = new RegistryResetInfo();
+    {
+      reset.setBoxUUID(bid);
+      reset.setBoxRegKey(result.getBoxRegKey());
+    }
+
+    given()
+        .header("Request-Id", "uuid")
+        .body(reset)
+        .contentType(ContentType.JSON)
+        .when().post("/v1/api/registry/reset")
+        .then()
+        .statusCode(200)
+        .body(containsString(bid));
   }
 
   @Test
   void verifyClient() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
@@ -163,5 +200,21 @@ class RegistryResourceTest {
         .when().get("/v1/api/registry/verify/client")
         .then()
         .statusCode(200);
+
+
+    RegistryResetInfo reset = new RegistryResetInfo();
+    {
+      reset.setBoxUUID(bid);
+      reset.setBoxRegKey(result.getBoxRegKey());
+    }
+
+    given()
+        .header("Request-Id", "uuid")
+        .body(reset)
+        .contentType(ContentType.JSON)
+        .when().post("/v1/api/registry/reset")
+        .then()
+        .statusCode(200)
+        .body(containsString(bid));
   }
 }

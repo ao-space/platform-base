@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryInfo;
+import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
 import xyz.eulix.platform.services.registry.entity.RegistryEntity;
 import xyz.eulix.platform.services.registry.repository.RegistryEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
@@ -21,6 +22,10 @@ import java.util.Set;
  */
 @ApplicationScoped
 public class RegistryService {
+  // 默认client uuid
+  private static final String DEFAULT_CLIENT_UUID = "0";
+  // 默认client reg key
+  private static final String DEFAULT_CLIENT_REG_KEY = "0";
 
   @Inject
   ApplicationProperties properties;
@@ -73,7 +78,7 @@ public class RegistryService {
 
   @Transactional
   public Optional<RegistryEntity> findByBoxUUID(String uuid) {
-    return registryRepository.find("box_uuid", uuid).singleResultOptional();
+    return registryRepository.findByBoxUUIDAndType(uuid, RegistryTypeEnum.BOX.getName()).singleResultOptional();
   }
 
   public List<RegistryEntity> findAllByClientUUIDAndClientRegKey(String boxUUID, String clientUUID, String clientRegKey) {
@@ -85,17 +90,20 @@ public class RegistryService {
   }
 
   @Transactional
-  public RegistryEntity createRegistry(RegistryInfo info) {
+  public RegistryEntity createRegistry(RegistryInfo info, String clientUUID, String subDomain) {
     RegistryEntity entity = new RegistryEntity();
     {
       entity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
-      entity.setClientRegKey("crk_" + CommonUtils.createUnifiedRandomCharacters(10));
+      entity.setClientRegKey(DEFAULT_CLIENT_REG_KEY);
       entity.setBoxUUID(info.getBoxUUID());
-      entity.setClientUUID(info.getClientUUID());
-      entity.setSubdomain(info.getSubdomain() + "." + properties.getRegistrySubdomain());
+      entity.setClientUUID(DEFAULT_CLIENT_UUID);
+      entity.setSubdomain(subDomain);
+      entity.setRegistryType(RegistryTypeEnum.BOX.getName());
     }
     registryRepository.persist(entity);
-    return entity;
+    // 管理员 client 注册
+    RegistryEntity reClient = createClientRegistry(entity, clientUUID);
+    return reClient;
   }
 
   @Transactional
@@ -106,7 +114,8 @@ public class RegistryService {
       entity.setClientRegKey("crk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setBoxUUID(boxRegistryEntity.getBoxUUID());
       entity.setClientUUID(clientUUID);
-      entity.setSubdomain(boxRegistryEntity.getSubdomain());
+      entity.setSubdomain(null);
+      entity.setRegistryType(RegistryTypeEnum.CLIENT.getName());
     }
     registryRepository.persist(entity);
     return entity;

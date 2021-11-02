@@ -3,7 +3,9 @@ package xyz.eulix.platform.services.registry.entity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
 import xyz.eulix.platform.services.support.model.BaseEntity;
+import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,7 +32,11 @@ public class RegistryEntity extends BaseEntity {
   @Column(name = "client_uuid")
   private String clientUUID;
 
-  @NotBlank
   @Column(name = "subdomain")
   private String subdomain;
+
+  @NotBlank
+  @Column(name = "type")
+  @ValueOfEnum(enumClass = RegistryTypeEnum.class, valueMethod = "getName")
+  private String registryType;
 }
