@@ -33,6 +33,6 @@ CREATE TABLE IF NOT EXISTS proposal (
 
 ALTER TABLE proposal RENAME COLUMN phone_numer TO phone_number;
 ALTER TABLE registries ADD COLUMN type VARCHAR(128) NOT NULL;
-ALTER TABLE registries DROP KEY uk_guards;
-ALTER TABLE registries ADD KEY uk_boxid_clientid (box_uuid, client_uuid);
-ALTER TABLE registries ADD KEY uk_subdomain (subdomain)
+ALTER TABLE registries DROP INDEX uk_guards;
+ALTER TABLE registries ADD UNIQUE KEY uk_boxid_clientid (box_uuid, client_uuid);
+ALTER TABLE registries ADD UNIQUE KEY uk_subdomain (subdomain);
