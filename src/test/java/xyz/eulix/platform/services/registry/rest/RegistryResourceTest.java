@@ -35,7 +35,7 @@ class RegistryResourceTest {
         .when().post("/v1/api/registry")
         .body()
         .as(RegistryResult.class);
-    assertEquals(result.getUserDomain(), info.getSubdomain());
+    assertTrue(result.getUserDomain().contains(info.getSubdomain()));
 
     RegistryResetInfo reset = new RegistryResetInfo();
     {
@@ -72,7 +72,7 @@ class RegistryResourceTest {
         .body()
         .as(RegistryResult.class);
 
-    assertEquals(result.getUserDomain(), info.getSubdomain());
+    assertTrue(result.getUserDomain().contains(info.getSubdomain()));
 
     given()
         .header("Request-Id", "uuid")
