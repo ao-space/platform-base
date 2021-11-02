@@ -118,7 +118,6 @@ public class RegistryService {
       entity.setRegistryType(RegistryTypeEnum.CLIENT.getName());
     }
     registryRepository.persist(entity);
-    entity.setSubdomain(boxRegistryEntity.getSubdomain());
     return entity;
   }
 
