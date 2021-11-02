@@ -123,14 +123,16 @@ public class ProposalService {
                 proposalEntity.getContent(),
                 proposalEntity.getEmail(),
                 proposalEntity.getPhoneNumber(),
-                Arrays.asList(proposalEntity.getImageUrls().split(",")));
+                CommonUtils.isNullOrEmpty(proposalEntity.getImageUrls()) ? null
+                        : Arrays.asList(proposalEntity.getImageUrls().split(",")));
     }
 
     private ProposalEntity proposalReqToEntity(ProposalReq proposalReq) {
         return ProposalEntity.of(proposalReq.getContent(),
                 proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(),
-                String.join(",", proposalReq.getImageUrls()));
+                CommonUtils.isNullOrEmpty(proposalReq.getImageUrls()) ? null
+                        : String.join(",", proposalReq.getImageUrls()));
     }
 
     /**

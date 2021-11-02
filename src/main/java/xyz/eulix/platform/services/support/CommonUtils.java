@@ -1,7 +1,10 @@
 package xyz.eulix.platform.services.support;
 
+import org.locationtech.jts.util.CollectionUtil;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 
@@ -67,5 +70,13 @@ public final class CommonUtils {
     LocalDate date = LocalDate.now();
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT_ORDER);
     return date.format(fmt);
+  }
+
+  public static boolean isNullOrEmpty(String value) {
+    return value == null || value.isEmpty();
+  }
+
+  public static <T> boolean isNullOrEmpty(Collection<T> list) {
+    return list == null || list.isEmpty();
   }
 }
