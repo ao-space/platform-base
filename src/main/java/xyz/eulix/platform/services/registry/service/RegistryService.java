@@ -90,18 +90,20 @@ public class RegistryService {
   }
 
   @Transactional
-  public RegistryEntity createRegistry(RegistryInfo info) {
+  public RegistryEntity createRegistry(RegistryInfo info, String clientUUID, String subDomain) {
     RegistryEntity entity = new RegistryEntity();
     {
       entity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setClientRegKey(DEFAULT_CLIENT_REG_KEY);
       entity.setBoxUUID(info.getBoxUUID());
       entity.setClientUUID(DEFAULT_CLIENT_UUID);
-      entity.setSubdomain(info.getSubdomain() + "." + properties.getRegistrySubdomain());
+      entity.setSubdomain(subDomain);
       entity.setRegistryType(RegistryTypeEnum.BOX.getName());
     }
     registryRepository.persist(entity);
-    return entity;
+    // 管理员 client 注册
+    RegistryEntity reClient = createClientRegistry(entity, clientUUID);
+    return reClient;
   }
 
   @Transactional
@@ -112,10 +114,11 @@ public class RegistryService {
       entity.setClientRegKey("crk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setBoxUUID(boxRegistryEntity.getBoxUUID());
       entity.setClientUUID(clientUUID);
-      entity.setSubdomain(boxRegistryEntity.getSubdomain());
+      entity.setSubdomain(null);
       entity.setRegistryType(RegistryTypeEnum.CLIENT.getName());
     }
     registryRepository.persist(entity);
+    entity.setSubdomain(boxRegistryEntity.getSubdomain());
     return entity;
   }
 
