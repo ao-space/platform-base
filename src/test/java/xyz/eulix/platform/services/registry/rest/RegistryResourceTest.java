@@ -21,7 +21,7 @@ class RegistryResourceTest {
   void registry() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
@@ -42,7 +42,7 @@ class RegistryResourceTest {
   void registryDuplicated() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
@@ -71,7 +71,7 @@ class RegistryResourceTest {
   void reset() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
@@ -114,7 +114,7 @@ class RegistryResourceTest {
   void verifyBox() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
@@ -141,7 +141,7 @@ class RegistryResourceTest {
   void verifyClient() {
     final String bid = UUID.randomUUID().toString();
     final String cid = UUID.randomUUID().toString();
-    final String subdomain = "hello";
+    final String subdomain = UUID.randomUUID().toString();
     RegistryInfo info = new RegistryInfo();
     {
       info.setBoxUUID(bid);
