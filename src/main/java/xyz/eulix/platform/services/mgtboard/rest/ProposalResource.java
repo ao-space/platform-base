@@ -139,4 +139,25 @@ public class ProposalResource {
         LOG.infov("[Return] method: download(), result: ok, elapsed: {0}", sw);
         return response;
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/proposal/export")
+    @Operation(description = "文件下载接口")
+    public Response export() {
+        LOG.infov("[Invoke] method: export()");
+        Stopwatch sw = Stopwatch.createStarted();
+        Response response;
+        try {
+            response = proposalService.export();
+        } catch (Exception e) {
+            LOG.errorv(e,"[Throw] method: export(), exception");
+            throw e;
+        } finally {
+            sw.stop();
+        }
+        LOG.infov("[Return] method: export(), result: ok, elapsed: {0}", sw);
+        return response;
+    }
 }

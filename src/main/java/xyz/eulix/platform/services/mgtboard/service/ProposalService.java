@@ -1,5 +1,15 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.stream.Stream;
+import javax.ws.rs.WebApplicationException;
 import org.apache.commons.io.FileUtils;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
@@ -228,4 +238,78 @@ public class ProposalService {
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
     }
+
+    /**
+     * 导出文件
+     ** @return Response
+     */
+    public Response export() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        String fileName = URLEncoder.encode("意见反馈-"+dateFormat.format(System.currentTimeMillis())+".xlsx",
+            StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+
+        List<ProposalEntity> data = proposalEntityRepository.listAll();
+
+        PanacheQuery<ProposalEntity> allData = proposalEntityRepository.findAll();
+
+        ExcelWriter excelWriter = null;
+        try {
+            int count = 100;
+
+            excelWriter = EasyExcel.write(fileName, ProposalEntity.class).build();
+
+            for (int i = 0; i <= data.size()/count; i++) {
+                WriteSheet writeSheet = EasyExcel.writerSheet(i,"sheet"+(i+1)).build();
+                List<ProposalEntity> page = allData.page(i,count).list();
+
+                List<List<String>> lists = new ArrayList<>();
+                for (ProposalEntity entity: page
+                ) {
+                    List<String> list = new ArrayList<>();
+                    list.add(entity.getContent()== null ? "": String.valueOf(
+                        entity.getContent()));
+                    list.add(entity.getEmail()== null ? "": String.valueOf(
+                        entity.getEmail()));
+                    list.add(entity.getPhoneNumber()== null ? "": String.valueOf(
+                        entity.getPhoneNumber()));
+                    list.add(entity.getImageUrls()== null ? "": String.valueOf(
+                        entity.getImageUrls()));
+                    list.add(entity.getId()== null ? "": String.valueOf(
+                        entity.getId()));
+                    list.add(entity.getCreatedAt() == null ? "": String.valueOf(
+                        entity.getCreatedAt()));
+                    list.add(entity.getUpdatedAt()== null ? "": String.valueOf(
+                        entity.getUpdatedAt()));
+                    list.add(entity.getVersion()== null ? "": String.valueOf(
+                        entity.getVersion()));
+                    lists.add(list);
+                }
+
+                excelWriter.write(lists, writeSheet);
+            }
+        } finally {
+            // 千万别忘记finish 会帮忙关闭流
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
+
+
+        Response.ResponseBuilder response = Response.ok((StreamingOutput) output -> {
+            try (FileInputStream inputStream = new FileInputStream(fileName)) {
+                byte[] b = new byte[2048];
+                int length;
+                while ((length = inputStream.read(b)) > 0) {
+                    output.write(b, 0, length);
+                }
+            } catch (IOException e) {
+                LOG.error("export file failed, exception", e);
+                throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
+            }
+        });
+        response.header("Content-Disposition", "attachment;filename=" + fileName);
+        return response.build();
+    }
+
 }
