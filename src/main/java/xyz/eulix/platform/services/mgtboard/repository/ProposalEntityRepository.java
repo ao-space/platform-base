@@ -15,4 +15,8 @@ public class ProposalEntityRepository implements PanacheRepository<ProposalEntit
     public void updateById(Long proposalId, String content, String email, String phoneNumber, String imageUrls) {
         this.update(UPDATE_BY_ID, content, email, phoneNumber, imageUrls, proposalId);
     }
+    public long total() {
+        return this.count();
+    }
+
 }

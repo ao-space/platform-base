@@ -249,9 +249,9 @@ public class ProposalService {
         String fileName = URLEncoder.encode("意见反馈-"+dateFormat.format(System.currentTimeMillis())+".xlsx",
             StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
-        List<ProposalEntity> data = proposalEntityRepository.listAll();
 
         PanacheQuery<ProposalEntity> allData = proposalEntityRepository.findAll();
+        long total = proposalEntityRepository.total();
 
         ExcelWriter excelWriter = null;
         try {
@@ -259,7 +259,7 @@ public class ProposalService {
 
             excelWriter = EasyExcel.write(fileName, ProposalEntity.class).build();
 
-            for (int i = 0; i <= data.size()/count; i++) {
+            for (int i = 0; i <= total/count; i++) {
                 WriteSheet writeSheet = EasyExcel.writerSheet(i,"sheet"+(i+1)).build();
                 List<ProposalEntity> page = allData.page(i,count).list();
 
