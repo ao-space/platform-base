@@ -147,7 +147,7 @@ public class ProposalResource {
     @Operation(description = "文件下载接口")
     public Response export(@Valid @NotBlank @HeaderParam("Request-Id") String requestId) {
         LOG.infov("[Invoke] method: export()");
-        Stopwatch sw = Stopwatch.createStarted();
+        var sw = Stopwatch.createStarted();
         Response response;
         try {
             response = proposalService.export();

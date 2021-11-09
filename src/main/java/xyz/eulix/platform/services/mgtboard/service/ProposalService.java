@@ -1,17 +1,12 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
-import com.aliyun.oss.OSSException;
-import com.aliyun.oss.model.OSSObject;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.stream.Stream;
-import javax.ws.rs.WebApplicationException;
 import org.apache.commons.io.FileUtils;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
@@ -268,7 +263,7 @@ public class ProposalService {
      ** @return Response
      */
     public Response export() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
         String fileName = URLEncoder.encode("意见反馈-"+dateFormat.format(System.currentTimeMillis())+".xlsx",
             StandardCharsets.UTF_8).replaceAll("\\+", "%20");
@@ -283,8 +278,8 @@ public class ProposalService {
 
             excelWriter = EasyExcel.write(fileName, ProposalEntity.class).build();
 
-            for (int i = 0; i <= total/count; i++) {
-                WriteSheet writeSheet = EasyExcel.writerSheet(i,"sheet"+(i+1)).build();
+            for (var i = 0; i <= total/count; i++) {
+                var writeSheet = EasyExcel.writerSheet(i,"sheet"+(i+1)).build();
                 List<ProposalEntity> page = allData.page(i,count).list();
 
                 List<List<String>> lists = new ArrayList<>();
@@ -321,8 +316,8 @@ public class ProposalService {
 
 
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output -> {
-            try (FileInputStream inputStream = new FileInputStream(fileName)) {
-                byte[] b = new byte[2048];
+            try (var inputStream = new FileInputStream(fileName)) {
+                var b = new byte[2048];
                 int length;
                 while ((length = inputStream.read(b)) > 0) {
                     output.write(b, 0, length);

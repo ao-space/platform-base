@@ -7,10 +7,10 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class ProposalResourceTest {
+class ProposalResourceTest {
 
   @Test
-  public void exportTest(){
+  void exportTest(){
     given()
         .header("Request-Id", "uuid")
         .contentType(ContentType.JSON)
