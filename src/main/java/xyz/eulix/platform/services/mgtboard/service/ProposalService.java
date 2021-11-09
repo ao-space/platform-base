@@ -336,8 +336,6 @@ public class ProposalService {
         return response.build();
     }
 
-}
-
     private String rmSlash(String path) {
         if (path == null) {
             return null;
