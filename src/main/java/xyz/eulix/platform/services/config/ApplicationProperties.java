@@ -44,4 +44,17 @@ public interface ApplicationProperties {
 
     @ConfigProperty(name = "file.location")
     String getFileLocation();
+
+    // OSS
+    @ConfigProperty(name = "oss.endpoint")
+    String getOSSEndpoint();
+
+    @ConfigProperty(name = "ali.accesskey.id")
+    String getAliAccessKeyId();
+
+    @ConfigProperty(name = "ali.accesskey.secret")
+    String  getAliAccessKeySecret();
+
+    @ConfigProperty(name = "oss.bucket.name")
+    String getOSSBucketName();
 }
