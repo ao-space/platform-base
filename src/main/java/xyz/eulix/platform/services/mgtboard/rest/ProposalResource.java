@@ -102,8 +102,9 @@ public class ProposalResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "文件上传接口")
     public UploadFileRes upload(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                @Valid @MultipartForm MultipartBody multipartBody) {
-        LOG.infov("[Invoke] method: upload(), fileName: {0}", multipartBody.fileName);
+                                @Valid @MultipartForm MultipartBody multipartBody,
+                                @QueryParam("a") String a) {
+        LOG.infov("[Invoke] method: upload(), fileName: {0}, a:{1}", multipartBody.fileName, a);
         Stopwatch sw = Stopwatch.createStarted();
         UploadFileRes uploadFileRes;
         try {
