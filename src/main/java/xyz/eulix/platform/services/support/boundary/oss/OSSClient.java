@@ -15,11 +15,16 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Date;
 
 /**
  * OSS 客户端
+ *
+ * For more information:
+ * <a href="ttps://help.aliyun.com/document_detail/31827.html">ttps://help.aliyun.com/document_detail/31827.html</a>.
+ *
  */
 @ApplicationScoped
 public class OSSClient {
@@ -88,7 +93,7 @@ public class OSSClient {
     /**
      * 从 oss 下载文件
      *
-     * @param objectName  Object完整路径
+     * @param objectName Object完整路径
      * @return 文件流
      */
     public InputStream fileDownload(String objectName) {
@@ -101,5 +106,19 @@ public class OSSClient {
             LOG.error("OSS download failed, exception", e);
             throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
         }
+    }
+
+    /**
+     * 获取授权访问地址
+     *
+     * @param objectName Object完整路径
+     * @return GET方法访问的签名URL
+     */
+    public String getFileUrl(String objectName) {
+        // 设置签名URL过期时间为30天：30L * 24 * 3600秒（1小时）。
+        Date expiration = new Date(new Date().getTime() + 30L * 24 * 3600 * 1000);
+        // 生成以GET方法访问的签名URL，访客可以直接通过浏览器访问相关内容。
+        URL fileUrl = ossClient.generatePresignedUrl(bucketName, objectName, expiration);
+        return fileUrl.toString();
     }
 }

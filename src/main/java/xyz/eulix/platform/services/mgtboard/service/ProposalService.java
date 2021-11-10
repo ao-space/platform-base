@@ -1,9 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.write.metadata.WriteSheet;
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -173,6 +170,7 @@ public class ProposalService {
             LOG.error("upload file failed, exception", e);
             throw new ServiceOperationException(ServiceError.UPLOAD_FILE_FAILED);
         }
+        long fileSize = file.length();
         // 上传oss
         ossClient.fileUpload(rmSlash(filePath), file);
         // 删除本地文件
@@ -180,7 +178,7 @@ public class ProposalService {
         if (!delOrNot) {
             LOG.warnv("delete local file:{} failed", filePath);
         }
-        return UploadFileRes.of(null, multipartBody.fileName, file.length(), filePath.substring(appendSlash(properties.getFileLocation()).length()));
+        return UploadFileRes.of(null, multipartBody.fileName, fileSize, filePath.substring(appendSlash(properties.getFileLocation()).length()));
     }
 
     private void fileSizeCheck(File file) {
@@ -251,21 +249,13 @@ public class ProposalService {
         return response.build();
     }
 
-    private String appendSlash(String path) {
-        if (path == null) {
-            return null;
-        }
-        return path.startsWith("/") ? path : "/" + path;
-    }
-
     /**
      * 导出文件
      ** @return Response
      */
     public Response export() {
         var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-
-        String fileName = URLEncoder.encode("意见反馈-"+dateFormat.format(System.currentTimeMillis())+".xlsx",
+        String fileName = URLEncoder.encode("意见反馈-" + dateFormat.format(System.currentTimeMillis())+".xlsx",
             StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
         List<ProposalEntity> allData = proposalEntityRepository.listAll();
@@ -277,7 +267,7 @@ public class ProposalService {
             list.add(entity.getContent()== null ? "": String.valueOf(entity.getContent()));
             list.add(entity.getEmail()== null ? "": String.valueOf(entity.getEmail()));
             list.add(entity.getPhoneNumber()== null ? "": String.valueOf(entity.getPhoneNumber()));
-            list.add(entity.getImageUrls()== null ? "": String.valueOf(entity.getImageUrls()));
+            list.add(entity.getImageUrls()== null ? "": accessFileUrls(entity.getImageUrls()));
             list.add(entity.getCreatedAt() == null ? "": String.valueOf(entity.getCreatedAt()));
             list.add(entity.getUpdatedAt()== null ? "": String.valueOf(entity.getUpdatedAt()));
             list.add(entity.getVersion()== null ? "": String.valueOf(entity.getVersion()));
@@ -288,9 +278,28 @@ public class ProposalService {
             EasyExcel.write(output, ProposalEntity.class).sheet("sheet1").doWrite(lists));
 
         response.header("Content-Type","application/vnd.ms-excel;charset=utf-8");
-        response.header("Content-Disposition",
-            "attachment;filename=" + fileName);
+        response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
+    }
+
+    private String accessFileUrls(String fileUrls) {
+        if (fileUrls == null) {
+            return null;
+        }
+        List<String> urlList = Arrays.asList(fileUrls.split(","));
+        List<String> accessUrlList = new ArrayList<>();
+        urlList.forEach(url -> {
+            String objectName = rmSlash(properties.getFileLocation()) + appendSlash(url);
+            accessUrlList.add(ossClient.getFileUrl(objectName));
+        });
+        return String.join(",", accessUrlList);
+    }
+
+    private String appendSlash(String path) {
+        if (path == null) {
+            return null;
+        }
+        return path.startsWith("/") ? path : "/" + path;
     }
 
     private String rmSlash(String path) {

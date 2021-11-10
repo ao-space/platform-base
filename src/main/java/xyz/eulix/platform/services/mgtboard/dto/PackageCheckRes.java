@@ -20,10 +20,8 @@ public class PackageCheckRes {
     private Boolean isBoxNeedUpdate = false;
 
     // 最新app软件包信息
-    @Schema(description = "最新app软件包信息")
     private PackageRes latestAppPkg;
 
     // 最新box软件包信息
-    @Schema(description = "最新box软件包信息")
     private PackageRes latestBoxPkg;
 }
