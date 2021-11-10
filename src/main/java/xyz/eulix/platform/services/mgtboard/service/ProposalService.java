@@ -1,9 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.write.metadata.WriteSheet;
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -261,52 +258,26 @@ public class ProposalService {
         String fileName = URLEncoder.encode("意见反馈-" + dateFormat.format(System.currentTimeMillis())+".xlsx",
             StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
-        PanacheQuery<ProposalEntity> allData = proposalEntityRepository.findAll();
-        long total = proposalEntityRepository.count();
-        ExcelWriter excelWriter = null;
-        try {
-            int count = 100;
-            excelWriter = EasyExcel.write(fileName, ProposalEntity.class).build();
+        List<ProposalEntity> allData = proposalEntityRepository.listAll();
 
-            for (var i = 0; i <= total/count; i++) {
-                var writeSheet = EasyExcel.writerSheet(i,"sheet" + (i + 1)).build();
-                List<ProposalEntity> page = allData.page(i,count).list();
-
-                List<List<String>> lists = new ArrayList<>();
-                for (ProposalEntity entity: page) {
-                    List<String> list = new ArrayList<>();
-                    list.add(entity.getContent()== null ? "": entity.getContent());
-                    list.add(entity.getEmail()== null ? "": entity.getEmail());
-                    list.add(entity.getPhoneNumber()== null ? "": entity.getPhoneNumber());
-                    list.add(entity.getImageUrls()== null ? "": accessFileUrls(entity.getImageUrls()));
-                    list.add(entity.getId()== null ? "": String.valueOf(entity.getId()));
-                    list.add(entity.getCreatedAt() == null ? "": String.valueOf(entity.getCreatedAt()));
-                    list.add(entity.getUpdatedAt()== null ? "": String.valueOf(entity.getUpdatedAt()));
-                    list.add(entity.getVersion()== null ? "": String.valueOf(entity.getVersion()));
-                    lists.add(list);
-                }
-
-                excelWriter.write(lists, writeSheet);
-            }
-        } finally {
-            // 千万别忘记finish 会帮忙关闭流
-            if (excelWriter != null) {
-                excelWriter.finish();
-            }
+        List<List<String>> lists = new ArrayList<>();
+        for (ProposalEntity entity: allData) {
+            List<String> list = new ArrayList<>();
+            list.add(entity.getId()== null ? "": String.valueOf(entity.getId()));
+            list.add(entity.getContent()== null ? "": String.valueOf(entity.getContent()));
+            list.add(entity.getEmail()== null ? "": String.valueOf(entity.getEmail()));
+            list.add(entity.getPhoneNumber()== null ? "": String.valueOf(entity.getPhoneNumber()));
+            list.add(entity.getImageUrls()== null ? "": accessFileUrls(entity.getImageUrls()));
+            list.add(entity.getCreatedAt() == null ? "": String.valueOf(entity.getCreatedAt()));
+            list.add(entity.getUpdatedAt()== null ? "": String.valueOf(entity.getUpdatedAt()));
+            list.add(entity.getVersion()== null ? "": String.valueOf(entity.getVersion()));
+            lists.add(list);
         }
 
-        Response.ResponseBuilder response = Response.ok((StreamingOutput) output -> {
-            try (var inputStream = new FileInputStream(fileName)) {
-                var b = new byte[2048];
-                int length;
-                while ((length = inputStream.read(b)) > 0) {
-                    output.write(b, 0, length);
-                }
-            } catch (IOException e) {
-                LOG.error("export file failed, exception", e);
-                throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
-            }
-        });
+        Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
+            EasyExcel.write(output, ProposalEntity.class).sheet("sheet1").doWrite(lists));
+
+        response.header("Content-Type","application/vnd.ms-excel;charset=utf-8");
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
     }
