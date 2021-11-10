@@ -25,8 +25,8 @@ public class QuestionnaireRes {
     private final OffsetDateTime endAt;
 
     @Schema(description = "第三方问卷id")
-    private final Integer payloadSurveyId;
+    private final Long payloadSurveyId;
 
-    @Schema(description = "问卷状态，携带用户信息查询时返回")
+    @Schema(description = "问卷状态，携带用户信息查询时返回", enumeration = {"completed", "not_start", "in_process", "has_end"})
     private String state;
 }

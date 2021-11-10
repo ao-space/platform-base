@@ -28,5 +28,5 @@ public class QuestionnaireReq {
 
     @NotNull
     @Schema(required = true, description = "第三方问卷id")
-    private Integer payloadSurveyId;
+    private Long payloadSurveyId;
 }

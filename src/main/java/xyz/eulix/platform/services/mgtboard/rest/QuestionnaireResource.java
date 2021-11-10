@@ -87,7 +87,7 @@ public class QuestionnaireResource {
                                       @Parameter(description = "用户域名") @QueryParam("subdomain") String subdomain,
                                       @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
                                       @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
-        return questionnaireService.listQuestionnaire(currentPage, pageSize);
+        return questionnaireService.listQuestionnaire(subdomain, currentPage, pageSize);
     }
 
     @POST
@@ -96,8 +96,7 @@ public class QuestionnaireResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Logged
     @Operation(description = "用户提交问卷")
-    public QuestionnaireRes feedbackSave(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                         @Valid FeedbackReq feedbackReq) {
+    public FeedbackRes feedbackSave(@HeaderParam("Request-Id") String requestId, @Valid FeedbackReq feedbackReq) {
         return questionnaireService.feedbackSave(feedbackReq);
     }
 }

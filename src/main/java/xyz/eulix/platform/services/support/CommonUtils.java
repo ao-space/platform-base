@@ -1,10 +1,10 @@
 package xyz.eulix.platform.services.support;
 
-import org.locationtech.jts.util.CollectionUtil;
-
-import java.time.LocalDate;
+import java.text.SimpleDateFormat;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 
@@ -27,6 +27,8 @@ public final class CommonUtils {
    * 用做单号
    */
   public static final String DEFAULT_DATE_FORMAT_ORDER = "yyyyMMdd";
+
+  public static final String LOCAL_DATE_TIME = "yyyy-MM-dd HH:mm:ss";
 
   public static String createUnifiedRandomCharacters(int length) {
     int startChar = '0';
@@ -79,4 +81,42 @@ public final class CommonUtils {
   public static <T> boolean isNullOrEmpty(Collection<T> list) {
     return list == null || list.isEmpty();
   }
+
+  public static boolean isNull(Object object) {
+    return object == null;
+  }
+
+  public static boolean isNotNull(Object object) {
+    return !isNull(object);
+  }
+
+  /**
+   * 将DateTime格式时间转换成OffsetDateTime格式时间(时区采用当前时区)，如
+   * 输入：2021-10-10 11:30:30
+   * 输出：2021-10-10T11:30:30+08:00
+   *
+   * @param dateTime DateTime格式时间
+   * @return OffsetDateTime格式时间
+   */
+  public static OffsetDateTime dateTimeToOffsetDateTime(String dateTime) {
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(LOCAL_DATE_TIME);
+    LocalDateTime localDateTime = LocalDateTime.parse(dateTime, dateTimeFormatter);
+    ZoneOffset defaultZoneOffset = OffsetDateTime.now().getOffset();
+    return OffsetDateTime.of(localDateTime, defaultZoneOffset);
+  }
+
+  /**
+   * 将OffsetDateTime格式时间转换成DateTime格式时间(时区采用当前时区)，如
+   * 输入：2021-11-08T15:32:29+08:00
+   * 输出：2021-11-08 15:32:29
+   *
+   * @param offsetDateTime OffsetDateTime格式时间
+   * @return DateTime格式时间
+   */
+  public static String offsetDateTimeToDateTime(OffsetDateTime offsetDateTime) {
+    Date date = Date.from(offsetDateTime.toInstant());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(LOCAL_DATE_TIME);
+    return simpleDateFormat.format(date);
+  }
+
 }

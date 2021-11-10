@@ -121,10 +121,6 @@
       <version>1.7.0.Final</version>
     </dependency>
 
-      <dependency>
-          <groupId>org.jboss.resteasy</groupId>
-          <artifactId>resteasy-multipart-provider</artifactId>
-      </dependency>
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>easyexcel</artifactId>
