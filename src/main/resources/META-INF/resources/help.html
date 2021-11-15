@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"> 
+<meta name="robots" content="noindex, nofollow">
+<script type="text/javascript" src="./js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="./js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/font-awesome.min.css">
+<style type="text/css">
+body{
+padding:37px;
+margin:0px;
+}
+.content{
+font-size:17px;
+margin-bottom:37px
+}
+.title{
+font-weight: bold;
+font-size:17px;
+margin-bottom:37px
+color：#000;
+}
+ul{
+text-align: center;
+margin: 0 auto;
+height:37px!important;
+}
+
+li{
+font-weight: bold;
+font-size:37px!important;;
+height:37px!important;
+line-height:37px;
+}
+
+.nav{
+margin:17px;
+text-align: center;
+height:37px!important;
+}
+.nav-tabs{
+text-align: center;
+height:103px!important;
+}
+a:hover{color:#000!important;}
+.accordion-heading {
+margin-bottom:37px
+}
+.active a{
+color：#000!important;
+}
+.nav-tabs>li.active>a{
+color：#000!important;
+}
+
+</style>
+
+
+</head>
+
+<body>
+
+
+    <ul class="nav nav-tabs" style="height:37px">
+        <li class="active"><a href="#a" data-toggle="tab">账号管理</a></li>
+        <li><a href="#b" data-toggle="tab">设备故障</a></li>
+        <li><a href="#c" data-toggle="tab">同步与备份</a></li>
+        <li><a href="#d" data-toggle="tab">文件管理</a></li>
+</ul>
+
+ <div class="tab-content">
+    <div class="tab-pane active" id="a">
+        <p>
+			<div class="container-fluid">
+				<div class="accordion" id="accordion">
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#a-a">如何绑定设备</a>
+						</div>
+						<div id="a-a" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1、下载傲来空间APP：通过扫描说明书里的APP二维码或在应用市场搜索“傲来空间”，下载并安装。</div> 
+								<div class="content">2、将电源适配器一端与设备连接，另一端连接到电源接口；此时，设备通电并启动，指示灯由红色转为蓝色亮起，直到转为红蓝交替闪烁状态。</div> 
+								<div class="content">3、 绑定傲来个人云存储：打开【傲来空间APP】，点击【绑定设备】根据页面提示完成扫码二维码操作，软件会自动识别到个人云存储设备，点击【确认绑定】。</div> 
+								<div class="content">4、 网络设置，给个人云存储设备设置连接的WIFI网络，直至设备联网成功。</div> 
+								<div class="content">5、设置安全密码，两次需输入一致，设置后点击【下一步】。</div> 
+								<div class="content">6、空间初始化，对傲来傲来个人云存储进行域名、语言、国家的初始化。</div> 
+								<div class="content">7、绑定成功，点击【开始使用】，体验傲来个人云存储给您提供的服务。</div> 
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#a-b">如何解绑设备</a>
+						</div>
+						<div id="a-b" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">互联网解绑</div> 
+								<div class="content">1、打开【傲来空间App】，登录傲来个人云存储设备，点击【我的-设备管理】，点击【解绑设备】；</div> 
+								<div class="content">2、管理员输入安全密码，校验通过后，在弹出页面点击【确认】，完成解绑操作。</div> 
+								<div class="content">蓝牙解绑</div> 
+								<div class="content">1、打开【傲来空间App】，点击【绑定设备】，根据操作提示完成操作，在绑定失败页面，点击【解绑设备】；</div> 
+								<div class="content">2、管理员输入安全密码，校验通过后，在弹出页面点击【确认】，完成解绑操作。</div> 
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#a-c">如何邀请家庭成员使用</a>
+						</div>
+						<div id="a-c" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1、管理员打开【傲来空间App】，登录傲来个人云存储设备，点击【我的-家庭成员】，点击【邀请成员】。</div> 
+								<div class="content">2、弹出页面生成邀请链接，点击发送到微信或复制链接，将邀请链接发送到微信或其他应用。</div> 
+								<div class="content">3、成员点击邀请链接，在打开的页面点击【立即体验傲来空间】。</div> 
+								<div class="content">4、未安装【傲来空间App】的根据引导完成安装，安装后唤起App，在弹出页面点击【确认加入】。</div> 
+								<div class="content">5、成员加入成功，可以和管理员共享使用傲来个人云存储设备。</div> 
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#a-d">安全密码有什么作用</a>
+						</div>
+						<div id="a-d" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1. 安全密码为6位数字，只能由管理员设置和修改，请慎重保管此密码。</div> 
+								<div class="content">2. 应用场景：</div> 
+								<div class="content">（1）解绑设备，管理员需要正确输入安全密码，才能完成解绑操作。</div> 
+								<div class="content">（2）再次绑定设备，管理员在已绑定或已解绑的情况下重新绑定设备，需要验证安全密码，验证通过后才可完成绑定操作。</div> 
+								<div class="content">（3）需要输入安全密码验证管理员身份的其他情形。</div> 
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</p>
+	</div>
+	
+	<div class="tab-pane" id="b">
+        <p>
+			<div class="container-fluid">
+				<div class="accordion" id="accordion">
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#b-a">故障灯的含义</a>
+						</div>
+						<div id="b-a" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">当设备指示灯为红色时，代表设备的网络连接断开，无法连接到公共网络</div> 
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#b-b">如何重新配置网络</a>
+						</div>
+						<div id="b-b" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1、当傲来设备已断网时，管理员打开【傲来空间App】，在登录页找到离线的傲来个人云存储设备，点击设备，在弹出页面选择【网络设置】。</div>
+								<div class="content">2、当傲来设备未断网时，管理员在【我的-设备管理】，点击【网络设置】；</div>
+								<div class="content">3、扫描傲来设备上贴的二维码，打开手机的蓝牙权限，程序会完成蓝牙配对。</div>
+								<div class="content">4、选择网络，输入密码，完成后点击“加入”</div>
+								<div class="content">5、傲来设备联网，联网成功后返回登录页；</div>
+								<div class="content">6、联网失败时页面会提示用户，可再次输入密码联网；</div>
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#b-c">检查网络环境</a>
+						</div>
+						<div id="b-c" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">若按照配网说明步骤重新配置网络失败，则需要检查配置网络的路由器连接或运营商服务状况，确保能够正常连接到公网。</div> 
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</p>
+	</div>
+	
+	<div class="tab-pane" id="c">
+        <p>
+			<div class="container-fluid">
+				<div class="accordion" id="accordion">
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#c-a">如何备份盒子数据</a>
+						</div>
+						<div id="c-a" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1、将外接存储插入盒子，或通过USB连接线连接盒子与存储设备；</div> 
+								<div class="content">2、管理员打开【傲来空间App】，登录傲来个人云存储设备，点击【我的-备份与恢复】在备份与恢复页面，点击【备份数据】。</div>
+								<div class="content">3、程序进行备份检查，检查通过后会进行备份操作，备份过程中，请勿拔掉外接存储设备。</div>
+								<div class="content">4、在备份数据页面，也查看备份进度，备份成功后，页面会提示用户备份成功。数据将以加密的方式生成备份文件，存放到外接存储设备的根目录傲来备份文件夹中。</div>
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#c-b">如何开启/关闭相册同步</a>
+						</div>
+						<div id="c-b" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">请您登录【傲来空间App】，点击我的—相册同步—开启/关闭自动同步照片和视频即可。</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</p>
+	</div>
+	
+	<div class="tab-pane" id="d">
+        <p>
+			<div class="container-fluid">
+				<div class="accordion" id="accordion">
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#d-a">文件误删了怎么恢复</a>
+						</div>
+						<div id="d-a" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1、web 端有回收站功能，被删除的文件将会移入回收站，可以在回收站找到该文件并还原。</div>
+								<div class="content">2、如果回收站中文件彻底删除后，文件将恢复不了，请谨慎使用彻底删除功能。</div>
+								<div class="content">3、建议定期对盒子数据进行备份，点击我的-数据备份可以进行数据备份。</div>
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#d-b">文件命名规则</a>
+						</div>
+						<div id="d-b" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1、文件名称只支持中文、英文、数字、下划线，最长十个字符。</div>
+								<div class="content">2、同一个路径下，文件夹名称不允许重复。</div>
+							</div>
+						</div>
+					</div>
+					<div class="accordion-group">
+						<div class="accordion-heading title">
+							<i class="fa fa-caret-right fa-lg" aria-hidden="true"></i>
+							<a class="accordion-toggle " data-toggle="collapse" data-parent="#accordion" href="#d-c">文件夹的创建</a>
+						</div>
+						<div id="d-c" class="accordion-body collapse" style="height: 0px; ">
+							<div class="accordion-inner">
+								<div class="content">1、文件夹命名规则参照文件命名规则。</div>
+								<div class="content">2、空间内创建文件夹的嵌套层数不能超过5层。</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</p>
+	</div>
+</div>
+</body>
