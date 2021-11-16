@@ -42,6 +42,15 @@ public interface ApplicationProperties {
     @ConfigProperty(name = "display.unit.factor")
     BigDecimal getDisplayUnitFactor();
 
+    @ConfigProperty(name = "forceupdate.min-box-version", defaultValue = "0.0.0")
+    String getMinBoxVersion();
+
+    @ConfigProperty(name = "forceupdate.min-android-version", defaultValue = "0.0.0")
+    String getMinAndroidVersion();
+
+    @ConfigProperty(name = "forceupdate.min-ios-version", defaultValue = "0.0.0")
+    String getMinIOSVersion();
+
     @ConfigProperty(name = "file.location")
     String getFileLocation();
 
