@@ -1,11 +1,9 @@
 package xyz.eulix.platform.services.mgtboard.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
-import xyz.eulix.platform.services.mgtboard.dto.ProposalRes;
 import xyz.eulix.platform.services.mgtboard.entity.ProposalEntity;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.List;
 
 @ApplicationScoped
 public class ProposalEntityRepository implements PanacheRepository<ProposalEntity> {

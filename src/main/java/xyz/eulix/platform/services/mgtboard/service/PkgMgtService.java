@@ -1,9 +1,11 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
 import xyz.eulix.platform.services.mgtboard.repository.PkgInfoEntityRepository;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
@@ -17,6 +19,9 @@ public class PkgMgtService {
 
     @Inject
     PkgInfoEntityRepository pkgInfoEntityRepository;
+
+    @Inject
+    ApplicationProperties applicationProperties;
 
     /**
      * 新增pkg版本
@@ -140,7 +145,7 @@ public class PkgMgtService {
         }
 
         // 判断是否需要更新
-        if (curAppVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
+        if (curBoxVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
             LOG.infov(
                 "box version need to update, boxName:{0}, boxType:{1}, from curVersion:{2} to newVersion:{3}",
                 boxName, "box", curBoxVersion, latestBoxPkg.getPkgVersion());
@@ -242,7 +247,7 @@ public class PkgMgtService {
             default:
                 throw new UnsupportedOperationException();
         }
-        if (targetAppPkg.getPkgVersion().compareToIgnoreCase(minCompatibleAppVersion) < 0) {
+        if (!compatibleCheckRes.getIsAppForceUpdate() && targetAppPkg.getPkgVersion().compareToIgnoreCase(minCompatibleAppVersion) < 0) {
             // 目标app版本比“目标box所兼容的最小app版本”低
             compatibleCheckRes.setIsAppForceUpdate(true);
             compatibleCheckRes.setLastestAppPkg(pkgInfoEntityToRes(latestAppPkg));
@@ -256,7 +261,7 @@ public class PkgMgtService {
 
         // 2.检查目标box版本是否小于“目标app所兼容的最小box版本”
         String minCompatibleBoxVersion = targetAppPkg.getMinCompatibleBoxVersion();
-        if (targetBoxPkg.getPkgVersion().compareToIgnoreCase(minCompatibleBoxVersion) < 0) {
+        if (!compatibleCheckRes.getIsBoxForceUpdate() && targetBoxPkg.getPkgVersion().compareToIgnoreCase(minCompatibleBoxVersion) < 0) {
             // 目标box的版本比“目标app所兼容的最小box版本”低
             compatibleCheckRes.setIsBoxForceUpdate(true);
             compatibleCheckRes.setLastestBoxPkg(pkgInfoEntityToRes(latestBoxPkg));
@@ -269,21 +274,45 @@ public class PkgMgtService {
         }
     }
 
-    private PackageRes pkgInfoEntityToRes(PkgInfoEntity PkgInfoEntity) {
-        return PackageRes.of(PkgInfoEntity.getPkgName(),
-                PkgInfoEntity.getPkgType(),
-                PkgInfoEntity.getPkgVersion(),
-                PkgInfoEntity.getPkgSize(),
-                PkgInfoEntity.getDownloadUrl(),
-                PkgInfoEntity.getUpdateDesc(),
-                PkgInfoEntity.getMd5(),
-                PkgInfoEntity.getIsForceUpdate(),
-                PkgInfoEntity.getMinCompatibleAndroidVersion(),
-                PkgInfoEntity.getMinCompatibleIOSVersion(),
-                PkgInfoEntity.getMinCompatibleBoxVersion());
+    private PackageRes pkgInfoEntityToRes(PkgInfoEntity pkgInfoEntity) {
+        return PackageRes.of(pkgInfoEntity.getPkgName(),
+                pkgInfoEntity.getPkgType(),
+                pkgInfoEntity.getPkgVersion(),
+                pkgInfoEntity.getPkgSize(),
+                pkgInfoEntity.getDownloadUrl(),
+                pkgInfoEntity.getUpdateDesc(),
+                pkgInfoEntity.getMd5(),
+                pkgInfoEntity.getIsForceUpdate(),
+                pkgInfoEntity.getMinCompatibleAndroidVersion(),
+                pkgInfoEntity.getMinCompatibleIOSVersion(),
+                pkgInfoEntity.getMinCompatibleBoxVersion());
     }
 
     private PkgInfoEntity pkgInfoReqToEntity(PackageReq packageReq) {
+        String minBoxVersion = null;
+        String minAndroidVersion = null;
+        String minIOSVersion = null;
+        switch (PkgTypeEnum.fromValue(packageReq.getPkgType())) {
+            case ANDROID:
+            case IOS:
+                if (CommonUtils.isNullOrEmpty(packageReq.getMinBoxVersion())) {
+                    minBoxVersion = applicationProperties.getMinBoxVersion();
+                } else {
+                    minBoxVersion = packageReq.getMinBoxVersion();
+                }
+                break;
+            case BOX:
+                if (CommonUtils.isNullOrEmpty(packageReq.getMinBoxVersion())) {
+                    minAndroidVersion = applicationProperties.getMinAndroidVersion();
+                    minIOSVersion = applicationProperties.getMinIOSVersion();
+                } else {
+                    minAndroidVersion = packageReq.getMinAndroidVersion();
+                    minIOSVersion = packageReq.getMinIOSVersion();
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
         return PkgInfoEntity.of(packageReq.getPkgName(),
                 packageReq.getPkgType(),
                 packageReq.getPkgVersion(),
@@ -292,9 +321,9 @@ public class PkgMgtService {
                 packageReq.getIsForceUpdate(),
                 packageReq.getDownloadUrl(),
                 packageReq.getMd5(),
-                packageReq.getMinAndroidVersion(),
-                packageReq.getMinIOSVersion(),
-                packageReq.getMinBoxVersion(), null);
+                minAndroidVersion,
+                minIOSVersion,
+                minBoxVersion, null);
     }
 
   public PackageRes getBoxLatestVersion(String boxName, String boxType) {

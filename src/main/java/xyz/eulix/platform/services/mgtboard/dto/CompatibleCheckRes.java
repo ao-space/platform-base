@@ -14,10 +14,8 @@ public class CompatibleCheckRes {
     private Boolean isBoxForceUpdate = false;
 
     // 最新app软件包信息
-    @Schema(description = "最新app软件包信息")
     private PackageRes lastestAppPkg;
 
     // 最新box软件包信息
-    @Schema(description = "最新box软件包信息")
     private PackageRes lastestBoxPkg;
 }

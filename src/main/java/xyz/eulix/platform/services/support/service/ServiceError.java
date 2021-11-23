@@ -35,7 +35,10 @@ public enum ServiceError {
   FILE_SIZE_EXCEED_PERMIT(2008, "file exceeds its maximum permitted size of {0} bytes"),
   DIR_CREATE_FAILED(2009, "create directory failed"),
 
-  INPUT_PARAMETER_ERROR(2012, "input parameter error:{0}"),
+  INPUT_PARAMETER_ERROR(2012, "input parameter:{0} error"),
+  QUESTIONNAIRE_NOT_EXIST(2013, "questionnaire does not exist"),
+  PAYLOAD_SURVEY_ALREADY_EXIST(2014, "payload survey already exist"),
+  PAYLOAD_ANSWER_ALREADY_EXIST(2015, "payload answer already exist"),
   ;
 
   /**

@@ -1,5 +1,9 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
+import com.alibaba.excel.EasyExcel;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import org.apache.commons.io.FileUtils;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
@@ -7,6 +11,7 @@ import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.ProposalEntity;
 import xyz.eulix.platform.services.mgtboard.repository.ProposalEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
+import xyz.eulix.platform.services.support.boundary.oss.OSSClient;
 import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.service.ServiceError;
@@ -33,6 +38,9 @@ public class ProposalService {
 
     @Inject
     ApplicationProperties properties;
+
+    @Inject
+    OSSClient ossClient;
 
     /**
      * 新增意见反馈
@@ -146,14 +154,15 @@ public class ProposalService {
             LOG.debug("input parameter file is null");
             throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "multipartBody.file");
         }
-        String folderPath = properties.getFileLocation() + "/" + CommonUtils.getDayOrderFormat();
+        String folderPath = appendSlash(properties.getFileLocation()) + "/" + CommonUtils.getDayOrderFormat();
         initDirectory(folderPath);
         String filePath = folderPath + "/" + fileRename(multipartBody.fileName);
         File file = new File(filePath);
-        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+        try (InputStream inputStream = multipartBody.file;
+             FileOutputStream outputStream = new FileOutputStream(file)) {
             byte[] b = new byte[2048];
             int length;
-            while ((length = multipartBody.file.read(b)) > 0) {
+            while ((length = inputStream.read(b)) > 0) {
                 outputStream.write(b, 0, length);
                 fileSizeCheck(file);
             }
@@ -161,7 +170,15 @@ public class ProposalService {
             LOG.error("upload file failed, exception", e);
             throw new ServiceOperationException(ServiceError.UPLOAD_FILE_FAILED);
         }
-        return UploadFileRes.of(null, multipartBody.fileName, file.length(), filePath.substring(properties.getFileLocation().length()));
+        long fileSize = file.length();
+        // 上传oss
+        ossClient.fileUpload(rmSlash(filePath), file);
+        // 删除本地文件
+        boolean delOrNot = file.delete();
+        if (!delOrNot) {
+            LOG.warnv("delete local file:{} failed", filePath);
+        }
+        return UploadFileRes.of(null, multipartBody.fileName, fileSize, filePath.substring(appendSlash(properties.getFileLocation()).length()));
     }
 
     private void fileSizeCheck(File file) {
@@ -204,21 +221,24 @@ public class ProposalService {
      * @return Response
      */
     public Response download(DownloadFileReq downloadFileReq) {
-        String fileAbsPath = downloadFileReq.getFileUrl();
-        String fileName = fileAbsPath.substring(fileAbsPath.lastIndexOf("/") + 1);
-        File file = new File(fileAbsPath.startsWith("/") ? properties.getFileLocation() + fileAbsPath
-                : properties.getFileLocation() + "/" + fileAbsPath);
-        if (!file.exists()) {
-            LOG.errorv("file: {0} not found", file.getPath());
+        String filePath = downloadFileReq.getFileUrl();
+        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        String objectName = rmSlash(properties.getFileLocation()) + appendSlash(filePath);
+        // 判断文件是否存在
+        boolean found = ossClient.fileExistOrNot(objectName);
+        if (!found) {
+            LOG.errorv("file: {0} not found", filePath);
             throw new ServiceOperationException(ServiceError.FILE_NOT_FOUND);
         }
         Response.ResponseBuilder response = Response.ok(
             (StreamingOutput) output -> {
-                try (FileInputStream inputStream = new FileInputStream(file)) {
-                    byte[] b = new byte[2048];
-                    int length;
-                    while ((length = inputStream.read(b)) > 0) {
-                        output.write(b, 0, length);
+                try (InputStream content = ossClient.fileDownload(objectName)) {
+                    if (content != null) {
+                        byte[] b = new byte[2048];
+                        int length;
+                        while ((length = content.read(b)) > 0) {
+                            output.write(b, 0, length);
+                        }
                     }
                 } catch (IOException e) {
                     LOG.error("download file failed, exception", e);
@@ -227,5 +247,65 @@ public class ProposalService {
             });
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
+    }
+
+    /**
+     * 导出文件
+     ** @return Response
+     */
+    public Response export() {
+        var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = URLEncoder.encode("意见反馈-" + dateFormat.format(System.currentTimeMillis())+".xlsx",
+            StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+
+        List<ProposalEntity> allData = proposalEntityRepository.listAll();
+
+        List<List<String>> lists = new ArrayList<>();
+        for (ProposalEntity entity: allData) {
+            List<String> list = new ArrayList<>();
+            list.add(entity.getId()== null ? "": String.valueOf(entity.getId()));
+            list.add(entity.getContent()== null ? "": String.valueOf(entity.getContent()));
+            list.add(entity.getEmail()== null ? "": String.valueOf(entity.getEmail()));
+            list.add(entity.getPhoneNumber()== null ? "": String.valueOf(entity.getPhoneNumber()));
+            list.add(entity.getImageUrls()== null ? "": accessFileUrls(entity.getImageUrls()));
+            list.add(entity.getCreatedAt() == null ? "": String.valueOf(entity.getCreatedAt()));
+            list.add(entity.getUpdatedAt()== null ? "": String.valueOf(entity.getUpdatedAt()));
+            list.add(entity.getVersion()== null ? "": String.valueOf(entity.getVersion()));
+            lists.add(list);
+        }
+
+        Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
+            EasyExcel.write(output, ProposalEntity.class).sheet("sheet1").doWrite(lists));
+
+        response.header("Content-Type","application/vnd.ms-excel;charset=utf-8");
+        response.header("Content-Disposition", "attachment;filename=" + fileName);
+        return response.build();
+    }
+
+    private String accessFileUrls(String fileUrls) {
+        if (fileUrls == null) {
+            return null;
+        }
+        List<String> urlList = Arrays.asList(fileUrls.split(","));
+        List<String> accessUrlList = new ArrayList<>();
+        urlList.forEach(url -> {
+            String objectName = rmSlash(properties.getFileLocation()) + appendSlash(url);
+            accessUrlList.add(ossClient.getFileUrl(objectName));
+        });
+        return String.join(",", accessUrlList);
+    }
+
+    private String appendSlash(String path) {
+        if (path == null) {
+            return null;
+        }
+        return path.startsWith("/") ? path : "/" + path;
+    }
+
+    private String rmSlash(String path) {
+        if (path == null) {
+            return null;
+        }
+        return path.startsWith("/") ? path.substring(1) : path;
     }
 }

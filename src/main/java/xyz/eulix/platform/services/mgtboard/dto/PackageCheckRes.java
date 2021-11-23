@@ -13,17 +13,15 @@ public class PackageCheckRes {
 
     // app是否需要关联更新
     @Schema(description = "app是否需要关联更新")
-    private Boolean isAppNeedUpdate = false;
+    private Boolean isAppNeedUpdate;
 
     // box是否需要关联更新
     @Schema(description = "box是否需要关联更新")
-    private Boolean isBoxNeedUpdate = false;
+    private Boolean isBoxNeedUpdate;
 
     // 最新app软件包信息
-    @Schema(description = "最新app软件包信息")
     private PackageRes latestAppPkg;
 
     // 最新box软件包信息
-    @Schema(description = "最新box软件包信息")
     private PackageRes latestBoxPkg;
 }

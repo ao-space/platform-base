@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.support.model;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,10 +30,10 @@ import java.time.OffsetDateTime;
 @Getter @Setter @ToString
 @MappedSuperclass
 public abstract class BaseEntity {
-
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @ExcelProperty(index = 0)
   private Long id;
 
   @Column(name = "created_at")
