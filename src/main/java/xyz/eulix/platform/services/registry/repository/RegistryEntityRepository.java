@@ -6,6 +6,7 @@ import xyz.eulix.platform.services.registry.entity.RegistryEntity;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * All Registry Entity related storage operations including standard CRUD and
@@ -25,6 +26,9 @@ public class RegistryEntityRepository implements PanacheRepository<RegistryEntit
     // 根据box_uuid、type查询资源
     private static final String FIND_BY_BOXUUID_TYPE = "box_uuid=?1 AND type=?2";
 
+    // 根据box_uuid、type查询资源
+    private static final String FIND_BY_USERDOMAIN = "subdomain=?1";
+
     public List<RegistryEntity> findAllByBoxUUIDAndBoxRegKey(String boxUUID, String boxRegKey) {
         return this.find(FIND_BY_BOXUUID_BOXREGKEY, boxUUID, boxRegKey).list();
     }
@@ -39,5 +43,9 @@ public class RegistryEntityRepository implements PanacheRepository<RegistryEntit
 
     public PanacheQuery<RegistryEntity> findByBoxUUIDAndType(String boxUUID, String type) {
         return this.find(FIND_BY_BOXUUID_TYPE, boxUUID, type);
+    }
+
+    public Optional<RegistryEntity> findByUserDomain(String userDomain) {
+        return this.find(FIND_BY_USERDOMAIN, userDomain).singleResultOptional();
     }
 }

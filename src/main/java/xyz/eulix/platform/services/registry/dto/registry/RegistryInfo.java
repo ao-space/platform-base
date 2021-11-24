@@ -21,6 +21,6 @@ public class RegistryInfo {
   private String clientUUID;
 
   @NotBlank
-  @Schema(description = "盒子被指定的子域名字段")
+  @Schema(description = "客户端被指定的子域名字段")
   private String subdomain;
 }

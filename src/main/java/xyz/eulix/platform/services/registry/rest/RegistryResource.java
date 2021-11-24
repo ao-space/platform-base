@@ -8,7 +8,10 @@ import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.RegistryEntity;
 import xyz.eulix.platform.services.registry.service.RegistryService;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.service.ServiceError;
+import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -19,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequestScoped
 @Path("/v1/api")
@@ -48,18 +52,25 @@ public class RegistryResource {
     }
 
     final Optional<RegistryEntity> rop = registryService.findByBoxUUID(registryInfo.getBoxUUID());
-    if (rop.isEmpty()) {
-      final TunnelServer server = TunnelServer.of(
-          properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
-          TunnelServer.Auth.of("n/a", "n/a"));
-      // box 注册 & 管理员 client 注册
-      String subDomain = registryInfo.getSubdomain() + "." + properties.getRegistrySubdomain();
-      final RegistryEntity reClient = registryService.createRegistry(registryInfo, registryInfo.getClientUUID(), subDomain);
-      return RegistryResult.of(reClient.getClientRegKey(), reClient.getBoxRegKey(), subDomain, server);
-    } else {
-      throw new WebApplicationException(
-          "box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
+    if (rop.isPresent()) {
+      LOG.warnv("box uuid had already registered, boxuuid:{0}", registryInfo.getBoxUUID());
+      throw new WebApplicationException("box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
     }
+    // 校验subdomain是否存在
+    if (!CommonUtils.isNullOrEmpty(registryInfo.getSubdomain())) {
+      Optional<RegistryEntity> reOp =  registryService.findByUserDomain(registryInfo.getSubdomain() + "." + properties.getRegistrySubdomain());
+      if (reOp.isPresent()) {
+        LOG.warnv("subdomain already exist, subdomain:{0}", registryInfo.getSubdomain());
+        throw new ServiceOperationException(ServiceError.SUBDOMAIN_ALREADY_EXIST);
+      }
+    }
+    final TunnelServer server = TunnelServer.of(
+        properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
+        TunnelServer.Auth.of("n/a", "n/a"));
+    // box 注册 & 管理员 client 注册
+    String userDomain = registryService.getUserDomain(registryInfo.getSubdomain());
+    final RegistryEntity reClient = registryService.createRegistry(registryInfo, registryInfo.getClientUUID(), userDomain);
+    return RegistryResult.of(reClient.getClientRegKey(), reClient.getBoxRegKey(), userDomain, server);
   }
 
   @Logged
@@ -77,7 +88,7 @@ public class RegistryResource {
       throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
     }
     // 校验boxUuid是否存在
-    final List<RegistryEntity> registryEntityList = registryService.findAllByBoxUUIDAndBoxRegKey(registryInfo.getBoxUUID(),
+      final List<RegistryEntity> registryEntityList = registryService.findAllByBoxUUIDAndBoxRegKey(registryInfo.getBoxUUID(),
             registryInfo.getBoxRegKey());
     if (registryEntityList.isEmpty()) {
       LOG.warnv("box uuid had not registered, boxUuid:{0}", registryInfo.getBoxUUID());
@@ -92,12 +103,21 @@ public class RegistryResource {
               registryInfo.getClientUUID());
       throw new WebApplicationException("client uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
     }
+    // 校验subdomain是否存在
+    if (!CommonUtils.isNullOrEmpty(registryInfo.getSubdomain())) {
+      Optional<RegistryEntity> reOp =  registryService.findByUserDomain(registryInfo.getSubdomain() + "." + properties.getRegistrySubdomain());
+      if (reOp.isPresent()) {
+        LOG.warnv("subdomain already exist, subdomain:{0}", registryInfo.getSubdomain());
+        throw new ServiceOperationException(ServiceError.SUBDOMAIN_ALREADY_EXIST);
+      }
+    }
 
     final TunnelServer server = TunnelServer.of(
             properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
             TunnelServer.Auth.of("n/a", "n/a"));
-    final RegistryEntity re = registryService.createClientRegistry(registryEntityList.get(0), registryInfo.getClientUUID());
-    return ClientRegistryResult.of(re.getClientRegKey(), registryEntityList.get(0).getSubdomain(), server);
+    String userDomain = registryService.getUserDomain(registryInfo.getSubdomain());
+    final RegistryEntity re = registryService.createClientRegistry(registryEntityList.get(0), registryInfo.getClientUUID(), userDomain);
+    return ClientRegistryResult.of(re.getClientRegKey(), userDomain, server);
   }
 
   @Logged
@@ -136,6 +156,19 @@ public class RegistryResource {
               clientResetInfo.getClientUUID());
       throw new WebApplicationException("invalid client registry reset info", Response.Status.FORBIDDEN);
     }
+  }
+
+  @Logged
+  @POST
+  @Path("/registry/reset/force")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(description = "强制重置盒子绑定关系，需管理员权限。")
+  public RegistryResetResult resetForce(@Valid RegistryForceReset resetInfo,
+                                        @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
+      LOG.warnv("reset box forcely, boxUuid:{0}", resetInfo.getBoxUUID());
+      registryService.deleteByBoxUUID(resetInfo.getBoxUUID());
+      return RegistryResetResult.of(resetInfo.getBoxUUID());
   }
 
   @Logged

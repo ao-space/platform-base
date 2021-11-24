@@ -89,36 +89,66 @@ public class RegistryService {
     return registryRepository.findAllByBoxUUIDAndBoxRegKey(boxUUID, boxRegKey);
   }
 
+  public Optional<RegistryEntity> findByUserDomain(String userDomain) {
+    return registryRepository.findByUserDomain(userDomain);
+  }
+
   @Transactional
-  public RegistryEntity createRegistry(RegistryInfo info, String clientUUID, String subDomain) {
+  public RegistryEntity createRegistry(RegistryInfo info, String clientUUID, String userDomain) {
     RegistryEntity entity = new RegistryEntity();
     {
       entity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setClientRegKey(DEFAULT_CLIENT_REG_KEY);
       entity.setBoxUUID(info.getBoxUUID());
       entity.setClientUUID(DEFAULT_CLIENT_UUID);
-      entity.setSubdomain(subDomain);
+      entity.setUserDomain(null);
       entity.setRegistryType(RegistryTypeEnum.BOX.getName());
     }
     registryRepository.persist(entity);
     // 管理员 client 注册
-    RegistryEntity reClient = createClientRegistry(entity, clientUUID);
+    RegistryEntity reClient = createClientRegistry(entity, clientUUID, userDomain);
     return reClient;
   }
 
   @Transactional
-  public RegistryEntity createClientRegistry(RegistryEntity boxRegistryEntity, String clientUUID) {
+  public RegistryEntity createClientRegistry(RegistryEntity boxRegistryEntity, String clientUUID, String userDomain) {
     RegistryEntity entity = new RegistryEntity();
     {
       entity.setBoxRegKey(boxRegistryEntity.getBoxRegKey());
       entity.setClientRegKey("crk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setBoxUUID(boxRegistryEntity.getBoxUUID());
       entity.setClientUUID(clientUUID);
-      entity.setSubdomain(null);
+      entity.setUserDomain(userDomain);
       entity.setRegistryType(RegistryTypeEnum.CLIENT.getName());
     }
     registryRepository.persist(entity);
     return entity;
   }
 
+
+  /**
+   * 获取 userDomain
+   * 1.如果subDomain不为空，直接使用
+   * 2.如果subDomain为空，自动生成长度32位的subdomain，并保证未使用
+   *
+   * @param subDomain subDomain
+   * @return 用户域名
+   */
+  public String getUserDomain(String subDomain) {
+    String userDomain = null;
+    if (CommonUtils.isNullOrEmpty(subDomain)) {
+      for (int i=0; i<10; i++) {
+        // 生成长度32位的subdomain
+        userDomain = CommonUtils.getUUID() + "." + properties.getRegistrySubdomain();
+        // 校验是否使用
+        Optional<RegistryEntity> registryEntityOp =  registryRepository.findByUserDomain(userDomain);
+        if (registryEntityOp.isEmpty()) {
+          return userDomain;
+        }
+      }
+    } else {
+      userDomain = subDomain + "." + properties.getRegistrySubdomain();
+    }
+    return userDomain;
+  }
 }

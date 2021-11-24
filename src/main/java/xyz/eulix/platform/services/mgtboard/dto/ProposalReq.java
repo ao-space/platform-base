@@ -8,6 +8,10 @@ import java.util.List;
 
 @Data(staticConstructor = "of")
 public class ProposalReq {
+    @Size(max = 128)
+    @Schema(maxLength = 128 ,description = "用户域名")
+    private String subdomain;
+
     // 反馈内容
     @NotBlank
     @Size(max = 500)

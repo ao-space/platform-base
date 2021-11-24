@@ -318,7 +318,7 @@ public class PkgMgtService {
                 packageReq.getPkgVersion(),
                 packageReq.getPkgSize(),
                 packageReq.getUpdateDesc(),
-                packageReq.getIsForceUpdate(),
+                packageReq.getIsForceUpdate() != null && packageReq.getIsForceUpdate(),
                 packageReq.getDownloadUrl(),
                 packageReq.getMd5(),
                 minAndroidVersion,
