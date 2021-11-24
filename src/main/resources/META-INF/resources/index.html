@@ -97,6 +97,11 @@
 			</div>
 			<p class="pd">最新版傲来空间App-首页-扫一扫</p>
 		</div>
+			<footer class="foot">
+          <li>帮助 | 隐私 | 条款</li>
+          <li>copyright &copy 2020-2021 中国科学院软件研究所</li>
+	</footer>
+
 		<div style="display:none">
 		<script type="text/javascript" src="https://s9.cnzz.com/z_stat.php?id=1280555335&web_id=1280555335"></script>
 		</div>
@@ -119,10 +124,8 @@
 					type: "get",
 					async: false,
 					dataType: "json",
-					url:
-						"https://services.eulix.xyz/platform/v1/api/auth/pkey/gen?timeStamp=" +
-						timeStamp,
-					// url: "/platform/v1/api/auth/pkey/gen",
+					//url:"https://services.eulix.xyz/platform/v1/api/auth/pkey/gen?timeStamp="+timeStamp,
+					url: "/platform/v1/api/auth/pkey/gen?timeStamp="+timeStamp,
 					headers: {
 						"request-Id": requestId(),
 					},

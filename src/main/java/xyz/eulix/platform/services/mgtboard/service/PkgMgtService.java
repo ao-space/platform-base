@@ -145,7 +145,7 @@ public class PkgMgtService {
         }
 
         // 判断是否需要更新
-        if (curAppVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
+        if (curBoxVersion.compareToIgnoreCase(latestBoxPkg.getPkgVersion()) < 0) {
             LOG.infov(
                 "box version need to update, boxName:{0}, boxType:{1}, from curVersion:{2} to newVersion:{3}",
                 boxName, "box", curBoxVersion, latestBoxPkg.getPkgVersion());
@@ -295,7 +295,6 @@ public class PkgMgtService {
         switch (PkgTypeEnum.fromValue(packageReq.getPkgType())) {
             case ANDROID:
             case IOS:
-                minBoxVersion = packageReq.getMinBoxVersion();
                 if (CommonUtils.isNullOrEmpty(packageReq.getMinBoxVersion())) {
                     minBoxVersion = applicationProperties.getMinBoxVersion();
                 } else {
