@@ -39,6 +39,9 @@ public enum ServiceError {
   QUESTIONNAIRE_NOT_EXIST(2013, "questionnaire does not exist"),
   PAYLOAD_SURVEY_ALREADY_EXIST(2014, "payload survey already exist"),
   PAYLOAD_ANSWER_ALREADY_EXIST(2015, "payload answer already exist"),
+
+  SUBDOMAIN_INVALID(2016, "subdomain is invalid"),
+  SUBDOMAIN_ALREADY_EXIST(2017, "subdomain already exist"),
   ;
 
   /**

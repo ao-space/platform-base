@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.mgtboard.entity;
 
 import lombok.*;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import xyz.eulix.platform.services.support.model.BaseEntity;
 
 import javax.persistence.Column;
@@ -17,6 +18,9 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor(staticName = "of")
 @NoArgsConstructor
 public class ProposalEntity extends BaseEntity {
+
+    @Column(name = "subdomain")
+    private String subdomain;
 
     @NotNull
     @Column(name = "content")

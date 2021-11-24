@@ -33,7 +33,7 @@ public class RegistryEntity extends BaseEntity {
   private String clientUUID;
 
   @Column(name = "subdomain")
-  private String subdomain;
+  private String userDomain;
 
   @NotBlank
   @Column(name = "type")

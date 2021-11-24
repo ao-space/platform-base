@@ -51,7 +51,7 @@ public class PackageReq {
 
     // 是否强制更新 1-强制更新;0-可选更新
     @Schema(description = "是否强制更新")
-    private Boolean isForceUpdate = false;
+    private Boolean isForceUpdate;
 
     // 最小兼容版本（盒子，兼容的最小Android版本）
     @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}")

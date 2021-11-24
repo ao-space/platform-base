@@ -10,6 +10,8 @@ import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.ProposalEntity;
 import xyz.eulix.platform.services.mgtboard.repository.ProposalEntityRepository;
+import xyz.eulix.platform.services.registry.entity.RegistryEntity;
+import xyz.eulix.platform.services.registry.repository.RegistryEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.boundary.oss.OSSClient;
 import xyz.eulix.platform.services.support.model.PageInfo;
@@ -26,6 +28,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ProposalService {
@@ -35,6 +38,9 @@ public class ProposalService {
 
     @Inject
     ProposalEntityRepository proposalEntityRepository;
+
+    @Inject
+    RegistryEntityRepository registryEntityRepository;
 
     @Inject
     ApplicationProperties properties;
@@ -50,6 +56,14 @@ public class ProposalService {
      */
     @Transactional
     public ProposalRes saveProposal(ProposalReq proposalReq) {
+        // 校验subdomain是否存在
+        if (!CommonUtils.isNullOrEmpty(proposalReq.getSubdomain())) {
+            Optional<RegistryEntity> registryEntityOp = registryEntityRepository.findByUserDomain(proposalReq.getSubdomain());
+            if (registryEntityOp.isEmpty()) {
+                LOG.warnv("subdomain does not exist, subdomain:{1}", proposalReq.getSubdomain());
+                throw new ServiceOperationException(ServiceError.SUBDOMAIN_INVALID);
+            }
+        }
         ProposalEntity proposalEntity = proposalReqToEntity(proposalReq);
         proposalEntityRepository.persist(proposalEntity);
         return proposalEntityToRes(proposalEntity);
@@ -72,6 +86,7 @@ public class ProposalService {
         proposalEntityRepository.updateById(proposalId, proposalReq.getContent(), proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(), String.join(",", proposalReq.getImageUrls()));
         return ProposalRes.of(proposalId,
+                proposalEntity.getSubdomain(),
                 proposalReq.getContent(),
                 proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(),
@@ -128,6 +143,7 @@ public class ProposalService {
 
     private ProposalRes proposalEntityToRes(ProposalEntity proposalEntity) {
         return ProposalRes.of(proposalEntity.getId(),
+                proposalEntity.getSubdomain(),
                 proposalEntity.getContent(),
                 proposalEntity.getEmail(),
                 proposalEntity.getPhoneNumber(),
@@ -136,7 +152,8 @@ public class ProposalService {
     }
 
     private ProposalEntity proposalReqToEntity(ProposalReq proposalReq) {
-        return ProposalEntity.of(proposalReq.getContent(),
+        return ProposalEntity.of(proposalReq.getSubdomain(),
+                proposalReq.getContent(),
                 proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(),
                 CommonUtils.isNullOrEmpty(proposalReq.getImageUrls()) ? null
