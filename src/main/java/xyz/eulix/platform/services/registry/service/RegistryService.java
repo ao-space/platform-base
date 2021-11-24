@@ -16,7 +16,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Provides box and client registry service.
@@ -140,7 +139,7 @@ public class RegistryService {
     if (CommonUtils.isNullOrEmpty(subDomain)) {
       for (int i=0; i<10; i++) {
         // 生成长度32位的subdomain
-        userDomain = UUID.randomUUID().toString().replaceAll("-", "") + "." + properties.getRegistrySubdomain();
+        userDomain = CommonUtils.getUUID() + "." + properties.getRegistrySubdomain();
         // 校验是否使用
         Optional<RegistryEntity> registryEntityOp =  registryRepository.findByUserDomain(userDomain);
         if (registryEntityOp.isEmpty()) {
