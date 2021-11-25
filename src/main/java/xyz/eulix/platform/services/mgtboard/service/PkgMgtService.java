@@ -302,11 +302,14 @@ public class PkgMgtService {
                 }
                 break;
             case BOX:
-                if (CommonUtils.isNullOrEmpty(packageReq.getMinBoxVersion())) {
+                if (CommonUtils.isNullOrEmpty(packageReq.getMinAndroidVersion())) {
                     minAndroidVersion = applicationProperties.getMinAndroidVersion();
-                    minIOSVersion = applicationProperties.getMinIOSVersion();
                 } else {
                     minAndroidVersion = packageReq.getMinAndroidVersion();
+                }
+                if (CommonUtils.isNullOrEmpty(packageReq.getMinIOSVersion())) {
+                    minIOSVersion = applicationProperties.getMinIOSVersion();
+                } else {
                     minIOSVersion = packageReq.getMinIOSVersion();
                 }
                 break;

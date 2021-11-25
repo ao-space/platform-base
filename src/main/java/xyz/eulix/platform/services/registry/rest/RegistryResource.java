@@ -68,9 +68,9 @@ public class RegistryResource {
         properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
         TunnelServer.Auth.of("n/a", "n/a"));
     // box 注册 & 管理员 client 注册
-    String userDomain = registryService.getUserDomain(registryInfo.getSubdomain());
-    final RegistryEntity reClient = registryService.createRegistry(registryInfo, registryInfo.getClientUUID(), userDomain);
-    return RegistryResult.of(reClient.getClientRegKey(), reClient.getBoxRegKey(), userDomain, server);
+    String boxUserDomain = registryService.getUserDomain(registryInfo.getSubdomain());
+    final RegistryEntity reClient = registryService.createRegistry(registryInfo, registryInfo.getClientUUID(), boxUserDomain);
+    return RegistryResult.of(reClient.getClientRegKey(), reClient.getBoxRegKey(), boxUserDomain, server);
   }
 
   @Logged
@@ -115,9 +115,12 @@ public class RegistryResource {
     final TunnelServer server = TunnelServer.of(
             properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
             TunnelServer.Auth.of("n/a", "n/a"));
-    String userDomain = registryService.getUserDomain(registryInfo.getSubdomain());
-    final RegistryEntity re = registryService.createClientRegistry(registryEntityList.get(0), registryInfo.getClientUUID(), userDomain);
-    return ClientRegistryResult.of(re.getClientRegKey(), userDomain, server);
+    String clientUserDomain = registryService.getUserDomain(registryInfo.getSubdomain());
+    final RegistryEntity re = registryService.createClientRegistry(registryEntityList.get(0), registryInfo.getClientUUID(), clientUserDomain);
+    // 返回盒子域名
+    RegistryEntity boxRegistryEntity = registryEntityList.stream()
+            .filter(entity -> RegistryTypeEnum.BOX.getName().equals(entity.getRegistryType())).findFirst().get();
+    return ClientRegistryResult.of(re.getClientRegKey(), boxRegistryEntity.getUserDomain(), server);
   }
 
   @Logged

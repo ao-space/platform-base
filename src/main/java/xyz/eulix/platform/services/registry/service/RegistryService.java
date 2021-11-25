@@ -94,19 +94,21 @@ public class RegistryService {
   }
 
   @Transactional
-  public RegistryEntity createRegistry(RegistryInfo info, String clientUUID, String userDomain) {
+  public RegistryEntity createRegistry(RegistryInfo info, String clientUUID, String boxUserDomain) {
     RegistryEntity entity = new RegistryEntity();
     {
       entity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
       entity.setClientRegKey(DEFAULT_CLIENT_REG_KEY);
       entity.setBoxUUID(info.getBoxUUID());
       entity.setClientUUID(DEFAULT_CLIENT_UUID);
-      entity.setUserDomain(null);
+      entity.setUserDomain(boxUserDomain);
       entity.setRegistryType(RegistryTypeEnum.BOX.getName());
     }
     registryRepository.persist(entity);
+    // 为client分配新域名
+    String clientUserDomain = getUserDomain(null);
     // 管理员 client 注册
-    RegistryEntity reClient = createClientRegistry(entity, clientUUID, userDomain);
+    RegistryEntity reClient = createClientRegistry(entity, clientUUID, clientUserDomain);
     return reClient;
   }
 
