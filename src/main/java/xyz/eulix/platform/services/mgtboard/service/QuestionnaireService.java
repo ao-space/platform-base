@@ -38,14 +38,14 @@ public class QuestionnaireService {
     OperationUtils operationUtils;
 
     /**
-     * ±£´æÎÊ¾í
+     * ä¿å­˜é—®å·
      *
-     * @param qaReq ÎÊ¾í
-     * @return ÎÊ¾í
+     * @param qaReq é—®å·
+     * @return é—®å·
      */
     @Transactional
     public QuestionnaireRes saveQuestionnaire(QuestionnaireReq qaReq) {
-        // ²éÑ¯ÎÊ¾íÊÇ·ñ´æÔÚ
+        // æŸ¥è¯¢é—®å·æ˜¯å¦å­˜åœ¨
         Optional<QuestionnaireEntity> qaEntityOp = qaEntityRepository.findBySurveyId(qaReq.getPayloadSurveyId());
         if (!qaEntityOp.isEmpty()) {
             LOG.warnv("payload survey already exist, payloadSurveyId:{0}", qaReq.getPayloadSurveyId());
@@ -57,11 +57,11 @@ public class QuestionnaireService {
     }
 
     /**
-     * ¸üĞÂÎÊ¾í
+     * æ›´æ–°é—®å·
      *
-     * @param qaId ÎÊ¾íid
-     * @param updateReq ¸üĞÂÄÚÈİ
-     * @return ÎÊ¾í
+     * @param qaId é—®å·id
+     * @param updateReq æ›´æ–°å†…å®¹
+     * @return é—®å·
      */
     @Transactional
     public QuestionnaireRes updateQuestionnaire(Long qaId, QuestionnaireUpdateReq updateReq) {
@@ -80,27 +80,27 @@ public class QuestionnaireService {
     }
 
     /**
-     * É¾³ıÎÊ¾í
+     * åˆ é™¤é—®å·
      *
-     * @param qaId ÎÊ¾íid
+     * @param qaId é—®å·id
      */
     @Transactional
     public void deleteQuestionnaire(Long qaId) {
         Optional<QuestionnaireEntity> qaEntityOp = qaEntityRepository.findByIdOptional(qaId);
         if (!qaEntityOp.isEmpty()) {
             QuestionnaireEntity qaEntity = qaEntityOp.get();
-            // É¾³ıÎÊ¾í
+            // åˆ é™¤é—®å·
             qaEntityRepository.deleteById(qaId);
-            // É¾³ı·´À¡
+            // åˆ é™¤åé¦ˆ
             qaFeedbackEntityRepository.deleteBySurveyId(qaEntity.getPayloadSurveyId());
         }
     }
 
     /**
-     * ²éÑ¯ÎÊ¾íÏêÇé
+     * æŸ¥è¯¢é—®å·è¯¦æƒ…
      *
-     * @param qaId ÎÊ¾íid
-     * @return ÎÊ¾í
+     * @param qaId é—®å·id
+     * @return é—®å·
      */
     public QuestionnaireRes getQuestionnaire(Long qaId) {
         QuestionnaireEntity qaEntity = qaEntityRepository.findById(qaId);
@@ -112,30 +112,30 @@ public class QuestionnaireService {
     }
 
     /**
-     * ²éÑ¯ÎÊ¾íÁĞ±í
+     * æŸ¥è¯¢é—®å·åˆ—è¡¨
      *
-     * @param subdomain ÓÃ»§ÓòÃû
-     * @param currentPage µ±Ç°Ò³
-     * @param pageSize Ã¿Ò³ÊıÁ¿
-     * @return ÎÊ¾íÁĞ±í
+     * @param subdomain ç”¨æˆ·åŸŸå
+     * @param currentPage å½“å‰é¡µ
+     * @param pageSize æ¯é¡µæ•°é‡
+     * @return é—®å·åˆ—è¡¨
      */
     public PageListResult<QuestionnaireRes> listQuestionnaire(String subdomain, Integer currentPage, Integer pageSize) {
         List<QuestionnaireRes> qaResList = new ArrayList<>();
-        // ÅĞ¶Ï£¬Èç¹ûÎª¿Õ£¬ÔòÉèÖÃÎª1
+        // åˆ¤æ–­ï¼Œå¦‚æœä¸ºç©ºï¼Œåˆ™è®¾ç½®ä¸º1
         if (currentPage == null || currentPage <= 0) {
             currentPage = 1;
         }
-        // 1.²éÑ¯ÁĞ±í
+        // 1.æŸ¥è¯¢åˆ—è¡¨
         List<QuestionnaireEntity> qaEntities = qaEntityRepository.findAll().page(currentPage - 1, pageSize).list();
         qaEntities.forEach(qaEntity -> qaResList.add(qaEntityToRes(qaEntity)));
-        // 2.¼ÇÂ¼×ÜÊı
+        // 2.è®°å½•æ€»æ•°
         Long totalCount = qaEntityRepository.count();
-        // 3.²éÑ¯ÓÃ»§·´À¡
+        // 3.æŸ¥è¯¢ç”¨æˆ·åé¦ˆ
         if (!CommonUtils.isNullOrEmpty(subdomain)) {
             List<QuestionnaireFeedbackEntity> qaFeedbackEntities = qaFeedbackEntityRepository.findBySubdomain(subdomain);
             Map<Long, QuestionnaireFeedbackEntity> qaFeedbackEntityMap = qaFeedbackEntities.stream().collect(
                     Collectors.toMap(QuestionnaireFeedbackEntity::getPayloadSurveyId, Function.identity(), (k1, k2) -> k2));
-            // ÉèÖÃ×´Ì¬
+            // è®¾ç½®çŠ¶æ€
             qaResList.forEach(qaRes -> {
                 OffsetDateTime now = OffsetDateTime.now();
                 if (CommonUtils.isNotNull(qaRes.getStartAt()) && now.isBefore(qaRes.getStartAt())) {
@@ -145,7 +145,7 @@ public class QuestionnaireService {
                 } else {
                     qaRes.setState(QuestionnaireStateEnum.IN_PROCESS.getName());
                 }
-                // ÒÑ·´À¡
+                // å·²åé¦ˆ
                 QuestionnaireFeedbackEntity qaFeedbackEntity = qaFeedbackEntityMap.get(qaRes.getPayloadSurveyId());
                 if (qaFeedbackEntity != null) {
                     qaRes.setState(QuestionnaireStateEnum.COMPLETED.getName());
@@ -166,13 +166,13 @@ public class QuestionnaireService {
                 "payload_answer_id:{5}", feedbackReq.getId(), feedbackReq.getObject(), feedbackReq.getAction(), feedbackReq.getCreatedAt(),
                 feedbackReq.getPayload().getSurveyId(), feedbackReq.getPayload().getAnswerId());
         FeedbackPayloadReq payload = feedbackReq.getPayload();
-        // ²éÑ¯ÎÊ¾íÊÇ·ñ´æÔÚ
+        // æŸ¥è¯¢é—®å·æ˜¯å¦å­˜åœ¨
         Optional<QuestionnaireEntity> qaEntityOp = qaEntityRepository.findBySurveyId(payload.getSurveyId());
         if (qaEntityOp.isEmpty()) {
             LOG.warnv("questionnaire does not exist, payloadSurveyId:{0}", payload.getSurveyId());
             throw new ServiceOperationException(ServiceError.QUESTIONNAIRE_NOT_EXIST);
         }
-        // ·´À¡ÊÇ·ñÒÑ´æÔÚ
+        // åé¦ˆæ˜¯å¦å·²å­˜åœ¨
         Optional<QuestionnaireFeedbackEntity> qaFeedbackEntityOp = qaFeedbackEntityRepository.findBySubdomainAndSurveyAndAnswerId(payload.getOpenId(),
                 payload.getSurveyId(), payload.getAnswerId());
         if (!qaFeedbackEntityOp.isEmpty()) {
