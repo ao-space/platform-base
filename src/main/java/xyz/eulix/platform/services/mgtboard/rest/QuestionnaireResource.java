@@ -24,7 +24,6 @@ import javax.ws.rs.core.MediaType;
 @ApplicationScoped
 @Path("/v1/api")
 @Tag(name = "Platform Questionnaire Management Service", description = "提供问卷相关接口.")
-@Tag(name = "0.5.0")
 public class QuestionnaireResource {
     private static final Logger LOG = Logger.getLogger("app.log");
 

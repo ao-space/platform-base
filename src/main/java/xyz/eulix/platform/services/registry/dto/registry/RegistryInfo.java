@@ -20,7 +20,6 @@ public class RegistryInfo {
   @Schema(description = "客户端的 UUID")
   private String clientUUID;
 
-  @NotBlank
   @Schema(description = "客户端被指定的子域名字段")
   private String subdomain;
 }
