@@ -94,7 +94,7 @@ public class PkgMgtService {
         PkgInfoEntity curAppPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(appName, appType, curAppVersion);
         if (curAppPkg == null){
             LOG.warnv("app version does not exist, appName:{0}, appType:{1}, appVersion:{2}", appName, appType, curAppVersion);
-            return packageCheckRes;
+            throw new ServiceOperationException(ServiceError.PKG_VERSION_NOT_EXIST);
         }
         // 查询最新 app、box 版本
         PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
@@ -131,7 +131,7 @@ public class PkgMgtService {
         PkgInfoEntity curBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(boxName, boxType, curBoxVersion);
         if (curBoxPkg == null){
             LOG.warnv("box version does not exist, boxName:{0}, boxType:{1}, boxVersion:{2}", boxName, boxType, curBoxVersion);
-            return packageCheckRes;
+            throw new ServiceOperationException(ServiceError.PKG_VERSION_NOT_EXIST);
         }
         // 查询最新 box 版本
         PkgInfoEntity latestBoxPkg = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);

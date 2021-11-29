@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.rest;
 
+import javax.annotation.security.RolesAllowed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -84,6 +85,7 @@ public class PackageResource {
         return pkgMgtService.getBoxLatestVersion(boxName, boxType);
     }
 
+    @RolesAllowed("admin")
     @POST
     @Path("/package")
     @Logged
@@ -93,6 +95,7 @@ public class PackageResource {
         return pkgMgtService.savePkgInfo(packageReq);
     }
 
+    @RolesAllowed("admin")
     @PUT
     @Path("/package")
     @Logged
@@ -102,6 +105,7 @@ public class PackageResource {
         return pkgMgtService.updatePkginfo(packageReq);
     }
 
+    @RolesAllowed("admin")
     @DELETE
     @Path("/package")
     @Logged

@@ -3,19 +3,23 @@ package xyz.eulix.platform.services.mgtboard;
 import static io.restassured.RestAssured.given;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import java.util.Objects;
+import org.junit.Ignore;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.testcontainers.shaded.okhttp3.Credentials;
 import xyz.eulix.platform.services.mgtboard.dto.PackageCheckRes;
 import xyz.eulix.platform.services.mgtboard.dto.PackageReq;
 import xyz.eulix.platform.services.mgtboard.dto.PackageRes;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import io.quarkus.test.keycloak.client.KeycloakTestClient;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -33,7 +37,17 @@ public class PackageResourceTest {
       "http://box2.0", "box 1.0 版本", "12345678901234567890123456789012", true, "2.0",
       "2.0", "0");
 
+  protected String getAccessToken() {
 
+    RestAssured.baseURI = "https://dev-sso.eulix.xyz/auth/realms/eulix-oss-test/protocol/openid-connect/token";
+    RestAssured.port = 443;
+    KeycloakTestClient keycloakClient = new KeycloakTestClient();
+
+    String accessToken = keycloakClient.getAccessToken("admin");
+    RestAssured.baseURI = RestAssured.DEFAULT_URI;
+    RestAssured.port = 8081;
+    return accessToken;
+  }
 
   @Test
   @Order(1)
@@ -44,26 +58,14 @@ public class PackageResourceTest {
     assert Objects.equals(packageRes.getPkgName(), app_1_0.getPkgName());
   }
 
-
-
   @Test
   @Order(2)
   void appPkgCheckAppTest() {
 
-    given()
-        .header("Request-Id", "uuid")
-        .body(app_2_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
-    given()
-        .header("Request-Id", "uuid")
-        .body(box_1_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
+    add(app_2_0);
+    add(box_1_0);
 
-    final Response resp = given()
+    final Response resp = RestAssured.given()
         .header("Request-Id", "uuid")
         .queryParam("action","app_check")
         .queryParam("app_pkg_name","app-1")
@@ -86,7 +88,7 @@ public class PackageResourceTest {
 
     String url = "http://test";
     app_1_0.setDownloadUrl(url);
-    given()
+    RestAssured.given().auth().oauth2(getAccessToken())
         .header("Request-Id", "uuid")
         .body(app_1_0)
         .contentType(ContentType.JSON)
@@ -99,23 +101,9 @@ public class PackageResourceTest {
   @Test
   @Order(4)
   void appPkgCheckAppUpdateBoxNotCompatible() {
+    add(box_2_0);
 
-    given()
-        .header("Request-Id", "uuid")
-        .body(box_1_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
-
-    given()
-        .header("Request-Id", "uuid")
-        .body(box_2_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
-
-
-    final Response resp = given()
+    final Response resp = RestAssured.given()
         .header("Request-Id", "uuid")
         .queryParam("action","app_check")
         .queryParam("app_pkg_name","app-1")
@@ -136,22 +124,8 @@ public class PackageResourceTest {
   @Order(5)
   void appPkgCheckTestBox() {
 
-    given()
-        .header("Request-Id", "uuid")
-        .body(box_1_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
 
-
-    given()
-        .header("Request-Id", "uuid")
-        .body(box_2_0)
-        .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
-
-    final Response resp = given()
+    final Response resp = RestAssured.given()
         .header("Request-Id", "uuid")
         .queryParam("action","box_check")
         .queryParam("box_pkg_name","box-1")
@@ -175,7 +149,7 @@ public class PackageResourceTest {
   void appPkgDelTest() {
 
 
-    given()
+    RestAssured.given().auth().oauth2(getAccessToken())
         .header("Request-Id", "uuid")
         .queryParam("pkg_name","app-1")
         .queryParam("pkg_type","ios")
@@ -192,7 +166,7 @@ public class PackageResourceTest {
   @Order(7)
   void packageBoxCheckTest() {
 
-    given()
+    RestAssured.given()
         .header("Request-Id", "uuid")
         .queryParam("box_pkg_name","box-1")
         .queryParam("box_pkg_type","box")
@@ -205,12 +179,12 @@ public class PackageResourceTest {
   }
 
   public PackageRes add(PackageReq req){
-    final Response resp = given()
+    final Response resp =
+    RestAssured.given().auth().oauth2(getAccessToken())
         .header("Request-Id", "uuid")
         .body(req)
         .contentType(ContentType.JSON)
-        .when()
-        .post("/v1/api/package");
+        .when().post("/v1/api/package");
 
      return resp.body().as(PackageRes.class);
   }

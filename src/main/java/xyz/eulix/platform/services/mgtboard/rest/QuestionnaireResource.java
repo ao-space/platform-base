@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.rest;
 
+import javax.annotation.security.RolesAllowed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -30,6 +31,7 @@ public class QuestionnaireResource {
     @Inject
     QuestionnaireService questionnaireService;
 
+    @RolesAllowed("admin")
     @POST
     @Path("/questionnaire")
     @Produces(MediaType.APPLICATION_JSON)
@@ -41,6 +43,7 @@ public class QuestionnaireResource {
         return questionnaireService.saveQuestionnaire(questionnaireReq);
     }
 
+    @RolesAllowed("admin")
     @PUT
     @Path("/questionnaire/{questionnaire_id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -53,6 +56,7 @@ public class QuestionnaireResource {
         return questionnaireService.updateQuestionnaire(questionnaireId, updateReq);
     }
 
+    @RolesAllowed("admin")
     @DELETE
     @Path("/questionnaire/{questionnaire_id}")
     @Produces(MediaType.APPLICATION_JSON)
