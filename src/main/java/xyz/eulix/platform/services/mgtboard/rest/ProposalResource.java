@@ -12,6 +12,7 @@ import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -48,6 +49,7 @@ public class ProposalResource {
         return proposalService.saveProposal(proposalReq);
     }
 
+    @RolesAllowed("admin")
     @PUT
     @Path("/proposal/{proposal_id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -60,6 +62,7 @@ public class ProposalResource {
         return proposalService.updateProposal(proposalId, proposalReq);
     }
 
+    @RolesAllowed("admin")
     @DELETE
     @Path("/proposal/{proposal_id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -140,6 +143,7 @@ public class ProposalResource {
         return response;
     }
 
+    @RolesAllowed("admin")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)

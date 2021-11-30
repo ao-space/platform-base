@@ -281,6 +281,7 @@ public class ProposalService {
         for (ProposalEntity entity: allData) {
             List<String> list = new ArrayList<>();
             list.add(entity.getId()== null ? "": String.valueOf(entity.getId()));
+            list.add(entity.getSubdomain()== null ? "": String.valueOf(entity.getSubdomain()));
             list.add(entity.getContent()== null ? "": String.valueOf(entity.getContent()));
             list.add(entity.getEmail()== null ? "": String.valueOf(entity.getEmail()));
             list.add(entity.getPhoneNumber()== null ? "": String.valueOf(entity.getPhoneNumber()));

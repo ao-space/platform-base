@@ -13,6 +13,7 @@ import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -161,6 +162,7 @@ public class RegistryResource {
     }
   }
 
+  @RolesAllowed("admin")
   @Logged
   @POST
   @Path("/registry/reset/force")
