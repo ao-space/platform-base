@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
  * of activation cancel information.
  */
 @Data
-public class ClientRegistryResetInfo {
+public class UserRegistryResetInfo {
   @NotBlank
   @Schema(description = "盒子的 UUID")
   private String boxUUID;
@@ -20,10 +20,6 @@ public class ClientRegistryResetInfo {
   private String userDomain;
 
   @NotBlank
-  @Schema(description = "客户端的 UUID")
-  private String clientUUID;
-
-  @NotBlank
-  @Schema(description = "客户端的注册码")
-  private String clientRegKey;
+  @Schema(description = "用户的注册码")
+  private String userRegKey;
 }

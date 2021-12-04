@@ -121,7 +121,7 @@ public class RegistryService {
       entity.setBoxUUID(boxRegistryEntity.getBoxUUID());
       entity.setClientUUID(clientUUID);
       entity.setUserDomain(userDomain);
-      entity.setRegistryType(RegistryTypeEnum.CLIENT.getName());
+      entity.setRegistryType(RegistryTypeEnum.CLIENT_BIND.getName());  //todo
     }
     registryRepository.persist(entity);
     return entity;

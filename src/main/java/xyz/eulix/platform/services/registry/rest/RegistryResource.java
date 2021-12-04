@@ -43,8 +43,7 @@ public class RegistryResource {
   @Path("/registry")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(description =
-      "初始化注册盒子，建立盒子与客户端的绑定关系，成功后返回盒子和客户端的注册码，以及网络相关的服务器信息。")
+  @Operation(description = "注册盒子，同步注册管理员、客户端，成功后返回盒子、用户、客户端的注册码，以及network client信息。")
   public RegistryResult registry(@Valid RegistryInfo registryInfo,
                                  @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
     final boolean validBoxUUID = registryService.isValidBoxUUID(registryInfo.getBoxUUID());
@@ -65,13 +64,22 @@ public class RegistryResource {
         throw new ServiceOperationException(ServiceError.SUBDOMAIN_ALREADY_EXIST);
       }
     }
-    final TunnelServer server = TunnelServer.of(
-        properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
-        TunnelServer.Auth.of("n/a", "n/a"));
+    final NetworkClient networkClient = NetworkClient.of("n/a", "n/a");
     // box 注册 & 管理员 client 注册
     String boxUserDomain = registryService.getUserDomain(registryInfo.getSubdomain());
     final RegistryEntity reClient = registryService.createRegistry(registryInfo, registryInfo.getClientUUID(), boxUserDomain);
-    return RegistryResult.of(reClient.getClientRegKey(), reClient.getBoxRegKey(), boxUserDomain, server);
+    return RegistryResult.of(reClient.getBoxRegKey(), boxUserDomain, null, reClient.getClientRegKey(), networkClient);
+  }
+
+  @Logged
+  @POST
+  @Path("/registry/user")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(description = "注册用户，同步注册客户端，成功后返回用户、客户端的注册码。")
+  public UserRegistryResult registry(@Valid UserRegistryInfo userRegistryInfo,
+                                 @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
+    return UserRegistryResult.of(null, null, null);
   }
 
   @Logged
@@ -79,7 +87,7 @@ public class RegistryResource {
   @Path("/registry/client")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(description = "注册新客户端，建立盒子与客户端的绑定关系，成功后返回客户端的注册码，以及网络相关的服务器信息。")
+  @Operation(description = "注册新客户端，成功后返回客户端的注册码。")
   public ClientRegistryResult registryClient(@Valid ClientRegistryInfo registryInfo,
                                        @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
     // 校验boxUuid有效性
@@ -88,9 +96,9 @@ public class RegistryResource {
       LOG.warnv("invalid box uuid, boxUuid:{0}", registryInfo.getBoxUUID());
       throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
     }
-    // 校验boxUuid是否存在
+    // 校验boxUuid是否存在 todo
       final List<RegistryEntity> registryEntityList = registryService.findAllByBoxUUIDAndBoxRegKey(registryInfo.getBoxUUID(),
-            registryInfo.getBoxRegKey());
+            null);
     if (registryEntityList.isEmpty()) {
       LOG.warnv("box uuid had not registered, boxUuid:{0}", registryInfo.getBoxUUID());
       throw new WebApplicationException("box uuid had not registered. Pls register box.", Response.Status.FORBIDDEN);
@@ -104,24 +112,21 @@ public class RegistryResource {
               registryInfo.getClientUUID());
       throw new WebApplicationException("client uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
     }
-    // 校验subdomain是否存在
-    if (!CommonUtils.isNullOrEmpty(registryInfo.getSubdomain())) {
-      Optional<RegistryEntity> reOp =  registryService.findByUserDomain(registryInfo.getSubdomain() + "." + properties.getRegistrySubdomain());
+    // 校验subdomain是否存在  todo
+    if (!CommonUtils.isNullOrEmpty(registryInfo.getUserDomain())) {
+      Optional<RegistryEntity> reOp =  registryService.findByUserDomain(registryInfo.getUserDomain() + "." + properties.getRegistrySubdomain());
       if (reOp.isPresent()) {
-        LOG.warnv("subdomain already exist, subdomain:{0}", registryInfo.getSubdomain());
+        LOG.warnv("subdomain already exist, subdomain:{0}", registryInfo.getUserDomain());
         throw new ServiceOperationException(ServiceError.SUBDOMAIN_ALREADY_EXIST);
       }
     }
 
-    final TunnelServer server = TunnelServer.of(
-            properties.getRegistryTunnelServerBaseUrl(), properties.getRegistryTunnelServerPort(),
-            TunnelServer.Auth.of("n/a", "n/a"));
-    String clientUserDomain = registryService.getUserDomain(registryInfo.getSubdomain());
+    String clientUserDomain = registryService.getUserDomain(registryInfo.getUserDomain());  // todo
     final RegistryEntity re = registryService.createClientRegistry(registryEntityList.get(0), registryInfo.getClientUUID(), clientUserDomain);
     // 返回盒子域名
     RegistryEntity boxRegistryEntity = registryEntityList.stream()
             .filter(entity -> RegistryTypeEnum.BOX.getName().equals(entity.getRegistryType())).findFirst().get();
-    return ClientRegistryResult.of(re.getClientRegKey(), boxRegistryEntity.getUserDomain(), server);
+    return ClientRegistryResult.of(re.getClientRegKey());
   }
 
   @Logged
@@ -144,6 +149,17 @@ public class RegistryResource {
 
   @Logged
   @POST
+  @Path("/registry/user/reset")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(description = "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。")
+  public UserRegistryResetResult reset(@Valid UserRegistryResetInfo userRegistryResetInfo,
+                                   @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
+    return UserRegistryResetResult.of(userRegistryResetInfo.getBoxUUID(), userRegistryResetInfo.getUserDomain());
+  }
+
+  @Logged
+  @POST
   @Path("/registry/client/reset")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
@@ -154,7 +170,7 @@ public class RegistryResource {
             clientResetInfo.getClientUUID());
     if (isExist) {
       registryService.deleteByClientUUID(clientResetInfo.getBoxUUID(), clientResetInfo.getClientUUID());
-      return ClientRegistryResetResult.of(clientResetInfo.getBoxUUID(), clientResetInfo.getClientUUID());
+      return ClientRegistryResetResult.of(clientResetInfo.getBoxUUID(), null, clientResetInfo.getClientUUID());
     } else {
       LOG.warnv("client uuid had not registered, boxUuid:{0}, clientUuid:{1}", clientResetInfo.getBoxUUID(),
               clientResetInfo.getClientUUID());
