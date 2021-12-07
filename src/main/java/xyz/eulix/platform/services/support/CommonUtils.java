@@ -41,27 +41,6 @@ public final class CommonUtils {
         .toString();
   }
 
-  public static String randomDigestAndLetters(int length) {
-    int startChar = '0';
-    int endChar = 'z';
-
-    return random.ints(startChar, endChar + 1)
-            .filter(i -> i <= 57 || i >= 97)
-            .limit(length)
-            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-            .toString();
-  }
-
-  public static String randomLetters(int length) {
-    int startChar = 'a';
-    int endChar = 'z';
-
-    return random.ints(startChar, endChar + 1)
-            .limit(length)
-            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-            .toString();
-  }
-
   /**
    * 获得一个UUID
    *
