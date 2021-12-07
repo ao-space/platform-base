@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="./favicon.ico" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0;" />
+		<title>傲空间</title>
+		<link href="./public/css/mobile.min.css" rel="stylesheet" type="text/css" />
+		<style>
+		.inv 
+		{
+			width: 100vw;
+			height: auto;
+			margin: 0px;
+		}
+		.button 
+		{
+			background: linear-gradient(45deg, #337AFF 0%, #16B9FF 100%);
+			border-radius: 10px;
+			font-size:
+		}
+		</style>
+	</head>
+	<script>
+		window.onload = function () {
+			getRem(375, 100);
+		};
+		window.onresize = function () {
+			getRem(375, 100);
+		};
+		function getRem(pwidth, prem) {
+			var html = document.getElementsByTagName("html")[0];
+			var oWidth =
+				document.body.clientWidth || document.documentElement.clientWidth;
+			html.style.fontSize = (oWidth / pwidth) * prem + "px";
+		}
+	</script>
+	<body>
+		<div class="div-one">
+			<img src="./public/mobile/shapeone.png" class="shape-one" />
+		</div>
+		<img src="./public/mobile/logo.png" class="logo" />
+		<img src="./public/mobile/textone.png" class="text-one" />
+		<div class="div-two">
+			<img src="./public/mobile/shapetwo.png" class="shape-two" />
+			<img src="./public/mobile/bg.png" class="bg" />
+			<img src="./public/mobile/texttwo.png" class="text-two" />
+			<img src="./public/mobile/bigimg.png" class="big-img" />
+		</div>			
+	</body>
+</html>
