@@ -1,21 +1,17 @@
 CREATE TABLE IF NOT EXISTS registries (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    box_reg_key VARCHAR(128) NOT NULL COMMENT '盒子注册码',
-    user_reg_key VARCHAR(128) DEFAULT NULL COMMENT '用户注册码',
-    client_reg_key VARCHAR(128) DEFAULT NULL COMMENT '客户端注册码',
+    box_reg_key VARCHAR(128) NOT NULL,
+    client_reg_key VARCHAR(128) NOT NULL,
     box_uuid VARCHAR(128) NOT NULL,
-    user_id VARCHAR(128) DEFAULT NULL,
-    client_uuid VARCHAR(128) DEFAULT NULL,
-    user_domain VARCHAR(128) DEFAULT NULL COMMENT '用户域名',
-    type VARCHAR(128) NOT NULL COMMENT '注册类型,box/user_admin/user_member/client_bind/client_auth',
-    network_client_id VARCHAR(128) DEFAULT NULL COMMENT 'network client id',
-    network_secret_key VARCHAR(128) DEFAULT NULL COMMENT 'network client访问密钥',
-    created_at DATETIME DEFAULT NULL,
-    updated_at DATETIME DEFAULT NULL,
+    client_uuid VARCHAR(128) NOT NULL,
+    subdomain VARCHAR(128) DEFAULT NULL COMMENT '用户域名',
+    type VARCHAR(128) NOT NULL COMMENT '注册类型,client/box',
+    created_at DATETIME,
+    updated_at DATETIME,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_boxid_userid_clientid (box_uuid, user_id, client_uuid),
-    UNIQUE KEY uk_userdomain (user_domain)
+    UNIQUE KEY uk_boxid_clientid (box_uuid, client_uuid),
+    UNIQUE KEY uk_subdomain (subdomain)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS notify_device (

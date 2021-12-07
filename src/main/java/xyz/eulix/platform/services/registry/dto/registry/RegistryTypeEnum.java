@@ -8,11 +8,8 @@ import java.util.Arrays;
 
 @AllArgsConstructor
 public enum RegistryTypeEnum {
+    CLIENT("client", "客户端"),
     BOX("box", "傲来盒子"),
-    USER_ADMIN("user_admin", "用户管理员"),
-    USER_MEMBER("user_member", "用户成员"),
-    CLIENT_BIND("client_bind", "绑定类型客户端"),
-    CLIENT_AUTH("client_auth", "授权类型客户端"),
     ;
 
     @Setter @Getter

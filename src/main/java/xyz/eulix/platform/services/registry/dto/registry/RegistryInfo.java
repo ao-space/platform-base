@@ -17,13 +17,9 @@ public class RegistryInfo {
   private String boxUUID;
 
   @NotBlank
-  @Schema(description = "用户的 ID")
-  private String userId;
-
-  @NotBlank
   @Schema(description = "客户端的 UUID")
   private String clientUUID;
 
-  @Schema(description = "用户被指定的子域名字段")
+  @Schema(description = "客户端被指定的子域名字段")
   private String subdomain;
 }
