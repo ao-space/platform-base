@@ -71,12 +71,7 @@ public class RegistryResource {
             throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "userType");
         }
         // 校验盒子是否未注册
-        Optional<RegistryEntity> boxEntityOp = registryService.findByBoxUUIDAndBoxRegKeyAndType(userRegistryInfo.getBoxUUID(),
-                userRegistryInfo.getBoxRegKey());
-        if (boxEntityOp.isEmpty()) {
-            LOG.warnv("invalid box registry info, boxUuid:{0}",userRegistryInfo.getBoxUUID());
-            throw new WebApplicationException("invalid box registry info.", Response.Status.FORBIDDEN);
-        }
+        registryService.hasBoxNotRegistered(userRegistryInfo.getBoxUUID(), userRegistryInfo.getBoxRegKey());
         // 校验用户是否已注册
         registryService.hasUserRegistered(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId());
         // 校验subdomain是否已存在
@@ -84,9 +79,7 @@ public class RegistryResource {
             registryService.isSubdomainExist(userRegistryInfo.getSubdomain());
         }
         // 注册
-        UserRegistryResult registryResult = registryService.registryUser(userRegistryInfo);
-        // 返回盒子域名 兼容network proxy缺失
-        return UserRegistryResult.of(boxEntityOp.get().getUserDomain(), registryResult.getUserRegKey(), registryResult.getClientRegKey());
+        return registryService.registryUser(userRegistryInfo);
     }
 
     @Logged

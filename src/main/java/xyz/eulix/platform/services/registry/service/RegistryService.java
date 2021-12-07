@@ -28,11 +28,6 @@ import java.util.Set;
 public class RegistryService {
     private static final Logger LOG = Logger.getLogger("app.log");
 
-    // 默认user/client id
-    private static final String DEFAULT_ID = "0";
-    // 默认user/client reg key
-    private static final String DEFAULT_REG_KEY = "0";
-
     @Inject
     ApplicationProperties properties;
 
@@ -123,11 +118,10 @@ public class RegistryService {
     @Transactional
     public RegistryResult registryBox(RegistryInfo info) {
         // 注册box
-        String boxDomain = getUserDomain(null);   // 兼容network proxy缺失
-        RegistryEntity boxEntity = registryBox(info.getBoxUUID(), boxDomain);
+        String userDomain = getUserDomain(info.getSubdomain());
+        RegistryEntity boxEntity = registryBox(info.getBoxUUID(), userDomain);
 
         // 注册用户（管理员）
-        String userDomain = getUserDomain(info.getSubdomain());
         RegistryEntity userEntity = registryUser(boxEntity.getBoxUUID(), boxEntity.getBoxRegKey(), info.getUserId(), userDomain,
                 RegistryTypeEnum.USER_ADMIN);
 
@@ -138,7 +132,7 @@ public class RegistryService {
         // 计算路由
 
         NetworkClient networkClient = NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey());
-        return RegistryResult.of(boxEntity.getBoxRegKey(), boxEntity.getUserDomain(), userEntity.getUserRegKey(), clientEntity.getClientRegKey(),
+        return RegistryResult.of(boxEntity.getBoxRegKey(), userEntity.getUserDomain(), userEntity.getUserRegKey(), clientEntity.getClientRegKey(),
                 networkClient);
     }
 
@@ -157,16 +151,15 @@ public class RegistryService {
     }
 
     @Transactional
-    public RegistryEntity registryBox(String boxUUID, String boxDomain) {
+    public RegistryEntity registryBox(String boxUUID, String userDomain) {
         // 注册box
         RegistryEntity boxEntity = new RegistryEntity();
         {
             boxEntity.setBoxUUID(boxUUID);
             boxEntity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
-            boxEntity.setUserDomain(boxDomain);    // 兼容network proxy缺失
             boxEntity.setRegistryType(RegistryTypeEnum.BOX.getName());
             // network client
-            boxEntity.setNetworkClientId(boxDomain);    // 兼容network proxy缺失
+            boxEntity.setNetworkClientId(userDomain.substring(0, userDomain.indexOf(".")));    // 兼容network proxy缺失
             boxEntity.setNetworkSecretKey("nrk_" + CommonUtils.createUnifiedRandomCharacters(10));
         }
         registryRepository.persist(boxEntity);
@@ -204,22 +197,6 @@ public class RegistryService {
         registryRepository.persist(clientEntity);
         return clientEntity;
     }
-
-    @Transactional
-    public RegistryEntity createClientRegistry(RegistryEntity boxRegistryEntity, String clientUUID, String userDomain) {
-        RegistryEntity entity = new RegistryEntity();
-        {
-            entity.setBoxRegKey(boxRegistryEntity.getBoxRegKey());
-            entity.setClientRegKey("crk_" + CommonUtils.createUnifiedRandomCharacters(10));
-            entity.setBoxUUID(boxRegistryEntity.getBoxUUID());
-            entity.setClientUUID(clientUUID);
-            entity.setUserDomain(userDomain);
-            entity.setRegistryType(RegistryTypeEnum.CLIENT_BIND.getName());  //todo
-        }
-        registryRepository.persist(entity);
-        return entity;
-    }
-
 
     /**
      * 获取 userDomain
@@ -326,6 +303,9 @@ public class RegistryService {
      */
     public void hasClientRegistered(String boxUUID, String userId, String clientUUID) {
         final List<RegistryEntity> clientEntitys = findAllByClientUUID(boxUUID, userId, clientUUID);
-        throw new WebApplicationException("client uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
+        if (!clientEntitys.isEmpty()) {
+            LOG.warnv("client uuid had already registered, boxUUID:{0}, userId:{1}, clientUUID:{2}", boxUUID, userId, clientUUID);
+            throw new WebApplicationException("client uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
+        }
     }
 }

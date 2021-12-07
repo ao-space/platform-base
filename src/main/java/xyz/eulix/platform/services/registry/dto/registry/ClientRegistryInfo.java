@@ -29,6 +29,8 @@ public class ClientRegistryInfo {
   private String clientUUID;
 
   private String subdomain;
+
+  @NotBlank
   @Schema(description = "客户端类型（绑定、扫码授权），取值：client_bind、client_auth")
   @ValueOfEnum(enumClass = RegistryTypeEnum.class, valueMethod = "getName")
   private String clientType;
