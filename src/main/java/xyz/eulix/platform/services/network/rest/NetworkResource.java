@@ -46,6 +46,6 @@ public class NetworkResource {
     @Operation(description = "查询最新 network server 信息")
     public NetworkServerRes networkServerDetail(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                 @NotNull @Parameter(required = true) @QueryParam("network_client_id") String networkClientId) {
-        return NetworkServerRes.of(properties.getRegistryTunnelServerBaseUrl() + properties.getRegistryTunnelServerPort());
+        return NetworkServerRes.of("tcp://ts.test-platform.eulix.xyz:59000");
     }
 }

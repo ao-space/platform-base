@@ -16,8 +16,8 @@ public class ClientRegistryResetInfo {
   private String boxUUID;
 
   @NotBlank
-  @Schema(description = "用户域名")
-  private String userDomain;
+  @Schema(description = "用户的 ID")
+  private String userId;
 
   @NotBlank
   @Schema(description = "客户端的 UUID")

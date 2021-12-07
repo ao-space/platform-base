@@ -17,8 +17,8 @@ public class ClientRegistryInfo {
   private String boxUUID;
 
   @NotBlank
-  @Schema(description = "用户域名")
-  private String userDomain;
+  @Schema(description = "用户的 ID")
+  private String userId;
 
   @NotBlank
   @Schema(description = "用户的注册码")
@@ -28,6 +28,7 @@ public class ClientRegistryInfo {
   @Schema(description = "客户端的 UUID")
   private String clientUUID;
 
+  private String subdomain;
   @Schema(description = "客户端类型（绑定、扫码授权），取值：client_bind、client_auth")
   @ValueOfEnum(enumClass = RegistryTypeEnum.class, valueMethod = "getName")
   private String clientType;

@@ -21,8 +21,12 @@ public class UserRegistryInfo {
   @Schema(description = "盒子的注册码")
   private String boxRegKey;
 
+  @NotBlank
+  @Schema(description = "用户的 ID")
+  private String userId;
+
   @Schema(description = "用户被指定的子域名字段")
-  private String subDomain;
+  private String subdomain;
 
   @Schema(description = "用户类型（管理员、普通成员），取值：user_admin、user_member")
   @ValueOfEnum(enumClass = RegistryTypeEnum.class, valueMethod = "getName")

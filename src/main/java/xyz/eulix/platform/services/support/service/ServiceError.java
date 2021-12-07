@@ -42,6 +42,12 @@ public enum ServiceError {
 
   SUBDOMAIN_INVALID(2016, "subdomain is invalid"),
   SUBDOMAIN_ALREADY_EXIST(2017, "subdomain already exist"),
+  BOX_ALREADY_REGISTERED(2018, "box uuid has already registered"),
+  BOX_NOT_REGISTERED(2019, "box uuid had not registered"),
+  USER_ALREADY_REGISTERED(2020, "user id has already registered"),
+  USER_NOT_REGISTERED(2021, "user id has not registered"),
+  CLIENT_ALREADY_REGISTERED(2022, "client uuid has already registered"),
+  CLIENT_NOT_REGISTERED(2023, "client uuid has not registered"),
   ;
 
   /**

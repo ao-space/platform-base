@@ -20,7 +20,9 @@ public class RegistryEntity extends BaseEntity {
   @Column(name = "box_reg_key")
   private String boxRegKey;
 
-  @NotBlank
+  @Column(name = "user_reg_key")
+  private String userRegKey;
+
   @Column(name = "client_reg_key")
   private String clientRegKey;
 
@@ -28,15 +30,23 @@ public class RegistryEntity extends BaseEntity {
   @Column(name = "box_uuid")
   private String boxUUID;
 
-  @NotBlank
+  @Column(name = "user_id")
+  private String userId;
+
   @Column(name = "client_uuid")
   private String clientUUID;
 
-  @Column(name = "subdomain")
+  @Column(name = "user_domain")
   private String userDomain;
 
   @NotBlank
   @Column(name = "type")
   @ValueOfEnum(enumClass = RegistryTypeEnum.class, valueMethod = "getName")
   private String registryType;
+
+  @Column(name = "network_client_id")
+  private String networkClientId;
+
+  @Column(name = "network_secret_key")
+  private String networkSecretKey;
 }
