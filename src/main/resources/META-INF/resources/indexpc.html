@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="./favicon.ico" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>傲空间</title>
+		<script>
+			var os = function () {
+				var ua = navigator.userAgent,
+					isWindowsPhone = /(?:Windows Phone)/.test(ua),
+					isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
+					isAndroid = /(?:Android)/.test(ua),
+					isFireFox = /(?:Firefox)/.test(ua),
+					isChrome = /(?:Chrome|CriOS)/.test(ua),
+					isTablet =
+						/(?:iPad|PlayBook)/.test(ua) ||
+						(isAndroid && !/(?:Mobile)/.test(ua)) ||
+						(isFireFox && /(?:Tablet)/.test(ua)),
+					isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+					isPc = !isPhone && !isAndroid && !isSymbian;
+				return {
+					isTablet: isTablet,
+					isPhone: isPhone,
+					isAndroid: isAndroid,
+					isPc: isPc,
+				};
+			};
+			if (!os().isPc) {
+				window.location.href = "indexsj.html";
+			}
+		</script>
+		<link href="./public/css/index.min.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div class="row-one">
+			<div>
+				<img src="./public/pc/logo.png" class="logo" />
+				<span class="line"></span>
+				<img src="./public/pc/readone.png" class="read-one" />
+			</div>
+		</div>
+		<div class="row-two">
+			<img  src="./public/pc/readtwo.png" class="read-two" />
+			<a style="margin-right:7px;color:#fff"href="https://services.eulix.xyz/platform/">
+				<img src="./public/pc/buttona.png" class="button-go" />
+			</a>
+			<a href="./download.html">
+				<img src="./public/pc/buttonb.png" class="button-go" />
+			</a>
+			<img src="./public/pc/bigimg.png" class="big-img" />
+		</div>
+	</body>
+	<script></script>
+</html>
