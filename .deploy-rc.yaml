@@ -35,7 +35,7 @@ spec:
       containers:
       - name: eulixplatform-services
         image: registry.eulix.xyz/bp/cicada/eulixplatform-services:release
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
           - name: QUARKUS_DATASOURCE_USERNAME
             valueFrom:
