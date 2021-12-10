@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+<script type="text/javascript" src="./js/qrcode.min.js"></script>
 <script type="text/javascript" src="./public/js/jquery-3.6.0.min.js"></script>
 <script type="text/javascript" src="./public/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="./public/css/bootstrap.min.css">
@@ -25,8 +27,8 @@
 
 <body>
 	<div style="height: 70px;background: #FFFFFF;vertical-align: middle; margin-bottom:7px;opacity: 0.7;">
-		<img style="height: 70px;vertical-align: middle;" src="./public/pc/logo.png" class="logo" />
-		<div style="display:inline-block;width: 1px;height: 47px;border: 1px solid #BCBFCD;background-color: #BCBFCD;height: 37px;margin-left:37px;margin-right:37px;vertical-align: middle;padding-top:1px"></div>
+		<img style="margin-left:13px;height: 70px;vertical-align: middle;" src="./public/pc/logo.png" class="logo" />
+		<div style="display:inline-block;width: 1px;height: 47px;border: 1px solid #BCBFCD;background-color: #BCBFCD;height: 37px;margin-left:34px;margin-right:37px;vertical-align: middle;padding-top:1px"></div>
 		<div style="display:inline;height: 70px;font-size: 17px;font-weight: 500;color: #464956;height:30px;vertical-align: middle;margin-right:377px;"><span>客户端下载</span></div>
 		<div style="vertical-align: middle;text-align:center;display:inline-block;">
 			<div id="a" style="display:inline;height: 70px;font-size: 17px;font-weight: 500;color: #464956;height:30px;vertical-align: middle;text-align:center;cursor:pointer">
@@ -65,10 +67,15 @@
 	  </div> 
 		<div><a href="https://res.space.eulix.xyz/clients/android/android-latest.apk">
 		<button style="margin-top:37px" type="button" class="btn btn-primary btn-lg">立即下载</button></a>
-		</div>	  
-		<div class="col-md-3"></div>    	  
-   </div>
-  </div> 
+		</div>	  		 	  
+	  </div>
+	  <div  class="col-md-3">
+	  <div style="margin:0 auto;text-align: center;margin-top:247px ">
+		<div id="qrcodea"></div>
+	  </div>   
+	  </div> 
+    </div>
+
   	<div id="iph" class="row" style="display:none">
       <div class="col-md-6" style="margin-top:137px">
 		<img class="center-block" src="./public/pc/iOS.png"/>
@@ -83,10 +90,18 @@
 		<div><a href="https://www.apple.com/app-store/">
 		<button style="margin-top:37px" type="button" class="btn btn-primary btn-lg" >立即下载</button></a>
 		</div>	  
-		<div class="col-md-3"></div>    	  
+		<div class="col-md-3">
+ 
+		</div>    	  
    </div>
+   	  <div  style="position: relative;" class="col-md-3">
+	  <div style="margin:0 auto;text-align: center; margin-top:247px ">
+		<div id="qrcodeb"></div>
+	  </div>   
+	  </div>
   </div> 
-   
+
+  </div> 
 
 <script type="text/javascript">	
 	 $("#c").click(function() {
@@ -95,9 +110,7 @@
 	 $("#c").css("display","none");
 	 $("#d").css("display","inline");
 	 $("#anz").css("display","none");
-	 $("#anz").css("display","none");
 	 $("#iph").css("display","block");
-
  })
  
  	 $("#b").click(function() {
@@ -108,6 +121,17 @@
 	 $("#anz").css("display","block");
 	 $("#iph").css("display","none");
  })
+ 
+ var qrcodea = new QRCode(document.getElementById("qrcodea"), {
+				width: 160,
+				height: 160,
+			});
+qrcodea.makeCode("https://res.space.eulix.xyz/clients/android/android-latest.apk");
+ var qrcodeb = new QRCode(document.getElementById("qrcodeb"), {
+				width: 160,
+				height: 160,
+			});
+qrcodeb.makeCode("https://www.apple.com/app-store/");
 </script>
 
 </body>

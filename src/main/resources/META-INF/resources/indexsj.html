@@ -4,15 +4,17 @@
 		<meta charset="UTF-8" />
 		<link rel="icon" href="./favicon.ico" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0;" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 		<title>傲空间</title>
 		<link href="./public/css/mobile.min.css" rel="stylesheet" type="text/css" />
 		<style>
 		.inv 
 		{
-			width: 100vw;
-			height: auto;
-			margin: 0px;
+			width: 200px;
+			height: 44px;
+			background: linear-gradient(45deg, #337AFF 0%, #16B9FF 100%);
+			border-radius: 10px;
+			z-index:777
 		}
 		.button 
 		{
@@ -20,6 +22,22 @@
 			border-radius: 10px;
 			font-size:
 		}
+		.x-center {
+  justify-content: center;
+  text-align: center;
+}
+
+.y-center {
+  align-items: center;
+}
+
+.xy-center {
+  justify-content: center;
+  align-items: center;
+}
+.pointer {
+  cursor: pointer;
+}
 		</style>
 	</head>
 	<script>
@@ -47,6 +65,44 @@
 			<img src="./public/mobile/bg.png" class="bg" />
 			<img src="./public/mobile/texttwo.png" class="text-two" />
 			<img src="./public/mobile/bigimg.png" class="big-img" />
-		</div>			
+
+		<div style="width: 200px;justify-content: center;margin:0 auto;text-align: center;height: 44px;background: linear-gradient(45deg, #337AFF 0%, #16B9FF 100%);border-radius: 10px;z-index:777" 
+		class="button  pointer" 
+		id="dow"
+		>
+		<div style="width: 200px;font-size: 17px;color: #FFFFFF;margin:7px;text-align: center; ">客户端下载</div>
+		</div>
+		</div>
+			
 	</body>
+<script type="text/javascript">		
+	download_android='https://res.space.eulix.xyz/clients/android/android-latest.apk'; 
+	download_ios='https://www.apple.com/app-store/'; 
+	document.getElementById('dow').onclick = function () {
+			if(detect()=="android")
+			{
+				window.location.href = download_android;
+				//console.log(scheme_android+window.location.search);
+			}
+			if(detect()=="ios")
+			{
+				window.location.href = download_ios;
+				//console.log(scheme_ios+window.location.search);
+			}
+    };
+		function detect(){
+    let equipmentType = "";
+    let agent = navigator.userAgent.toLowerCase();
+    let android = agent.indexOf("android");
+    let iphone = agent.indexOf("iphone");
+    let ipad = agent.indexOf("ipad");
+    if(android != -1){
+        equipmentType = "android";
+    }
+    if(iphone != -1 || ipad != -1){
+        equipmentType = "ios";
+    }
+    return equipmentType;
+}
+</script>	
 </html>

@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     bp-app: eulixplatform-services
-    version: "<TIMESTAMP>"
   name: eulixplatform-services
   namespace: bp-cicada-rc
 spec:
@@ -15,6 +14,7 @@ spec:
     metadata:
       labels:
         bp-app: eulixplatform-services
+        version: "<TIMESTAMP>"
     spec:
       imagePullSecrets:
       - name: docker-registry-eulixcode-secret

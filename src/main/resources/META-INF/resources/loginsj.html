@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="robots" content="noindex, nofollow" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<script type="text/javascript" src="./js/jquery.min.js"></script>
+		<script type="text/javascript" src="./js/qrcode.min.js"></script>
+		<style type="text/css">
+			body {
+				background-size: 100% 100%;
+				height: 100vh;
+				margin: 0px;
+			}
+			.log {
+				text-align: left;
+				height: 7.7vh;
+				padding: 1vh;
+			}
+			.login {
+				width: 37vw;
+				height: 37vh;
+				background: rgba(255, 255, 255, 0.7);
+				border-radius: 0.7px;
+				margin:0 auto;
+				padding-top: 13vh;
+				text-align: center;
+			}
+			.pa {
+				line-height: 1.7;
+				font-size: 17px;
+				font-weight: 777;
+				color: #333333;
+				margin-block-start: 7px;
+				margin-block-end: 7px;
+			}
+			.pb {
+				line-height: 1;
+				font-size: 17px;
+				font-weight: 777;
+				color: #333333;
+				margin-bottom: 3vh;
+			}
+			.pc {
+				line-height: 1;
+				font-size: 17px;
+				font-weight: 777;
+				color: #337aff;
+			}
+			.pd {
+				line-height: 1;
+				font-size: 13px;
+				color: #85899c;
+			}
+			.img {
+				padding-top: 3vh;
+				padding-bottom: 3vh;
+			}
+			#qrcode {
+				width: 160px;
+				height: 160px;
+				display: inline-block;
+			}
+			.pic {
+				width: 160px;
+				height: 160px;
+				display: inline;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="login">
+			<p class="pa">登录</p>
+			
+			<div class="img">
+				<div id="qrcode"></div>
+			</div>
+			
+		</div>
+		
+		<div style="text-align: center;">
+			<span class="pb">请使用手机上的</span>
+			<span class="pc">傲来空间App</span>
+			<span class="pb">扫码登录</span>
+			<p class="pd">最新版傲来空间App-首页-扫一扫</p>
+		</div>	
+			
+		<div style="display:none">
+		<script type="text/javascript" src="https://s9.cnzz.com/z_stat.php?id=1280555335&web_id=1280555335"></script>
+		</div>
+
+		<script type="text/javascript">
+			function requestId() {
+				return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+					/[xy]/g,
+					function (c) {
+						let r = (Math.random() * 16) | 0,
+							v = c == "x" ? r : (r & 0x3) | 0x8;
+						return v.toString(16);
+					}
+				);
+			}
+			var key;
+			function gen() {
+				var timeStamp = new Date().getTime();
+				$.ajax({
+					type: "get",
+					async: false,
+					dataType: "json",
+					//url:"https://services.eulix.xyz/platform/v1/api/auth/pkey/gen?timeStamp="+timeStamp,
+					url: "/platform/v1/api/auth/pkey/gen?timeStamp="+timeStamp,
+					headers: {
+						"request-Id": requestId(),
+					},
+					success: function (result) {
+						console.log(result);
+						key = result.pkey;
+					},
+				});
+			}
+			gen();
+			var qrcode = new QRCode(document.getElementById("qrcode"), {
+				width: 160,
+				height: 160,
+			});
+			qrcode.makeCode(key);
+			function refresh() {
+				gen();
+				qrcode.clear();
+				qrcode.makeCode(key);
+			}
+			window.setInterval(refresh, 300000);
+			let tmp = window.setInterval(poll, 1000);
+			function poll() {
+				$.ajax({
+					type: "get",
+					//url: "https://services.eulix.xyz/platform/v1/api/auth/pkey/gen/poll?pkey="+key,
+					url: "/platform/v1/api/auth/pkey/poll?pkey=" + key,
+					headers: {
+						"request-Id": requestId(),
+					},
+					success: function (result) {
+						console.log(result);
+						console.log(result.boxDomain);
+						if (result.bkey != null) {
+							tmp && clearInterval(tmp);
+							window.location.href =
+								"https://" +
+								result.boxDomain +
+								"/space/index.html?bkey=" +
+								result.bkey +
+								"&publickey=" +
+								encodeURIComponent(result.boxPubKey) +
+								"#/login";
+						}
+					},
+				});
+			}
+			
+		</script>
+		
+	</body>
+</html>
