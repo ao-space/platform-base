@@ -13,9 +13,9 @@ public class PollPkeyRsp {
     @Schema(description = "盒子侧bkey值")
     private final String bkey;
 
-    // 盒子域名
-    @Schema(description = "盒子域名")
-    private final String boxDomain;
+    // 用户域名
+    @Schema(description = "用户域名")
+    private final String userDomain;
 
     // 盒子公钥
     @Schema(description = "盒子公钥")

@@ -14,6 +14,9 @@ public class ClientRegistryResetResult {
   @Schema(description = "盒子的 UUID")
   private final String boxUUID;
 
+  @Schema(description = "用户的 ID")
+  private final String userId;
+
   @Schema(description = "客户端的 UUID")
   private final String clientUUID;
 }

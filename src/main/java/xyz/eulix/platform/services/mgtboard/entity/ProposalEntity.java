@@ -19,8 +19,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class ProposalEntity extends BaseEntity {
 
-    @Column(name = "subdomain")
-    private String subdomain;
+    @Column(name = "user_domain")
+    private String userDomain;
 
     @NotNull
     @Column(name = "content")

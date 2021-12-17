@@ -13,8 +13,8 @@ import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 @Getter @Setter @ToString(callSuper = true)
-@Entity @Table(name = "box_info")
-public class BoxInfoEntity extends BaseEntity {
+@Entity @Table(name = "pkey_auth")
+public class PkeyAuthEntity extends BaseEntity {
     // 二维码pkey值
     @NotBlank
     @Column(name = "pkey")
@@ -30,8 +30,8 @@ public class BoxInfoEntity extends BaseEntity {
     private String bkey;
 
     // 盒子域名
-    @Column(name = "box_domain")
-    private String boxDomain;
+    @Column(name = "user_domain")
+    private String userDomain;
 
     // 盒子公钥
     @Column(name = "box_pub_key")

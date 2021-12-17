@@ -9,24 +9,24 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class QaFeedbackEntityRepository implements PanacheRepository<QuestionnaireFeedbackEntity> {
-    // 根据subdomain查询资源
-    private static final String FIND_BY_SUBDOMAIN = "subdomain=?1";
+    // 根据user_domain查询资源
+    private static final String FIND_BY_USERDOMAIN = "user_domain=?1";
 
     // 根据survey_id查询资源
     private static final String FIND_BY_SURVEY_ID = "payload_survey_id=?1";
 
-    // 根据subdomain、survey_id、answer_id查询资源
-    private static final String FIND_BY_SUBDOMAIN_SURVEY_ANSWER_ID = "subdomain=?1 AND payload_survey_id=?2 AND payload_answer_id=?3";
+    // 根据user_domain、survey_id、answer_id查询资源
+    private static final String FIND_BY_USERDOMAIN_SURVEY_ANSWER_ID = "user_domain=?1 AND payload_survey_id=?2 AND payload_answer_id=?3";
 
-    public List<QuestionnaireFeedbackEntity> findBySubdomain(String subdomain) {
-        return this.find(FIND_BY_SUBDOMAIN, subdomain).list();
+    public List<QuestionnaireFeedbackEntity> findByUserDomain(String userDomain) {
+        return this.find(FIND_BY_USERDOMAIN, userDomain).list();
     }
 
     public void deleteBySurveyId(Long payloadSurveyId) {
         this.delete(FIND_BY_SURVEY_ID, payloadSurveyId);
     }
 
-    public Optional<QuestionnaireFeedbackEntity> findBySubdomainAndSurveyAndAnswerId(String subdomain, Long payloadSurveyId, Long payloadAnswerId) {
-        return this.find(FIND_BY_SUBDOMAIN_SURVEY_ANSWER_ID, subdomain, payloadSurveyId, payloadAnswerId).singleResultOptional();
+    public Optional<QuestionnaireFeedbackEntity> findByUserDomainAndSurveyAndAnswerId(String userDomain, Long payloadSurveyId, Long payloadAnswerId) {
+        return this.find(FIND_BY_USERDOMAIN_SURVEY_ANSWER_ID, userDomain, payloadSurveyId, payloadAnswerId).singleResultOptional();
     }
 }

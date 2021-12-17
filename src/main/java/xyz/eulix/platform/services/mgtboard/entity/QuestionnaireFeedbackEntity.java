@@ -20,8 +20,8 @@ import java.time.OffsetDateTime;
 public class QuestionnaireFeedbackEntity extends BaseEntity {
 
     @NotNull
-    @Column(name = "subdomain")
-    private String subdomain;
+    @Column(name = "user_domain")
+    private String userDomain;
 
     // 第三方问卷id
     @NotNull

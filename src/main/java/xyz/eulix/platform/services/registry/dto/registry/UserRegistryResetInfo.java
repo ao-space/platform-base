@@ -10,8 +10,16 @@ import javax.validation.constraints.NotBlank;
  * of activation cancel information.
  */
 @Data
-public class RegistryForceReset {
+public class UserRegistryResetInfo {
   @NotBlank
   @Schema(description = "盒子的 UUID")
   private String boxUUID;
+
+  @NotBlank
+  @Schema(description = "用户的 ID")
+  private String userId;
+
+  @NotBlank
+  @Schema(description = "用户的注册码")
+  private String userRegKey;
 }

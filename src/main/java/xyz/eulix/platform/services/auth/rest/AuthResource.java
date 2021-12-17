@@ -9,7 +9,7 @@ import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.auth.dto.GenPkeyRsp;
 import xyz.eulix.platform.services.auth.dto.PollPkeyRsp;
 import xyz.eulix.platform.services.auth.dto.TransBoxInfoReq;
-import xyz.eulix.platform.services.auth.entity.BoxInfoEntity;
+import xyz.eulix.platform.services.auth.entity.PkeyAuthEntity;
 import xyz.eulix.platform.services.auth.service.AuthService;
 import xyz.eulix.platform.services.support.log.Logged;
 
@@ -42,8 +42,8 @@ public class AuthResource {
     @Logged
     @Operation(description = "Generate pkey for new client.")
     public GenPkeyRsp pkeyGen(@NotBlank @HeaderParam("Request-Id") String requestId) {
-        BoxInfoEntity boxInfoEntity = authService.genPkey();
-        return GenPkeyRsp.of(boxInfoEntity.getPkey(), boxInfoEntity.getExpiresAt());
+        PkeyAuthEntity pkeyAuthEntity = authService.genPkey();
+        return GenPkeyRsp.of(pkeyAuthEntity.getPkey(), pkeyAuthEntity.getExpiresAt());
     }
 
     @POST
@@ -52,7 +52,7 @@ public class AuthResource {
     @Operation(description = "Receive box info from app(old client).")
     public void boxinfoTrans(@NotBlank @HeaderParam("Request-Id") String requestId,
                              @Valid TransBoxInfoReq boxInfoReq) {
-        authService.saveBoxInfo(boxInfoReq);
+        authService.savePkeyAuth(boxInfoReq);
     }
 
     @GET
@@ -63,6 +63,6 @@ public class AuthResource {
                                 @NotNull @Pattern(regexp = "[a-zA-Z0-9-]{36}")
                                 @Parameter(schema = @Schema(type = SchemaType.STRING, pattern = "[a-zA-Z0-9-]{36}"))
                                 @QueryParam("pkey") String pkey) {
-        return authService.pollBoxInfo(pkey);
+        return authService.pollPkeyAuth(pkey);
     }
 }

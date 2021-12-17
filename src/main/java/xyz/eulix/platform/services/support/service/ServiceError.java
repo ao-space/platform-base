@@ -40,8 +40,20 @@ public enum ServiceError {
   PAYLOAD_SURVEY_ALREADY_EXIST(2014, "payload survey already exist"),
   PAYLOAD_ANSWER_ALREADY_EXIST(2015, "payload answer already exist"),
 
-  SUBDOMAIN_INVALID(2016, "subdomain is invalid"),
-  SUBDOMAIN_ALREADY_EXIST(2017, "subdomain already exist"),
+  USER_DOMAIN_INVALID(2016, "user domain is invalid"),
+  SUBDOMAIN_NOT_EXIST(2017, "subdomain does not exist"),
+  SUBDOMAIN_ALREADY_EXIST(2018, "subdomain already exist"),
+  SUBDOMAIN_ALREADY_USED(2019, "subdomain already used"),
+  SUBDOMAIN_UPPER_LIMIT(2020, "reach subdomain upper limit"),
+  BOX_ALREADY_REGISTERED(2021, "box uuid has already registered"),
+  BOX_NOT_REGISTERED(2022, "box uuid had not registered"),
+  USER_ALREADY_REGISTERED(2023, "user id has already registered"),
+  USER_NOT_REGISTERED(2024, "user id has not registered"),
+  CLIENT_ALREADY_REGISTERED(2025, "client uuid has already registered"),
+  CLIENT_NOT_REGISTERED(2026, "client uuid has not registered"),
+  DATABASE_ERROR(2027, "database error"),
+
+  NETWORK_CLIENT_NOT_EXIST(2028, "network client does not exist"),
   ;
 
   /**
