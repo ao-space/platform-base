@@ -124,7 +124,7 @@ public class RegistryResource {
             LOG.warnv("box uuid had not registered, boxUuid:{0}", boxResetInfo.getBoxUUID());
             throw new WebApplicationException("invalid box registry reset info", Response.Status.FORBIDDEN);
         }
-        registryService.resetBox(boxResetInfo);
+        registryService.resetBox(boxResetInfo.getBoxUUID());
         return BoxRegistryResetResult.of(boxResetInfo.getBoxUUID());
     }
 
@@ -174,7 +174,7 @@ public class RegistryResource {
     public BoxRegistryResetResult resetForce(@Valid BoxRegistryForceReset resetInfo,
                                              @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
         LOG.warnv("reset box forcely, boxUuid:{0}", resetInfo.getBoxUUID());
-        registryService.deleteBoxByBoxUUID(resetInfo.getBoxUUID());
+        registryService.resetBox(resetInfo.getBoxUUID());
         return BoxRegistryResetResult.of(resetInfo.getBoxUUID());
     }
 
