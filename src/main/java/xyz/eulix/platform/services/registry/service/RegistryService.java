@@ -204,15 +204,15 @@ public class RegistryService {
     }
 
     @Transactional
-    public void resetBox(BoxRegistryResetInfo boxResetInfo) {
+    public void resetBox(String boxUUID) {
         // 重置盒子
-        deleteBoxByBoxUUID(boxResetInfo.getBoxUUID());
+        deleteBoxByBoxUUID(boxUUID);
         // 重置用户
-        deleteUserByBoxUUID(boxResetInfo.getBoxUUID());
+        deleteUserByBoxUUID(boxUUID);
         // 重置域名
-        deleteSubdomainByBoxUUID(boxResetInfo.getBoxUUID());
+        deleteSubdomainByBoxUUID(boxUUID);
         // 重置client
-        deleteClientByBoxUUID(boxResetInfo.getBoxUUID());
+        deleteClientByBoxUUID(boxUUID);
     }
 
     /**
