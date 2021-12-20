@@ -10,7 +10,7 @@ import java.util.List;
 public class ProposalReq {
     @Size(max = 128)
     @Schema(maxLength = 128 ,description = "用户域名")
-    private String subdomain;
+    private String userDomain;
 
     // 反馈内容
     @NotBlank

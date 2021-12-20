@@ -114,12 +114,12 @@ public class QuestionnaireService {
     /**
      * 查询问卷列表
      *
-     * @param subdomain 用户域名
+     * @param userDomain 用户域名
      * @param currentPage 当前页
      * @param pageSize 每页数量
      * @return 问卷列表
      */
-    public PageListResult<QuestionnaireRes> listQuestionnaire(String subdomain, Integer currentPage, Integer pageSize) {
+    public PageListResult<QuestionnaireRes> listQuestionnaire(String userDomain, Integer currentPage, Integer pageSize) {
         List<QuestionnaireRes> qaResList = new ArrayList<>();
         // 判断，如果为空，则设置为1
         if (currentPage == null || currentPage <= 0) {
@@ -131,8 +131,8 @@ public class QuestionnaireService {
         // 2.记录总数
         Long totalCount = qaEntityRepository.count();
         // 3.查询用户反馈
-        if (!CommonUtils.isNullOrEmpty(subdomain)) {
-            List<QuestionnaireFeedbackEntity> qaFeedbackEntities = qaFeedbackEntityRepository.findBySubdomain(subdomain);
+        if (!CommonUtils.isNullOrEmpty(userDomain)) {
+            List<QuestionnaireFeedbackEntity> qaFeedbackEntities = qaFeedbackEntityRepository.findByUserDomain(userDomain);
             Map<Long, QuestionnaireFeedbackEntity> qaFeedbackEntityMap = qaFeedbackEntities.stream().collect(
                     Collectors.toMap(QuestionnaireFeedbackEntity::getPayloadSurveyId, Function.identity(), (k1, k2) -> k2));
             // 设置状态
@@ -140,8 +140,6 @@ public class QuestionnaireService {
                 OffsetDateTime now = OffsetDateTime.now();
                 if (CommonUtils.isNotNull(qaRes.getStartAt()) && now.isBefore(qaRes.getStartAt())) {
                     qaRes.setState(QuestionnaireStateEnum.NOT_START.getName());
-                } else if (CommonUtils.isNotNull(qaRes.getEndAt()) && now.isAfter(qaRes.getEndAt())) {
-                    qaRes.setState(QuestionnaireStateEnum.HAS_END.getName());
                 } else {
                     qaRes.setState(QuestionnaireStateEnum.IN_PROCESS.getName());
                 }
@@ -173,10 +171,10 @@ public class QuestionnaireService {
             throw new ServiceOperationException(ServiceError.QUESTIONNAIRE_NOT_EXIST);
         }
         // 反馈是否已存在
-        Optional<QuestionnaireFeedbackEntity> qaFeedbackEntityOp = qaFeedbackEntityRepository.findBySubdomainAndSurveyAndAnswerId(payload.getOpenId(),
+        Optional<QuestionnaireFeedbackEntity> qaFeedbackEntityOp = qaFeedbackEntityRepository.findByUserDomainAndSurveyAndAnswerId(payload.getOpenId(),
                 payload.getSurveyId(), payload.getAnswerId());
         if (!qaFeedbackEntityOp.isEmpty()) {
-            LOG.warnv("payload answer already exist, subdomain:{0}, payloadSurveyId:{1}, payload_answer_id:{w}", payload.getOpenId(),
+            LOG.warnv("payload answer already exist, userDomain:{0}, payloadSurveyId:{1}, payloadAnswerId:{w}", payload.getOpenId(),
                     payload.getSurveyId(), payload.getAnswerId());
             throw new ServiceOperationException(ServiceError.PAYLOAD_ANSWER_ALREADY_EXIST);
         }

@@ -10,8 +10,8 @@ import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.ProposalEntity;
 import xyz.eulix.platform.services.mgtboard.repository.ProposalEntityRepository;
-import xyz.eulix.platform.services.registry.entity.RegistryEntity;
-import xyz.eulix.platform.services.registry.repository.RegistryEntityRepository;
+import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
+import xyz.eulix.platform.services.registry.repository.SubdomainEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.boundary.oss.OSSClient;
 import xyz.eulix.platform.services.support.model.PageInfo;
@@ -40,7 +40,7 @@ public class ProposalService {
     ProposalEntityRepository proposalEntityRepository;
 
     @Inject
-    RegistryEntityRepository registryEntityRepository;
+    SubdomainEntityRepository subdomainEntityRepository;
 
     @Inject
     ApplicationProperties properties;
@@ -56,12 +56,12 @@ public class ProposalService {
      */
     @Transactional
     public ProposalRes saveProposal(ProposalReq proposalReq) {
-        // 校验subdomain是否存在
-        if (!CommonUtils.isNullOrEmpty(proposalReq.getSubdomain())) {
-            Optional<RegistryEntity> registryEntityOp = registryEntityRepository.findByUserDomain(proposalReq.getSubdomain());
-            if (registryEntityOp.isEmpty()) {
-                LOG.warnv("subdomain does not exist, subdomain:{1}", proposalReq.getSubdomain());
-                throw new ServiceOperationException(ServiceError.SUBDOMAIN_INVALID);
+        // 校验userDomain是否存在
+        if (!CommonUtils.isNullOrEmpty(proposalReq.getUserDomain())) {
+            Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findByUserDomain(proposalReq.getUserDomain());
+            if (subdomainEntityOp.isEmpty()) {
+                LOG.warnv("userDomain does not exist, userDomain:{1}", proposalReq.getUserDomain());
+                throw new ServiceOperationException(ServiceError.USER_DOMAIN_INVALID);
             }
         }
         ProposalEntity proposalEntity = proposalReqToEntity(proposalReq);
@@ -86,7 +86,7 @@ public class ProposalService {
         proposalEntityRepository.updateById(proposalId, proposalReq.getContent(), proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(), String.join(",", proposalReq.getImageUrls()));
         return ProposalRes.of(proposalId,
-                proposalEntity.getSubdomain(),
+                proposalEntity.getUserDomain(),
                 proposalReq.getContent(),
                 proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(),
@@ -143,7 +143,7 @@ public class ProposalService {
 
     private ProposalRes proposalEntityToRes(ProposalEntity proposalEntity) {
         return ProposalRes.of(proposalEntity.getId(),
-                proposalEntity.getSubdomain(),
+                proposalEntity.getUserDomain(),
                 proposalEntity.getContent(),
                 proposalEntity.getEmail(),
                 proposalEntity.getPhoneNumber(),
@@ -152,7 +152,7 @@ public class ProposalService {
     }
 
     private ProposalEntity proposalReqToEntity(ProposalReq proposalReq) {
-        return ProposalEntity.of(proposalReq.getSubdomain(),
+        return ProposalEntity.of(proposalReq.getUserDomain(),
                 proposalReq.getContent(),
                 proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(),
@@ -193,7 +193,7 @@ public class ProposalService {
         // 删除本地文件
         boolean delOrNot = file.delete();
         if (!delOrNot) {
-            LOG.warnv("delete local file:{} failed", filePath);
+            LOG.warnv("delete local file:{0} failed", filePath);
         }
         return UploadFileRes.of(null, multipartBody.fileName, fileSize, filePath.substring(appendSlash(properties.getFileLocation()).length()));
     }
@@ -281,7 +281,7 @@ public class ProposalService {
         for (ProposalEntity entity: allData) {
             List<String> list = new ArrayList<>();
             list.add(entity.getId()== null ? "": String.valueOf(entity.getId()));
-            list.add(entity.getSubdomain()== null ? "": String.valueOf(entity.getSubdomain()));
+            list.add(entity.getUserDomain()== null ? "": String.valueOf(entity.getUserDomain()));
             list.add(entity.getContent()== null ? "": String.valueOf(entity.getContent()));
             list.add(entity.getEmail()== null ? "": String.valueOf(entity.getEmail()));
             list.add(entity.getPhoneNumber()== null ? "": String.valueOf(entity.getPhoneNumber()));

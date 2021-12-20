@@ -50,13 +50,13 @@ spec:
           - name: QUARKUS_DATASOURCE_JDBC_URL
             value: jdbc:mysql://mid-mysql:3306/cicada-rc?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=GMT%2B8
           - name: APP_REGISTRY_SUBDOMAIN
-            value: eulix.top
+            value: eulix.xyz
           - name: APP_REGISTRY_TUNNEL_SEVER_BASE_URL
-            value: ts.platform.eulix.top
+            value: ts.platform.eulix.xyz
           - name: APP_REGISTRY_TUNNEL_SEVER_PORT
             value: "59000"
           - name: QUARKUS_OIDC_AUTH_SERVER_URL
-            value: https://sso.eulix.top/auth/realms/eulix-oss-test
+            value: https://sso.eulix.xyz/auth/realms/eulix-oss
           - name: QUARKUS_OIDC_CREDENTIALS_SECRET
             value: 1c6abff6-3767-49d5-af7f-3bb5690f11b8
         ports:
@@ -114,7 +114,65 @@ metadata:
   namespace: bp-cicada-rc
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
-    nginx.ingress.kubernetes.io/permanent-redirect: "https://services.eulix.top/platform/"
+    nginx.ingress.kubernetes.io/permanent-redirect: "https://eulix.xyz/"
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/cors-allow-methods: '*'
+    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+    nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,request-Id'
+spec:
+  tls:
+  - hosts:
+    - "*.eulix.xyz"
+    secretName: ssl-eulix.xyz
+  rules:
+  - host: "*.eulix.xyz"
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: eulixplatform-services
+          servicePort: 8080
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: eulixplatform-services
+  namespace: bp-cicada-rc
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/cors-allow-methods: '*'
+    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+    nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,request-Id'
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^/platform$ /platform/ redirect;
+spec:
+  tls:
+  - hosts:
+    - services.eulix.xyz
+    secretName: ssl-services.eulix.xyz
+  rules:
+  - host: services.eulix.xyz
+    http:
+      paths:
+      - path: /platform
+        backend:
+          serviceName: eulixplatform-services
+          servicePort: 8080
+
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: eulixplatform-web-top
+  namespace: bp-cicada-rc
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
+    nginx.ingress.kubernetes.io/permanent-redirect: "https://eulix.top/"
     nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/cors-allow-origin: '*'
     nginx.ingress.kubernetes.io/cors-allow-methods: '*'
@@ -138,7 +196,7 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: eulixplatform-services
+  name: eulixplatform-services-top
   namespace: bp-cicada-rc
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"

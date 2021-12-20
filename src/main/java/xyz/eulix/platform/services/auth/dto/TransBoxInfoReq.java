@@ -21,11 +21,10 @@ public class TransBoxInfoReq {
     @Schema(maxLength = 128 ,description = "盒子侧bkey值")
     private String bkey;
 
-    // 盒子域名
     @NotBlank
     @Size(max = 128)
-    @Schema(maxLength = 128 ,description = "盒子域名")
-    private String boxDomain;
+    @Schema(maxLength = 128 ,description = "用户域名")
+    private String userDomain;
 
     // 盒子公钥
     @NotBlank

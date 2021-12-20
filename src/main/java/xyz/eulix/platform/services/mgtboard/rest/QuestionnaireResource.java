@@ -87,10 +87,10 @@ public class QuestionnaireResource {
     @Logged
     @Operation(description = "获取问卷列表")
     public PageListResult<QuestionnaireRes> questionnaireList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                      @Parameter(description = "用户域名") @QueryParam("subdomain") String subdomain,
+                                      @Parameter(description = "用户域名") @QueryParam("user_domain") String userDomain,
                                       @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
                                       @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
-        return questionnaireService.listQuestionnaire(subdomain, currentPage, pageSize);
+        return questionnaireService.listQuestionnaire(userDomain, currentPage, pageSize);
     }
 
     @POST

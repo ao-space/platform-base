@@ -14,7 +14,7 @@ public class ProposalRes {
     private final Long proposalId;
 
     @Schema(description = "用户域名")
-    private final String subdomain;
+    private final String userDomain;
 
     // 反馈内容
     @Schema(description = "反馈内容")
