@@ -56,7 +56,7 @@ spec:
           - name: APP_REGISTRY_TUNNEL_SEVER_PORT
             value: "59000"
           - name: QUARKUS_OIDC_AUTH_SERVER_URL
-            value: https://sso.eulix.xyz/auth/realms/eulix-oss-test
+            value: https://sso.eulix.xyz/auth/realms/eulix-oss
           - name: QUARKUS_OIDC_CREDENTIALS_SECRET
             value: 1c6abff6-3767-49d5-af7f-3bb5690f11b8
         ports:
