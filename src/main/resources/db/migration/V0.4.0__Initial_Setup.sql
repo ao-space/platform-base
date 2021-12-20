@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS network_server_info (
     UNIQUE KEY uk_identifier (identifier)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
-insert into network_server_info (server_protocol, server_addr, server_port, identifier, created_at, updated_at) values ('tcp','ts.platform.eulix.xyz','59000','ts.platform.eulix.xyz', now(), now());
+insert into network_server_info (server_protocol, server_addr, server_port, identifier, created_at, updated_at) values ('tls','ts.platform.eulix.xyz','59000','ts.platform.eulix.xyz', now(), now());
 
 CREATE TABLE IF NOT EXISTS notify_device (
     id BIGINT NOT NULL AUTO_INCREMENT,
