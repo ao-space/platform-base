@@ -15,4 +15,8 @@ public class NetworkRouteEntityRepository implements PanacheRepository<NetworkRo
     public Optional<NetworkRouteEntity> findByClientId(String networkClientId) {
         return this.find(FIND_BY_CLIENTID, networkClientId).firstResultOptional();
     }
+
+    public void deleteByClientID(String clientId) {
+        this.delete(FIND_BY_CLIENTID, clientId);
+    }
 }

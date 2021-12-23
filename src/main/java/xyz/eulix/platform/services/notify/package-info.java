@@ -1,1 +1,0 @@
-package xyz.eulix.platform.services.notify;

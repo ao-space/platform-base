@@ -22,7 +22,7 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
     private static final String FIND_BY_SUBDOMAIN = "subdomain=?1";
 
     // 根据subdomain更新资源
-    private static final String UPDATE_BY_SUBDOMAIN = "user_id=?1, state=?2, expires_at=null where subdomain=?3";
+    private static final String UPDATE_BY_SUBDOMAIN = "user_id=?1, state=?2, updated_at=now(), expires_at=null where subdomain=?3";
 
     // 根据box_uuid、user_id查询资源
     private static final String FIND_BY_BOXUUID_USERID = "box_uuid=?1 AND user_id=?2";
