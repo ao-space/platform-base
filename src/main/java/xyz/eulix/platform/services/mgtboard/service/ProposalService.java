@@ -60,7 +60,7 @@ public class ProposalService {
         if (!CommonUtils.isNullOrEmpty(proposalReq.getUserDomain())) {
             Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findByUserDomain(proposalReq.getUserDomain());
             if (subdomainEntityOp.isEmpty()) {
-                LOG.warnv("userDomain does not exist, userDomain:{1}", proposalReq.getUserDomain());
+                LOG.warnv("userDomain does not exist, userDomain:{0}", proposalReq.getUserDomain());
                 throw new ServiceOperationException(ServiceError.USER_DOMAIN_INVALID);
             }
         }
