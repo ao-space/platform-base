@@ -59,6 +59,20 @@ spec:
             value: https://sso.eulix.xyz/auth/realms/eulix-oss
           - name: QUARKUS_OIDC_CREDENTIALS_SECRET
             value: 1c6abff6-3767-49d5-af7f-3bb5690f11b8
+          - name: APP_OSS_ENDPOINT
+            value: https://oss-cn-hangzhou.aliyuncs.com
+          - name: APP_OSS_BUCKET_NAME
+            value: bp-platform-oss-rc
+          - name: APP_ALI_ACCESSKEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: mid-platform-oss-key
+                key: id
+          - name: APP_ALI_ACCESSKEY_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: mid-platform-oss-key
+                key: secret
         ports:
         - containerPort: 8080
           name: services-http
