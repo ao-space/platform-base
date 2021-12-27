@@ -17,4 +17,7 @@ public class BoxInfo {
 
     @Schema(description = "盒子的描述信息")
     private String desc;
+
+    @Schema(description = "盒子的扩展信息,json格式")
+    private Object extra;
 }
