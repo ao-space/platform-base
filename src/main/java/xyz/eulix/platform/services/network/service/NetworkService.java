@@ -13,6 +13,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,5 +82,10 @@ public class NetworkService {
 
     private NetworkServerRes networkServerEntityToRes(NetworkServerEntity serverEntity) {
         return NetworkServerRes.of(serverEntity.getProtocol() + "://" + serverEntity.getAddr() + ":" + serverEntity.getPort());
+    }
+
+    @Transactional
+    public void deleteByClientID(String clientId) {
+        routeEntityRepository.deleteByClientID(clientId);
     }
 }

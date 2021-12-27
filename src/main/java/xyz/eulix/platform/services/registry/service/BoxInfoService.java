@@ -4,8 +4,10 @@ import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.*;
 import xyz.eulix.platform.services.registry.repository.*;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;
+import xyz.eulix.platform.services.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
@@ -27,6 +29,9 @@ public class BoxInfoService {
 
     @Inject
     BoxInfoEntityRepository boxInfoEntityRepository;
+
+    @Inject
+    OperationUtils operationUtils;
 
     public List<String> saveBoxInfos(BoxInfosReq boxInfosReq) {
         List<String> boxUUIDs = new ArrayList<>();
@@ -75,6 +80,9 @@ public class BoxInfoService {
         {
             boxInfoEntity.setBoxUUID(boxInfo.getBoxUUID());
             boxInfoEntity.setDesc(boxInfo.getDesc());
+            if (CommonUtils.isNotNull(boxInfo.getExtra())) {
+                boxInfoEntity.setExtra(operationUtils.objectToJson(boxInfo.getExtra()));
+            }
         }
         return boxInfoEntity;
     }
@@ -84,6 +92,9 @@ public class BoxInfoService {
         {
             boxInfo.setBoxUUID(boxInfoEntity.getBoxUUID());
             boxInfo.setDesc(boxInfoEntity.getDesc());
+            if (!CommonUtils.isNullOrEmpty(boxInfoEntity.getExtra())) {
+                boxInfo.setExtra(operationUtils.jsonToObject(boxInfoEntity.getExtra(), Object.class));
+            }
         }
         return boxInfo;
     }

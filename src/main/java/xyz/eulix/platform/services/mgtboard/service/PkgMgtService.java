@@ -330,6 +330,11 @@ public class PkgMgtService {
     }
 
   public PackageRes getBoxLatestVersion(String boxName, String boxType) {
-      return pkgInfoEntityToRes(pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType));
+      PkgInfoEntity pkgInfoEntity = pkgInfoEntityRepository.findByAppNameAndTypeSortedByVersion(boxName, boxType);
+      if (pkgInfoEntity == null){
+          LOG.errorv("box type does not exist, boxName:{0}, boxType:{1}, not exist", boxName, boxType);
+          throw new ServiceOperationException(ServiceError.PKG_VERSION_NOT_EXIST);
+      }
+      return pkgInfoEntityToRes(pkgInfoEntity);
   }
 }

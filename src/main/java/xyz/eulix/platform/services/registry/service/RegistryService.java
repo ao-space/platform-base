@@ -205,6 +205,7 @@ public class RegistryService {
 
     @Transactional
     public void resetBox(String boxUUID) {
+        Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUID(boxUUID);
         // 重置盒子
         deleteBoxByBoxUUID(boxUUID);
         // 重置用户
@@ -213,6 +214,8 @@ public class RegistryService {
         deleteSubdomainByBoxUUID(boxUUID);
         // 重置client
         deleteClientByBoxUUID(boxUUID);
+        // 重置映射关系
+        boxEntityOp.ifPresent(registryBoxEntity -> networkService.deleteByClientID(registryBoxEntity.getNetworkClientId()));
     }
 
     /**
