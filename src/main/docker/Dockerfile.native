@@ -18,7 +18,9 @@ FROM registry.eulix.xyz/collab/infra/infrastructure/ubi8/ubi-minimal:8.3
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
-    && chown 1001:root /work
+    && chown 1001:root /work \
+    && microdnf install fontconfig
+
 COPY --chown=1001:root target/*-runner /work/application
 
 EXPOSE 8080
