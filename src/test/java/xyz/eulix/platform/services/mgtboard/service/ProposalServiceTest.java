@@ -43,4 +43,12 @@ public class ProposalServiceTest {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT_ORDER );
         System.out.println(localDate.format(fmt));
     }
+
+    @Test
+    public void testIsLowerVersion() {
+        String curV = "1.0.0-alpha";
+        String targetV = "1.0.0";
+        PkgMgtService pkgMgtService = new PkgMgtService();
+        Assertions.assertTrue(pkgMgtService.isLowerVersion(curV, targetV));
+    }
 }
