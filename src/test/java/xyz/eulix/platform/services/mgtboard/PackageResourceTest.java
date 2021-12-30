@@ -24,18 +24,18 @@ import io.quarkus.test.keycloak.client.KeycloakTestClient;
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PackageResourceTest {
-  PackageReq app_1_0 = PackageReq.of("app-1", "ios", "1.0", 1000L,
-      "http://app1.0", "ios app 1.0 版本", "12345678901234567890123456789012", true, "0",
-      "0", "1.0");
-  PackageReq app_2_0 = PackageReq.of("app-1", "ios", "2.0", 1000L,
-      "http://app2.0", "ios app 1.0 版本", "12345678901234567890123456789012", true, "0",
-      "0", "2.0");
-  PackageReq box_1_0 = PackageReq.of("box-1", "box", "1.0", 1000L,
-      "http://box1.0", "box 1.0 版本", "12345678901234567890123456789012", true, "1.0",
-      "1.0", "0");
-  PackageReq box_2_0 = PackageReq.of("box-1", "box", "2.0", 1000L,
-      "http://box2.0", "box 1.0 版本", "12345678901234567890123456789012", true, "2.0",
-      "2.0", "0");
+  PackageReq app_1_0 = PackageReq.of("app-1", "ios", "1.0.0", 1000L,
+      "http://app1.0", "ios app 1.0 版本", "12345678901234567890123456789012", true, "0.0.0",
+      "0.0.0", "1.0.0");
+  PackageReq app_2_0 = PackageReq.of("app-1", "ios", "2.0.0", 1000L,
+      "http://app2.0", "ios app 1.0 版本", "12345678901234567890123456789012", true, "0.0.0",
+      "0.0.0", "2.0.0");
+  PackageReq box_1_0 = PackageReq.of("box-1", "box", "1.0.0", 1000L,
+      "http://box1.0", "box 1.0 版本", "12345678901234567890123456789012", true, "1.0.0",
+      "1.0.0", "0.0.0");
+  PackageReq box_2_0 = PackageReq.of("box-1", "box", "2.0.0", 1000L,
+      "http://box2.0", "box 1.0 版本", "12345678901234567890123456789012", true, "2.0.0",
+      "2.0.0", "0.0.0");
 
   protected String getAccessToken() {
 
@@ -72,8 +72,8 @@ public class PackageResourceTest {
         .queryParam("box_pkg_name","box-1")
         .queryParam("box_pkg_type","box")
         .queryParam("app_pkg_type","ios")
-        .queryParam("cur_box_version","1.0")
-        .queryParam("cur_app_version","1.0")
+        .queryParam("cur_box_version","1.0.0")
+        .queryParam("cur_app_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
         .get("/v1/api/package/check");
@@ -110,8 +110,8 @@ public class PackageResourceTest {
         .queryParam("box_pkg_name","box-1")
         .queryParam("box_pkg_type","box")
         .queryParam("app_pkg_type","ios")
-        .queryParam("cur_box_version","1.0")
-        .queryParam("cur_app_version","1.0")
+        .queryParam("cur_box_version","1.0.0")
+        .queryParam("cur_app_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
         .get("/v1/api/package/check");
@@ -132,8 +132,8 @@ public class PackageResourceTest {
         .queryParam("box_pkg_type","box")
         .queryParam("app_pkg_name", "app-1")
         .queryParam("app_pkg_type","ios")
-        .queryParam("cur_box_version","1.0")
-        .queryParam("cur_app_version","1.0")
+        .queryParam("cur_box_version","1.0.0")
+        .queryParam("cur_app_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
         .get("/v1/api/package/check");
@@ -153,7 +153,7 @@ public class PackageResourceTest {
         .header("Request-Id", "uuid")
         .queryParam("pkg_name","app-1")
         .queryParam("pkg_type","ios")
-        .queryParam("pkg_version","1.0")
+        .queryParam("pkg_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
         .delete("/v1/api/package")

@@ -143,7 +143,6 @@ public class ProposalResource {
         return response;
     }
 
-    @RolesAllowed("admin")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)
