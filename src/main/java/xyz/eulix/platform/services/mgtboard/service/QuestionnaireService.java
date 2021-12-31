@@ -125,6 +125,9 @@ public class QuestionnaireService {
         if (currentPage == null || currentPage <= 0) {
             currentPage = 1;
         }
+        if (pageSize == null) {
+            pageSize = 1000;
+        }
         // 1.查询列表
         List<QuestionnaireEntity> qaEntities = qaEntityRepository.findAll().page(currentPage - 1, pageSize).list();
         qaEntities.forEach(qaEntity -> qaResList.add(qaEntityToRes(qaEntity)));

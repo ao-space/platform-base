@@ -131,6 +131,9 @@ public class ProposalService {
         if (currentPage == null || currentPage <= 0) {
             currentPage = 1;
         }
+        if (pageSize == null) {
+            pageSize = 1000;
+        }
         // 查询列表
         List<ProposalEntity> proposalEntities = proposalEntityRepository.findAll().page(currentPage - 1, pageSize).list();
         proposalEntities.forEach(proposalEntity -> {
