@@ -298,7 +298,7 @@ public class ProposalService {
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
             EasyExcel.write(output, ProposalEntity.class).sheet("sheet1").doWrite(lists));
 
-        response.header("Content-Type","application/vnd.ms-excel;charset=utf-8");
+        response.header("Content-Type","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
     }
