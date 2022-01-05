@@ -146,7 +146,7 @@ public class ProposalResource {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/proposal/export")
+    @Path("/proposals/export")
     @Operation(description = "文件下载接口")
     public Response export(@Valid @NotBlank @HeaderParam("Request-Id") String requestId) {
         LOG.infov("[Invoke] method: export()");

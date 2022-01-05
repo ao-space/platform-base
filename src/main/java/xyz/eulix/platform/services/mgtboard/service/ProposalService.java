@@ -131,6 +131,9 @@ public class ProposalService {
         if (currentPage == null || currentPage <= 0) {
             currentPage = 1;
         }
+        if (pageSize == null) {
+            pageSize = 1000;
+        }
         // 查询列表
         List<ProposalEntity> proposalEntities = proposalEntityRepository.findAll().page(currentPage - 1, pageSize).list();
         proposalEntities.forEach(proposalEntity -> {
@@ -295,7 +298,7 @@ public class ProposalService {
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
             EasyExcel.write(output, ProposalEntity.class).sheet("sheet1").doWrite(lists));
 
-        response.header("Content-Type","application/vnd.ms-excel;charset=utf-8");
+        response.header("Content-Type","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
     }

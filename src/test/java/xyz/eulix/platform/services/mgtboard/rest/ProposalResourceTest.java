@@ -31,7 +31,7 @@ class ProposalResourceTest {
         .header("Request-Id", "uuid")
         .contentType(ContentType.JSON)
         .when()
-        .get("/v1/api/proposal/export")
+        .get("/v1/api/proposals/export")
         .then()
         .statusCode(200);
 
