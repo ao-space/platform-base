@@ -75,6 +75,7 @@ public class ProposalResource {
         return BaseResultRes.of(true);
     }
 
+    @RolesAllowed("admin")
     @GET
     @Path("/proposal/{proposal_id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -86,6 +87,7 @@ public class ProposalResource {
         return proposalService.getProposal(proposalId);
     }
 
+    @RolesAllowed("admin")
     @GET
     @Path("/proposal/list")
     @Produces(MediaType.APPLICATION_JSON)
@@ -121,6 +123,7 @@ public class ProposalResource {
         return uploadFileRes;
     }
 
+    @RolesAllowed("admin")
     @POST
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -143,6 +146,7 @@ public class ProposalResource {
         return response;
     }
 
+    @RolesAllowed("admin")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)

@@ -27,7 +27,7 @@ class ProposalResourceTest {
 
   @Test
   void exportTest(){
-    given()
+    given().auth().oauth2(getAccessToken())
         .header("Request-Id", "uuid")
         .contentType(ContentType.JSON)
         .when()
