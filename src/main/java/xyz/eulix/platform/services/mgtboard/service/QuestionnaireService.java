@@ -17,7 +17,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -140,8 +143,6 @@ public class QuestionnaireService {
                 OffsetDateTime now = OffsetDateTime.now();
                 if (CommonUtils.isNotNull(qaRes.getStartAt()) && now.isBefore(qaRes.getStartAt())) {
                     qaRes.setState(QuestionnaireStateEnum.NOT_START.getName());
-                } else if (CommonUtils.isNotNull(qaRes.getEndAt()) && now.isAfter(qaRes.getEndAt())) {
-                    qaRes.setState(QuestionnaireStateEnum.HAS_END.getName());
                 } else {
                     qaRes.setState(QuestionnaireStateEnum.IN_PROCESS.getName());
                 }
@@ -149,13 +150,6 @@ public class QuestionnaireService {
                 QuestionnaireFeedbackEntity qaFeedbackEntity = qaFeedbackEntityMap.get(qaRes.getPayloadSurveyId());
                 if (qaFeedbackEntity != null) {
                     qaRes.setState(QuestionnaireStateEnum.COMPLETED.getName());
-                }
-            });
-            // 排序：已结束（内部结束时间正序） > 待反馈 （内部结束时间正序） > 已反馈（内部结束时间倒序） > 未开始（内部开始时间正序），其中已结束状态页面显示的是待反馈。
-            qaResList.sort(new QaComparator());
-            qaResList.forEach(qaRes -> {
-                if (QuestionnaireStateEnum.HAS_END.getName().equals(qaRes.getState())) {
-                    qaRes.setState(QuestionnaireStateEnum.IN_PROCESS.getName());
                 }
             });
         }
@@ -221,50 +215,5 @@ public class QuestionnaireService {
                 feedbackReq.getObject(),
                 feedbackReq.getAction(),
                 feedbackReq.getCreatedAt());
-    }
-
-    private class QaComparator implements Comparator<QuestionnaireRes> {
-        @Override
-        public int compare(QuestionnaireRes q1, QuestionnaireRes q2) {
-            QuestionnaireStateEnum qaEnum1 = QuestionnaireStateEnum.fromValue(q1.getState());
-            QuestionnaireStateEnum qaEnum2 = QuestionnaireStateEnum.fromValue(q2.getState());
-            // 按状态排列
-            int result = qaEnum1.getOrder() - qaEnum2.getOrder();
-            if (result == 0){
-                switch (qaEnum1) {
-                    case HAS_END:
-                    case IN_PROCESS:
-                        // 内部结束时间正序
-                        if (CommonUtils.isNull(q1.getEndAt())) {
-                            return 1;
-                        } else if (CommonUtils.isNull(q2.getEndAt())){
-                            return -1;
-                        } else {
-                            return q1.getEndAt().compareTo(q2.getEndAt());
-                        }
-                    case COMPLETED:
-                        // 内部结束时间倒序
-                        if (CommonUtils.isNull(q1.getEndAt())) {
-                            return -1;
-                        } else if (CommonUtils.isNull(q2.getEndAt())){
-                            return 1;
-                        } else {
-                            return q2.getEndAt().compareTo(q1.getEndAt());
-                        }
-                    case NOT_START:
-                        // 内部开始时间正序
-                        if (CommonUtils.isNull(q1.getStartAt())) {
-                            return 1;
-                        } else if (CommonUtils.isNull(q2.getStartAt())){
-                            return -1;
-                        } else {
-                            return q1.getStartAt().compareTo(q2.getStartAt());
-                        }
-                    default:
-                        throw new UnsupportedOperationException();
-                }
-            }
-            return result;
-        }
     }
 }

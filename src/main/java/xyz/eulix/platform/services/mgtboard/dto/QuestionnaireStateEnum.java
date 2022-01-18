@@ -8,10 +8,10 @@ import java.util.Arrays;
 
 @AllArgsConstructor
 public enum QuestionnaireStateEnum {
-    HAS_END("has_end", "已结束", 0),
-    IN_PROCESS("in_process", "待反馈", 1),
-    COMPLETED("completed", "已反馈", 2),
-    NOT_START("not_start", "未开始", 3),
+    COMPLETED("completed", "已反馈"),
+    IN_PROCESS("in_process", "待反馈"),
+    NOT_START("not_start", "未开始"),
+    HAS_END("has_end", "已结束"),
     ;
 
     @Setter @Getter
@@ -19,9 +19,6 @@ public enum QuestionnaireStateEnum {
 
     @Setter @Getter
     private String desc;
-
-    @Setter @Getter
-    private Integer order;
 
     public static QuestionnaireStateEnum fromValue(String value) {
         return Arrays.stream(values()).filter(appType -> appType.getName().equals(value))
