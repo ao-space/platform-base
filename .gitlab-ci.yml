@@ -1,0 +1,104 @@
+image: registry.eulix.xyz/collab/infra/public-service/maven:3.6.3-openjdk-11
+
+stages:
+  - validate
+  - docker
+
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+
+cache:
+  key: ${CI_JOB_NAME}
+  paths:
+    - .m2/repository
+    - .sonar/cache
+
+test:
+  stage: validate
+  image: busybox
+  script:
+    - echo "Do a test here"
+
+sonarqube-check-push:
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'dev'
+  stage: validate
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" 
+    GIT_DEPTH: "0" 
+  script: 
+    - mvn $MAVEN_CLI_OPTS test-compile
+    - mvn $MAVEN_CLI_OPTS sonar:sonar -Dsonar.projectKey=eulixplatform-services -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.branch.name=$CI_COMMIT_BRANCH
+  allow_failure: true
+
+sonarqube-check-mr:
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'dev'
+  stage: validate
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" 
+    GIT_DEPTH: "0" 
+  script: 
+    - mvn $MAVEN_CLI_OPTS test-compile
+    - mvn $MAVEN_CLI_OPTS sonar:sonar -Dsonar.projectKey=eulixplatform-services -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.pullrequest.key=$CI_MERGE_REQUEST_ID -Dsonar.pullrequest.branch=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME -Dsonar.pullrequest.base=$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -Dsonar.gitlab.project_id=$CI_PROJECT_ID -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME
+  allow_failure: true
+
+validate:build:
+  stage: validate
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+  tags:
+    - x86_64
+  script:
+    - mvn $MAVEN_CLI_OPTS test-compile
+
+validate:test:
+  stage: validate
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+  tags:
+    - x86_64
+  script:
+    - mvn $MAVEN_CLI_OPTS verify
+
+validate:package:
+  stage: validate
+  rules:
+    - if: $CI_COMMIT_BRANCH || $CI_MERGE_REQUEST_ID
+  tags:
+    - x86_64
+  script:
+    - mvn $MAVEN_CLI_OPTS package
+  artifacts:
+    paths:
+      - target/
+
+docker:jvm:
+  stage: docker
+  dependencies:
+    - validate:package
+  only:
+    variables: 
+      - $CI_COMMIT_BRANCH
+  except:
+    variables: 
+      - $CI_MERGE_REQUEST_ID
+  tags:
+    - docker_build-x86_64
+  before_script: 
+    - docker login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
+    - docker login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
+    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
+  script:
+    - docker build --build-arg CI_PIPELINE_ID=$CI_PIPELINE_ID --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA -f src/main/docker/Dockerfile.jvm -t $DOCKER_BUILD_IMAGE .
+    - docker tag $DOCKER_BUILD_IMAGE $DOCKER_LATEST_IMAGE
+    - docker tag $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE_GITLAB
+    - docker tag $DOCKER_BUILD_IMAGE $DOCKER_LATEST_IMAGE_GITLAB
+    - docker push $DOCKER_BUILD_IMAGE
+    - docker push $DOCKER_LATEST_IMAGE
+    - docker push $DOCKER_BUILD_IMAGE_GITLAB
+    - docker push $DOCKER_LATEST_IMAGE_GITLAB
