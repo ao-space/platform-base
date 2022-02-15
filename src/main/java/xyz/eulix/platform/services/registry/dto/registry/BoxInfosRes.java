@@ -11,6 +11,9 @@ import java.util.List;
  */
 @Data(staticConstructor = "of")
 public class BoxInfosRes {
-  @Schema(description = "盒子 UUID 列表")
+  @Schema(description = "成功的盒子 UUID 列表")
   private final List<String> boxUUIDs;
+
+  @Schema(description = "失败的盒子 UUID 列表")
+  private final List<String> failures;
 }

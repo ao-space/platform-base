@@ -131,6 +131,11 @@ public class QuestionnaireService {
         // 2.记录总数
         Long totalCount = qaEntityRepository.count();
         // 3.查询用户反馈
+        feedbackStatitic(qaResList, userDomain);
+        return PageListResult.of(qaResList, PageInfo.of(totalCount, currentPage, pageSize));
+    }
+
+    private void feedbackStatitic(List<QuestionnaireRes> qaResList, String userDomain) {
         if (!CommonUtils.isNullOrEmpty(userDomain)) {
             List<QuestionnaireFeedbackEntity> qaFeedbackEntities = qaFeedbackEntityRepository.findByUserDomain(userDomain);
             Map<Long, QuestionnaireFeedbackEntity> qaFeedbackEntityMap = qaFeedbackEntities.stream().collect(
@@ -158,8 +163,13 @@ public class QuestionnaireService {
                     qaRes.setState(QuestionnaireStateEnum.IN_PROCESS.getName());
                 }
             });
+        } else {
+            // 仅统计用户反馈数据
+            qaResList.forEach(qaRes -> {
+                Long count = qaFeedbackEntityRepository.count("payload_survey_id", qaRes.getPayloadSurveyId());
+                qaRes.setFeedbackStatistic(count);
+            });
         }
-        return PageListResult.of(qaResList, PageInfo.of(totalCount, currentPage, pageSize));
     }
 
     @Transactional

@@ -5,6 +5,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data(staticConstructor = "of")
@@ -31,4 +32,7 @@ public class ProposalRes {
     // 图片地址
     @Schema(description = "图片地址")
     private final List<String> imageUrls;
+
+    @Schema(name = "反馈时间")
+    private final OffsetDateTime feedbackAt;
 }

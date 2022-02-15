@@ -8,16 +8,16 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.service.PkgMgtService;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 /**
  * Package Rest类
@@ -89,7 +89,7 @@ public class PackageResource {
     @POST
     @Path("/package")
     @Logged
-    @Operation(description = "增加软件包版本")
+    @Operation(description = "增加软件包版本，需管理员权限")
     public PackageRes packageSave(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                  @Valid PackageReq packageReq) {
         return pkgMgtService.savePkgInfo(packageReq);
@@ -99,7 +99,7 @@ public class PackageResource {
     @PUT
     @Path("/package")
     @Logged
-    @Operation(description = "更新软件包版本")
+    @Operation(description = "更新软件包版本，需管理员权限")
     public PackageRes packageUpdate(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                    @Valid PackageReq packageReq) {
         return pkgMgtService.updatePkginfo(packageReq);
@@ -109,7 +109,7 @@ public class PackageResource {
     @DELETE
     @Path("/package")
     @Logged
-    @Operation(description = "删除软件包版本")
+    @Operation(description = "删除软件包版本，需管理员权限")
     public BaseResultRes packageDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                     @NotBlank @Parameter(required = true) @QueryParam("pkg_name") String pkgName,
                                     @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
@@ -117,6 +117,31 @@ public class PackageResource {
                                         @QueryParam("pkg_type") String pkgType,
                                     @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("pkg_version") String pkgVersion) {
         pkgMgtService.delPkginfo(pkgName, pkgType, pkgVersion);
+        return BaseResultRes.of(true);
+    }
+
+
+    @RolesAllowed("admin")
+    @GET
+    @Path("/package/list")
+    @Logged
+    @Operation(description = "查询软件包列表，需管理员权限")
+    public PageListResult<PackageRes> packageList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                                  @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
+                                                  @Parameter(schema = @Schema(enumeration = {"android", "ios", "box"})) @QueryParam("pkg_type") String pkgType,
+                                                  @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
+                                                  @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
+        return pkgMgtService.listPackage(pkgType, currentPage, pageSize);
+    }
+
+    @RolesAllowed("admin")
+    @DELETE
+    @Path("/package/batch")
+    @Logged
+    @Operation(description = "批量删除软件包版本，需管理员权限")
+    public BaseResultRes packagesDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                     @Size(min = 1, max = 1000) @QueryParam("package_ids") List<@NotBlank String> packageIds) {
+        pkgMgtService.delPkginfos(packageIds);
         return BaseResultRes.of(true);
     }
 }

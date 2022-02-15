@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.registry.service;
 
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.services.mgtboard.dto.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.*;
 import xyz.eulix.platform.services.registry.repository.*;
@@ -15,6 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
+import javax.ws.rs.core.Response;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,5 +107,13 @@ public class BoxInfoService {
     public boolean isValidBoxUUID(String boxUUID) {
         Optional<BoxInfoEntity> boxInfoEntityOp =  boxInfoEntityRepository.findByBoxUUID(boxUUID);
         return boxInfoEntityOp.isPresent();
+    }
+
+    public Response tempalte() {
+        return null;
+    }
+
+    public BoxInfosRes upload(MultipartBody multipartBody) {
+        return BoxInfosRes.of(null, null);
     }
 }

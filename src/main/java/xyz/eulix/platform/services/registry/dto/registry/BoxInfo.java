@@ -4,6 +4,7 @@ import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
+import java.time.OffsetDateTime;
 
 /**
  * Used to define a data transfer object as REST request for holding related parameters
@@ -20,4 +21,7 @@ public class BoxInfo {
 
     @Schema(description = "盒子的扩展信息,json格式")
     private Object extra;
+
+    @Schema(name = "操作时间")
+    private OffsetDateTime updatedAt;
 }

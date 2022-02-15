@@ -29,4 +29,7 @@ public class QuestionnaireRes {
 
     @Schema(description = "问卷状态，携带用户信息查询时返回", enumeration = {"completed", "not_start", "in_process", "has_end"})
     private String state;
+
+    @Schema(description = "已反馈数量")
+    private Long feedbackStatistic;
 }
