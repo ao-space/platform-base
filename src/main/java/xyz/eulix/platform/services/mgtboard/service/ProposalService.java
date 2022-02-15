@@ -90,7 +90,8 @@ public class ProposalService {
                 proposalReq.getContent(),
                 proposalReq.getEmail(),
                 proposalReq.getPhoneNumber(),
-                proposalReq.getImageUrls());
+                proposalReq.getImageUrls(),
+                proposalEntity.getUpdatedAt());
     }
 
     /**
@@ -151,7 +152,8 @@ public class ProposalService {
                 proposalEntity.getEmail(),
                 proposalEntity.getPhoneNumber(),
                 CommonUtils.isNullOrEmpty(proposalEntity.getImageUrls()) ? null
-                        : Arrays.asList(proposalEntity.getImageUrls().split(",")));
+                        : Arrays.asList(proposalEntity.getImageUrls().split(",")),
+                proposalEntity.getUpdatedAt());
     }
 
     private ProposalEntity proposalReqToEntity(ProposalReq proposalReq) {

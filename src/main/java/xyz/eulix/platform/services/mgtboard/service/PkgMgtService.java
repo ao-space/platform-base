@@ -8,6 +8,7 @@ import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
 import xyz.eulix.platform.services.mgtboard.repository.PkgInfoEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
+import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
@@ -399,5 +400,15 @@ public class PkgMgtService {
         List<PkgInfoEntity> pkgInfoEntities = pkgInfoEntityRepository.findByAppNameAndType(pkgName, pkgType);
         Optional<PkgInfoEntity> latestPkgInfo = pkgInfoEntities.stream().max(Comparator.comparing(entity -> Version.valueOf(entity.getPkgVersion())));
         return latestPkgInfo.orElse(null);
+    }
+
+
+
+    public PageListResult<PackageRes> listPackage(String pkgType, Integer currentPage, Integer pageSize) {
+        return PageListResult.of(null, null);
+    }
+
+    public void delPkginfos(List<String> packageIds) {
+        return;
     }
 }
