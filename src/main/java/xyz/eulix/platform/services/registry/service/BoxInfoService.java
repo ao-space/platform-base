@@ -16,15 +16,14 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,16 +110,18 @@ public class BoxInfoService {
     }
 
     public boolean isValidBoxUUID(String boxUUID) {
-        Optional<BoxInfoEntity> boxInfoEntityOp =  boxInfoEntityRepository.findByBoxUUID(boxUUID);
+        Optional<BoxInfoEntity> boxInfoEntityOp = boxInfoEntityRepository.findByBoxUUID(boxUUID);
         return boxInfoEntityOp.isPresent();
     }
 
-    public Response template(){
-        try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream(
-                "META-INF/resources/public/template/boxTemplate.xlsx")){
-            return Response.ok(inputStream).header("Content-Disposition", "attachment;filename="
-                    + "boxTemplate.xlsx").header("Content-Length", String.valueOf(inputStream.available())).build();
-        }catch(IOException e){
+    public Response template() {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate.xlsx")) {
+            return Response.ok(inputStream)
+                    .header("Content-Disposition", "attachment;filename=" + URLEncoder.encode("出厂信息模板.xlsx", StandardCharsets.UTF_8)
+                            .replaceAll("\\+", "%20"))
+                    .header("Content-Length", inputStream != null ? inputStream.available() : 0)
+                    .build();
+        } catch (IOException e) {
             LOG.error("download template failed, exception is:", e);
             throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
         }
@@ -129,7 +130,7 @@ public class BoxInfoService {
     public BoxInfosRes upload(MultipartBody multipartBody) {
         ArrayList<String> success = new ArrayList<>();
         ArrayList<String> fail = new ArrayList<>();
-        EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(operationUtils, boxInfoEntityRepository,success, fail)).sheet().doRead();
+        EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(operationUtils, boxInfoEntityRepository, success, fail)).sheet().doRead();
         return BoxInfosRes.of(success, fail);
     }
 }
