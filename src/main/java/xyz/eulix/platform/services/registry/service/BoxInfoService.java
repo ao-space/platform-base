@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.registry.service;
 
 import org.jboss.logging.Logger;
+import com.alibaba.excel.EasyExcel;
 import xyz.eulix.platform.services.mgtboard.dto.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.*;
@@ -15,10 +16,15 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,11 +115,21 @@ public class BoxInfoService {
         return boxInfoEntityOp.isPresent();
     }
 
-    public Response tempalte() {
-        return null;
+    public Response template(){
+        try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream(
+                "META-INF/resources/public/template/boxTemplate.xlsx")){
+            return Response.ok(inputStream).header("Content-Disposition", "attachment;filename="
+                    + "boxTemplate.xlsx").header("Content-Length", String.valueOf(inputStream.available())).build();
+        }catch(IOException e){
+            LOG.error("download template failed, exception is:", e);
+            throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
+        }
     }
 
     public BoxInfosRes upload(MultipartBody multipartBody) {
-        return BoxInfosRes.of(null, null);
+        ArrayList<String> success = new ArrayList<>();
+        ArrayList<String> fail = new ArrayList<>();
+        EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(operationUtils, boxInfoEntityRepository,success, fail)).sheet().doRead();
+        return BoxInfosRes.of(success, fail);
     }
 }
