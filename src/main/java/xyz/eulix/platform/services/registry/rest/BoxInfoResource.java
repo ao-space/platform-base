@@ -108,7 +108,6 @@ public class BoxInfoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/boxinfo/upload")
     @Operation(description = "设备信息导入接口")
-    @Transactional
     public BoxInfosRes upload(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
                               @Valid @MultipartForm MultipartBody multipartBody) {
         LOG.infov("[Invoke] method: upload(), fileName: {0}", multipartBody.fileName);

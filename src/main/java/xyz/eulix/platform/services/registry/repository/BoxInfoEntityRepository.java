@@ -4,6 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +29,13 @@ public class BoxInfoEntityRepository implements PanacheRepository<BoxInfoEntity>
         this.delete(FIND_BY_BOXUUIDS, boxUUIDs);
     }
 
-    public int update(String extra, String uuid){
-        return update("set extra=?1, updated_at=?2 where box_uuid=?3 ", extra, String.valueOf(OffsetDateTime.now()), uuid);
+    @Transactional
+    public int updateByBoxUUID(String extra, String boxUUID){
+        return update("set extra=?1, updated_at=now() where box_uuid=?2 ", extra, boxUUID);
     }
 
+    @Transactional
+    public void createBoxInfo(BoxInfoEntity boxInfoEntity) {
+        this.persist(boxInfoEntity);
+    }
 }

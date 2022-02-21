@@ -26,7 +26,12 @@ public class BoxExcelModel {
   @ExcelProperty("Wi-Fi") private String wifi;
   @ExcelProperty("蓝牙") private String bluetooth;
   @ExcelProperty("USB") private String usb;
-  @ExcelProperty("操作用户") private  String operatorUser;
+  @ExcelProperty("操作用户") private  String operateUser;
   @ExcelProperty("其他") private String other;
   @ExcelProperty("时间") private String time;
+
+  private String boxqrcode;
+  private String btid;
+  private String boxUuid;
+  private String btidHash;
  }
