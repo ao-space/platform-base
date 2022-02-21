@@ -17,6 +17,7 @@ import xyz.eulix.platform.services.support.serialization.OperationUtils;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
@@ -25,6 +26,7 @@ import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.List;
 
 @RequestScoped
@@ -82,21 +84,21 @@ public class BoxInfoResource {
     @POST
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/boxinfo/tempalte")
+    @Path("/boxinfo/template")
     @Operation(description = "模板下载接口")
-    public Response tempalte(@Valid @NotBlank @HeaderParam("Request-Id") String requestId) {
-        LOG.infov("[Invoke] method: tempalte()");
+    public Response tempalte(@Valid @NotBlank @HeaderParam("Request-Id") String requestId){
+        LOG.infov("[Invoke] method: template()");
         Stopwatch sw = Stopwatch.createStarted();
         Response response;
         try {
-            response = boxInfoService.tempalte();
+            response = boxInfoService.template();
         } catch (Exception e) {
-            LOG.errorv(e,"[Throw] method: tempalte(), exception");
+            LOG.errorv(e,"[Throw] method: template(), exception");
             throw e;
         } finally {
             sw.stop();
         }
-        LOG.infov("[Return] method: tempalte(), result: ok, elapsed: {0}", sw);
+        LOG.infov("[Return] method: template(), result: ok, elapsed: {0}", sw);
         return response;
     }
 
@@ -106,6 +108,7 @@ public class BoxInfoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/boxinfo/upload")
     @Operation(description = "设备信息导入接口")
+    @Transactional
     public BoxInfosRes upload(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
                               @Valid @MultipartForm MultipartBody multipartBody) {
         LOG.infov("[Invoke] method: upload(), fileName: {0}", multipartBody.fileName);
