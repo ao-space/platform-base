@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.mgtboard.rest;
 
 import javax.annotation.security.RolesAllowed;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -81,8 +82,19 @@ public class PackageResource {
     @Logged
     @Operation(description = "检查 box 最新版本")
     public PackageRes packageBoxCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-        @NotBlank @QueryParam("box_pkg_name") String boxName, @NotBlank @QueryParam("box_pkg_type") String boxType) {
+                                      @NotBlank @QueryParam("box_pkg_name") String boxName, @NotNull @Parameter(required = true, schema = @Schema(enumeration = {"box"}))
+                                      @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName") @QueryParam("box_pkg_type") String boxType) {
         return pkgMgtService.getBoxLatestVersion(boxName, boxType);
+    }
+
+    @GET
+    @Path("/package/app")
+    @Logged
+    @Operation(description = "检查 app 最新版本")
+    public PackageRes packageAppCheck(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                      @NotBlank @QueryParam("app_pkg_name") String appName, @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
+                                      @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios"})) @QueryParam("app_pkg_type") String appType) {
+        return pkgMgtService.getAppLatestVersion(appName, appType);
     }
 
     @RolesAllowed("admin")
@@ -123,6 +135,20 @@ public class PackageResource {
 
     @RolesAllowed("admin")
     @GET
+    @Path("/package")
+    @Logged
+    @Operation(description = "查询 pkg 详情，需管理员权限")
+    public PackageRes packageGet(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                 @NotBlank @Parameter(required = true) @QueryParam("pkg_name") String pkgName,
+                                 @NotNull @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
+                                 @Parameter(required = true, schema = @Schema(enumeration = {"android", "ios", "box"}))
+                                 @QueryParam("pkg_type") String pkgType,
+                                 @NotNull @Pattern(regexp = "[a-zA-Z0-9.-]{0,50}") @QueryParam("pkg_version") String pkgVersion) {
+        return pkgMgtService.getPkgInfo(pkgName, pkgType, pkgVersion);
+    }
+
+    @RolesAllowed("admin")
+    @GET
     @Path("/package/list")
     @Logged
     @Operation(description = "查询软件包列表，需管理员权限")
@@ -140,7 +166,7 @@ public class PackageResource {
     @Logged
     @Operation(description = "批量删除软件包版本，需管理员权限")
     public BaseResultRes packagesDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                     @Size(min = 1, max = 1000) @QueryParam("package_ids") List<@NotBlank String> packageIds) {
+                                     @Size(min = 1, max = 1000) @QueryParam("package_ids") List<@NotNull Long> packageIds) {
         pkgMgtService.delPkginfos(packageIds);
         return BaseResultRes.of(true);
     }
