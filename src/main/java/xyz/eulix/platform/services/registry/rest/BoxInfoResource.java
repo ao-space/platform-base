@@ -50,8 +50,7 @@ public class BoxInfoResource {
     @Operation(description = "预置盒子uuid，需管理员权限。")
     public BoxInfosRes saveBoxInfos(@Valid BoxInfosReq boxInfosReq,
                                     @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        // todo
-        return BoxInfosRes.of(boxInfoService.saveBoxInfos(boxInfosReq), null);
+        return boxInfoService.saveBoxInfos(boxInfosReq);
     }
 
     @RolesAllowed("admin")

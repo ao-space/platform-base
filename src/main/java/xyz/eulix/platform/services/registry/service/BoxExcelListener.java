@@ -17,17 +17,16 @@ import java.util.HashMap;
 public class BoxExcelListener implements ReadListener<BoxExcelModel> {
     private static final Logger LOG = Logger.getLogger("app.log");
 
-    private BoxInfoEntityRepository boxInfoEntityRepository;
+    private BoxInfoService boxInfoService;
+    private OperationUtils operationUtils;
 
     private static final int BATCH_COUNT = 100;
     private ArrayList<BoxExcelModel> excelList = new ArrayList<>();
-    private BoxInfoEntity boxInfoEntity;
     private ArrayList<String> success;
     private ArrayList<String> fail;
-    private OperationUtils operationUtils;
 
-    public BoxExcelListener(OperationUtils utils, BoxInfoEntityRepository boxInfoEntityRepository, ArrayList<String> success, ArrayList<String> fail) {
-        this.boxInfoEntityRepository = boxInfoEntityRepository;
+    public BoxExcelListener(BoxInfoService boxInfoService, OperationUtils utils, ArrayList<String> success, ArrayList<String> fail) {
+        this.boxInfoService = boxInfoService;
         this.operationUtils = utils;
         this.success = success;
         this.fail = fail;
@@ -55,25 +54,8 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
                 model.setBtid(btid);
                 model.setBoxqrcode("https://ao.space/?btid=" + btid);
                 model.setBtidHash(operationUtils.string2SHA256("eulixspace-" + btid));
-                upsertBoxInfo(boxUUID, model);
+                boxInfoService.upsertBoxInfo(boxUUID, null, model, success, fail);
             }
-        }
-    }
-
-    private void upsertBoxInfo(String boxUUID, BoxExcelModel mapExcel) {
-        try {
-            if (boxInfoEntityRepository.findByBoxUUID(boxUUID).isPresent()) {
-                boxInfoEntityRepository.updateByBoxUUID(operationUtils.objectToJson(mapExcel), boxUUID);
-            } else {
-                boxInfoEntity = new BoxInfoEntity();
-                boxInfoEntity.setBoxUUID(boxUUID);
-                boxInfoEntity.setExtra(operationUtils.objectToJson(mapExcel));
-                boxInfoEntityRepository.createBoxInfo(boxInfoEntity);
-            }
-            success.add(boxUUID);
-        } catch (Exception e) {
-            LOG.errorv(e, "box info save failed");
-            fail.add(boxUUID);
         }
     }
 
