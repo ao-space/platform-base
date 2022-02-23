@@ -6,8 +6,10 @@ import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
+import xyz.eulix.platform.services.mgtboard.entity.ProposalEntity;
 import xyz.eulix.platform.services.mgtboard.repository.PkgInfoEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
+import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
@@ -15,6 +17,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -108,6 +111,23 @@ public class PkgMgtService {
     @Transactional
     public void delPkginfo(String pkgName, String pkgType, String pkgVersion) {
         pkgInfoEntityRepository.deleteByAppNameAndTypeAndVersion(pkgName, pkgType, pkgVersion);
+    }
+
+    /**
+     * 查询pkg版本
+     *
+     * @param pkgName    pkg名称
+     * @param pkgType    pkg类型
+     * @param pkgVersion pkg版本号
+     * @return pkg版本
+     */
+    public PackageRes getPkgInfo(String pkgName, String pkgType, String pkgVersion) {
+        PkgInfoEntity pkgInfoEntity = pkgInfoEntityRepository.findByAppNameAndTypeAndVersion(pkgName, pkgType, pkgVersion);
+        if (pkgInfoEntity == null) {
+            LOG.warnv("pkg version does not exist, pkgName:{0}, pkgType:{1}, pkgVersion:{2}", pkgName, pkgType, pkgVersion);
+            throw new ServiceOperationException(ServiceError.PKG_VERSION_NOT_EXIST);
+        }
+        return pkgInfoEntityToRes(pkgInfoEntity);
     }
 
 
@@ -310,7 +330,9 @@ public class PkgMgtService {
     }
 
     private PackageRes pkgInfoEntityToRes(PkgInfoEntity pkgInfoEntity) {
-        return PackageRes.of(pkgInfoEntity.getPkgName(),
+        return PackageRes.of(
+                pkgInfoEntity.getId(),
+                pkgInfoEntity.getPkgName(),
                 pkgInfoEntity.getPkgType(),
                 pkgInfoEntity.getPkgVersion(),
                 pkgInfoEntity.getPkgSize(),
@@ -367,8 +389,17 @@ public class PkgMgtService {
     public PackageRes getBoxLatestVersion(String boxName, String boxType) {
         PkgInfoEntity pkgInfoEntity = findByAppNameAndTypeSortedByVersion(boxName, boxType);
         if (pkgInfoEntity == null) {
-            LOG.errorv("box type does not exist, boxName:{0}, boxType:{1}, not exist", boxName, boxType);
-            throw new ServiceOperationException(ServiceError.PKG_VERSION_NOT_EXIST);
+            LOG.errorv("latest box version does not exist, boxName:{0}, boxType:{1}, not exist", boxName, boxType);
+            throw new ServiceOperationException(ServiceError.LATEST_BOX_VERSION_NOT_EXIST);
+        }
+        return pkgInfoEntityToRes(pkgInfoEntity);
+    }
+
+    public PackageRes getAppLatestVersion(String appName, String appType) {
+        PkgInfoEntity pkgInfoEntity = findByAppNameAndTypeSortedByVersion(appName, appType);
+        if (pkgInfoEntity == null) {
+            LOG.errorv("latest app version does not exist, appName:{0}, appType:{1}, not exist", appName, appType);
+            throw new ServiceOperationException(ServiceError.LATEST_APP_VERSION_NOT_EXIST);
         }
         return pkgInfoEntityToRes(pkgInfoEntity);
     }
@@ -402,13 +433,33 @@ public class PkgMgtService {
         return latestPkgInfo.orElse(null);
     }
 
-
-
     public PageListResult<PackageRes> listPackage(String pkgType, Integer currentPage, Integer pageSize) {
-        return PageListResult.of(null, null);
+        List<PackageRes> pkgResList = new ArrayList<>();
+        // 判断，如果为空，则设置为1
+        if (currentPage == null || currentPage <= 0) {
+            currentPage = 1;
+        }
+        if (pageSize == null) {
+            pageSize = 1000;
+        }
+        // 查询列表
+        List<PkgInfoEntity> pkgInfoEntityList = null;
+        // 记录总数
+        Long totalCount = 0L;
+        if (CommonUtils.isNullOrEmpty(pkgType)) {
+            pkgInfoEntityList = pkgInfoEntityRepository.findAll().page(currentPage - 1, pageSize).list();
+            totalCount = pkgInfoEntityRepository.count();
+        } else {
+            // 根据类型查询
+            pkgInfoEntityList = pkgInfoEntityRepository.findByAppType(pkgType, currentPage -1, pageSize);
+            totalCount = pkgInfoEntityRepository.countByAppType(pkgType);
+        }
+        pkgInfoEntityList.forEach(pkgInfoEntity -> pkgResList.add(pkgInfoEntityToRes(pkgInfoEntity)));
+        return PageListResult.of(pkgResList, PageInfo.of(totalCount, currentPage, pageSize));
     }
 
-    public void delPkginfos(List<String> packageIds) {
-        return;
+    @Transactional
+    public void delPkginfos(List<Long> packageIds) {
+        pkgInfoEntityRepository.deleteByPkgIds(packageIds);
     }
 }

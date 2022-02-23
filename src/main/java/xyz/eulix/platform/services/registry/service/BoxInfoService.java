@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.registry.service;
 
 import org.jboss.logging.Logger;
+import com.alibaba.excel.EasyExcel;
 import xyz.eulix.platform.services.mgtboard.dto.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.*;
@@ -14,10 +15,12 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,27 +38,36 @@ public class BoxInfoService {
     @Inject
     OperationUtils operationUtils;
 
-    public List<String> saveBoxInfos(BoxInfosReq boxInfosReq) {
+    public BoxInfosRes saveBoxInfos(BoxInfosReq boxInfosReq) {
         List<String> boxUUIDs = new ArrayList<>();
+        List<String> failures = new ArrayList<>();
         boxInfosReq.getBoxInfos().forEach(boxInfo -> {
-            try {
-                saveBoxInfo(boxInfo);
-                boxUUIDs.add(boxInfo.getBoxUUID());
-            } catch (PersistenceException exception) {
-                if (exception.getCause() != null && exception.getCause().getCause() instanceof SQLIntegrityConstraintViolationException) {
-                    LOG.infov("boxUUID:{0} already exists, skip...", boxInfo.getBoxUUID());
-                } else {
-                    LOG.errorv(exception, "box info save failed");
-                    throw new ServiceOperationException(ServiceError.DATABASE_ERROR);
-                }
-            }
+            upsertBoxInfo(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxUUIDs, failures);
         });
-        return boxUUIDs;
+        return BoxInfosRes.of(boxUUIDs, failures);
     }
 
     @Transactional
-    public void saveBoxInfo(BoxInfo boxInfo) {
-        boxInfoEntityRepository.persist(boxInfoToEntity(boxInfo));
+    public <T> void upsertBoxInfo(String boxUUID, String desc, T extra, List<String> boxUUIDs, List<String> failures) {
+        try {
+            String extraStr = null;
+            if (CommonUtils.isNotNull(extra)) {
+                extraStr = operationUtils.objectToJson(extra);
+            }
+            if (boxInfoEntityRepository.findByBoxUUID(boxUUID).isPresent()) {
+                boxInfoEntityRepository.updateByBoxUUID(extraStr, boxUUID);
+            } else {
+                BoxInfoEntity boxInfoEntity = new BoxInfoEntity();
+                boxInfoEntity.setBoxUUID(boxUUID);
+                boxInfoEntity.setDesc(desc);
+                boxInfoEntity.setExtra(extraStr);
+                boxInfoEntityRepository.createBoxInfo(boxInfoEntity);
+            }
+            boxUUIDs.add(boxUUID);
+        } catch (Exception e) {
+            LOG.errorv(e, "box info save failed");
+            failures.add(boxUUID);
+        }
     }
 
     @Transactional
@@ -80,18 +92,6 @@ public class BoxInfoService {
         return PageListResult.of(boxInfos, PageInfo.of(totalCount, currentPage, pageSize));
     }
 
-    private BoxInfoEntity boxInfoToEntity(BoxInfo boxInfo) {
-        BoxInfoEntity boxInfoEntity = new BoxInfoEntity();
-        {
-            boxInfoEntity.setBoxUUID(boxInfo.getBoxUUID());
-            boxInfoEntity.setDesc(boxInfo.getDesc());
-            if (CommonUtils.isNotNull(boxInfo.getExtra())) {
-                boxInfoEntity.setExtra(operationUtils.objectToJson(boxInfo.getExtra()));
-            }
-        }
-        return boxInfoEntity;
-    }
-
     private BoxInfo entityToBoxInfo(BoxInfoEntity boxInfoEntity) {
         BoxInfo boxInfo = new BoxInfo();
         {
@@ -105,15 +105,27 @@ public class BoxInfoService {
     }
 
     public boolean isValidBoxUUID(String boxUUID) {
-        Optional<BoxInfoEntity> boxInfoEntityOp =  boxInfoEntityRepository.findByBoxUUID(boxUUID);
+        Optional<BoxInfoEntity> boxInfoEntityOp = boxInfoEntityRepository.findByBoxUUID(boxUUID);
         return boxInfoEntityOp.isPresent();
     }
 
-    public Response tempalte() {
-        return null;
+    public Response template() {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate.xlsx")) {
+            return Response.ok(inputStream)
+                    .header("Content-Disposition", "attachment;filename=" + URLEncoder.encode("出厂信息模板.xlsx", StandardCharsets.UTF_8)
+                            .replaceAll("\\+", "%20"))
+                    .header("Content-Length", inputStream != null ? inputStream.available() : 0)
+                    .build();
+        } catch (IOException e) {
+            LOG.error("download template failed, exception is:", e);
+            throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
+        }
     }
 
     public BoxInfosRes upload(MultipartBody multipartBody) {
-        return BoxInfosRes.of(null, null);
+        ArrayList<String> success = new ArrayList<>();
+        ArrayList<String> fail = new ArrayList<>();
+        EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(this, operationUtils, success, fail)).sheet().doRead();
+        return BoxInfosRes.of(success, fail);
     }
 }
