@@ -71,11 +71,6 @@ public class BoxInfoService {
     }
 
     @Transactional
-    public void saveBoxInfo(BoxInfo boxInfo) {
-        boxInfoEntityRepository.persist(boxInfoToEntity(boxInfo));
-    }
-
-    @Transactional
     public void delBoxInfos(List<String> boxUUIDs) {
         boxInfoEntityRepository.deleteByBoxUUIDS(boxUUIDs);
     }
@@ -95,18 +90,6 @@ public class BoxInfoService {
         // 2.记录总数
         Long totalCount = boxInfoEntityRepository.count();
         return PageListResult.of(boxInfos, PageInfo.of(totalCount, currentPage, pageSize));
-    }
-
-    private BoxInfoEntity boxInfoToEntity(BoxInfo boxInfo) {
-        BoxInfoEntity boxInfoEntity = new BoxInfoEntity();
-        {
-            boxInfoEntity.setBoxUUID(boxInfo.getBoxUUID());
-            boxInfoEntity.setDesc(boxInfo.getDesc());
-            if (CommonUtils.isNotNull(boxInfo.getExtra())) {
-                boxInfoEntity.setExtra(operationUtils.objectToJson(boxInfo.getExtra()));
-            }
-        }
-        return boxInfoEntity;
     }
 
     private BoxInfo entityToBoxInfo(BoxInfoEntity boxInfoEntity) {

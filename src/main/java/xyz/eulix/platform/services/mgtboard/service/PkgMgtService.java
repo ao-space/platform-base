@@ -330,7 +330,9 @@ public class PkgMgtService {
     }
 
     private PackageRes pkgInfoEntityToRes(PkgInfoEntity pkgInfoEntity) {
-        return PackageRes.of(pkgInfoEntity.getPkgName(),
+        return PackageRes.of(
+                pkgInfoEntity.getId(),
+                pkgInfoEntity.getPkgName(),
                 pkgInfoEntity.getPkgType(),
                 pkgInfoEntity.getPkgVersion(),
                 pkgInfoEntity.getPkgSize(),
