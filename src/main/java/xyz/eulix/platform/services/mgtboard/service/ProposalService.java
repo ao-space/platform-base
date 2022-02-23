@@ -1,9 +1,11 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import com.alibaba.excel.EasyExcel;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+
 import org.apache.commons.io.FileUtils;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
@@ -72,7 +74,7 @@ public class ProposalService {
     /**
      * 更新意见反馈
      *
-     * @param proposalId 意见ID
+     * @param proposalId  意见ID
      * @param proposalReq 意见反馈
      * @return 意见反馈
      */
@@ -84,7 +86,7 @@ public class ProposalService {
             throw new ServiceOperationException(ServiceError.PROPOSAL_NOT_EXIST);
         }
         proposalEntityRepository.updateById(proposalId, proposalReq.getContent(), proposalReq.getEmail(),
-                proposalReq.getPhoneNumber(), String.join(",", proposalReq.getImageUrls()));
+                proposalReq.getPhoneNumber(), CommonUtils.isNullOrEmpty(proposalReq.getImageUrls()) ? null : String.join(",", proposalReq.getImageUrls()));
         return ProposalRes.of(proposalId,
                 proposalEntity.getUserDomain(),
                 proposalReq.getContent(),
@@ -123,7 +125,7 @@ public class ProposalService {
      * 获取意见反馈列表
      *
      * @param currentPage 当前页
-     * @param pageSize 每页数量
+     * @param pageSize    每页数量
      * @return 意见反馈列表
      */
     public PageListResult<ProposalRes> listProposal(Integer currentPage, Integer pageSize) {
@@ -253,54 +255,54 @@ public class ProposalService {
             throw new ServiceOperationException(ServiceError.FILE_NOT_FOUND);
         }
         Response.ResponseBuilder response = Response.ok(
-            (StreamingOutput) output -> {
-                try (InputStream content = ossClient.fileDownload(objectName)) {
-                    if (content != null) {
-                        byte[] b = new byte[2048];
-                        int length;
-                        while ((length = content.read(b)) > 0) {
-                            output.write(b, 0, length);
+                (StreamingOutput) output -> {
+                    try (InputStream content = ossClient.fileDownload(objectName)) {
+                        if (content != null) {
+                            byte[] b = new byte[2048];
+                            int length;
+                            while ((length = content.read(b)) > 0) {
+                                output.write(b, 0, length);
+                            }
                         }
+                    } catch (IOException e) {
+                        LOG.error("download file failed, exception", e);
+                        throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
                     }
-                } catch (IOException e) {
-                    LOG.error("download file failed, exception", e);
-                    throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
-                }
-            });
+                });
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
     }
 
     /**
      * 导出文件
-     ** @return Response
+     * * @return Response
      */
     public Response export() {
         var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String fileName = URLEncoder.encode("意见反馈-" + dateFormat.format(System.currentTimeMillis())+".xlsx",
-            StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        String fileName = URLEncoder.encode("意见反馈-" + dateFormat.format(System.currentTimeMillis()) + ".xlsx",
+                StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 
         List<ProposalEntity> allData = proposalEntityRepository.listAll();
 
         List<List<String>> lists = new ArrayList<>();
-        for (ProposalEntity entity: allData) {
+        for (ProposalEntity entity : allData) {
             List<String> list = new ArrayList<>();
-            list.add(entity.getId()== null ? "": String.valueOf(entity.getId()));
-            list.add(entity.getUserDomain()== null ? "": String.valueOf(entity.getUserDomain()));
-            list.add(entity.getContent()== null ? "": String.valueOf(entity.getContent()));
-            list.add(entity.getEmail()== null ? "": String.valueOf(entity.getEmail()));
-            list.add(entity.getPhoneNumber()== null ? "": String.valueOf(entity.getPhoneNumber()));
-            list.add(entity.getImageUrls()== null ? "": accessFileUrls(entity.getImageUrls()));
-            list.add(entity.getCreatedAt() == null ? "": String.valueOf(entity.getCreatedAt()));
-            list.add(entity.getUpdatedAt()== null ? "": String.valueOf(entity.getUpdatedAt()));
-            list.add(entity.getVersion()== null ? "": String.valueOf(entity.getVersion()));
+            list.add(entity.getId() == null ? "" : String.valueOf(entity.getId()));
+            list.add(entity.getUserDomain() == null ? "" : String.valueOf(entity.getUserDomain()));
+            list.add(entity.getContent() == null ? "" : String.valueOf(entity.getContent()));
+            list.add(entity.getEmail() == null ? "" : String.valueOf(entity.getEmail()));
+            list.add(entity.getPhoneNumber() == null ? "" : String.valueOf(entity.getPhoneNumber()));
+            list.add(entity.getImageUrls() == null ? "" : accessFileUrls(entity.getImageUrls()));
+            list.add(entity.getCreatedAt() == null ? "" : String.valueOf(entity.getCreatedAt()));
+            list.add(entity.getUpdatedAt() == null ? "" : String.valueOf(entity.getUpdatedAt()));
+            list.add(entity.getVersion() == null ? "" : String.valueOf(entity.getVersion()));
             lists.add(list);
         }
 
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
-            EasyExcel.write(output, ProposalEntity.class).sheet("sheet1").doWrite(lists));
+                EasyExcel.write(output, ProposalEntity.class).sheet("sheet1").doWrite(lists));
 
-        response.header("Content-Type","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
     }
