@@ -4,15 +4,9 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
-import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
-import xyz.eulix.platform.services.registry.repository.BoxInfoEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
-
-import javax.persistence.PersistenceException;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class BoxExcelListener implements ReadListener<BoxExcelModel> {
     private static final Logger LOG = Logger.getLogger("app.log");
