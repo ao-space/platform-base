@@ -1,14 +1,9 @@
 package xyz.eulix.platform.services.registry.entity;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import xyz.eulix.platform.services.support.model.BaseEntity;
-
-import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
 
 @Getter

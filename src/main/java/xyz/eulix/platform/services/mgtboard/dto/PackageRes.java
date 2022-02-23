@@ -6,6 +6,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Data(staticConstructor = "of")
 public class PackageRes {
     // 软件包名称
+    @Schema(description = "id")
+    private final Long id;
+
+    // 软件包名称
     @Schema(description = "软件包标识符")
     private final String pkgName;
 
