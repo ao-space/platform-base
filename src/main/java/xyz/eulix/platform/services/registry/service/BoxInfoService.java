@@ -110,7 +110,8 @@ public class BoxInfoService {
     }
 
     public Response template() {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate.xlsx")) {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate.xlsx");
+        try{
             return Response.ok(inputStream)
                     .header("Content-Disposition", "attachment;filename=" + URLEncoder.encode("出厂信息模板.xlsx", StandardCharsets.UTF_8)
                             .replaceAll("\\+", "%20"))
