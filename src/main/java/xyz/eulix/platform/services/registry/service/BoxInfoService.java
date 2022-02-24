@@ -110,12 +110,12 @@ public class BoxInfoService {
     }
 
     public Response template() {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate.xlsx");
-        try{
-            return Response.ok(inputStream)
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate.xlsx")){
+            byte[] b = inputStream.readAllBytes();
+            return Response.ok(b)
                     .header("Content-Disposition", "attachment;filename=" + URLEncoder.encode("出厂信息模板.xlsx", StandardCharsets.UTF_8)
                             .replaceAll("\\+", "%20"))
-                    .header("Content-Length", inputStream != null ? inputStream.available() : 0)
+                    .header("Content-Length", b.length)
                     .build();
         } catch (IOException e) {
             LOG.error("download template failed, exception is:", e);
