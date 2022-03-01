@@ -3,10 +3,12 @@ package xyz.eulix.platform.services.registry.service;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BoxExcelListener implements ReadListener<BoxExcelModel> {
     private static final Logger LOG = Logger.getLogger("app.log");
@@ -15,11 +17,12 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
     private OperationUtils operationUtils;
 
     private static final int BATCH_COUNT = 100;
-    private ArrayList<BoxExcelModel> excelList = new ArrayList<>();
+    private HashMap<Integer, BoxExcelModel> excelList = new HashMap<>();
     private ArrayList<String> success;
-    private ArrayList<String> fail;
+    private ArrayList<String> failure;
+    private ArrayList<BoxFailureInfo> fail;
 
-    public BoxExcelListener(BoxInfoService boxInfoService, OperationUtils utils, ArrayList<String> success, ArrayList<String> fail) {
+    public BoxExcelListener(BoxInfoService boxInfoService, OperationUtils utils, ArrayList<String> success, ArrayList<BoxFailureInfo> fail) {
         this.boxInfoService = boxInfoService;
         this.operationUtils = utils;
         this.success = success;
@@ -39,7 +42,8 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
      */
     private void saveData() {
         //调用mapper插入数据库
-        for (BoxExcelModel model : excelList) {
+        for (Integer number:excelList.keySet()) {
+            BoxExcelModel model = excelList.get(number);
             if (CommonUtils.isNotNull(model.getCpuId()) && model.getCpuId().matches("[0-9a-fA-F]+")) {
                 String boxUUID = operationUtils.string2SHA256("eulixspace-productid-" + model.getCpuId());
                 String btid = operationUtils.string2SHA256("eulixspace-btid-" + model.getCpuId()).substring(0, 16);
@@ -48,14 +52,18 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
                 model.setBtid(btid);
                 model.setBoxqrcode("https://ao.space/?btid=" + btid);
                 model.setBtidHash(operationUtils.string2SHA256("eulixspace-" + btid));
-                boxInfoService.upsertBoxInfo(boxUUID, null, model, success, fail);
+                if(!boxInfoService.upsertBoxInfo(boxUUID, null, model, success, failure)) {
+                    fail.add(BoxFailureInfo.of(String.valueOf(number), boxUUID));
+                }
+            } else {
+                fail.add(BoxFailureInfo.of(String.valueOf(number), ""));
             }
         }
     }
 
     @Override
     public void invoke(BoxExcelModel boxExcelModel, AnalysisContext analysisContext) {
-        excelList.add(boxExcelModel);
+        excelList.put(analysisContext.readRowHolder().getRowIndex(), boxExcelModel);
         // 达到BATCH_COUNT了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
         if (excelList.size() >= BATCH_COUNT) {
             saveData();

@@ -15,6 +15,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +50,7 @@ public class BoxInfoService {
     }
 
     @Transactional
-    public <T> void upsertBoxInfo(String boxUUID, String desc, T extra, List<String> boxUUIDs, List<String> failures) {
+    public <T> boolean upsertBoxInfo(String boxUUID, String desc, T extra, List<String> boxUUIDs, List<String> failures) {
         try {
             String extraStr = null;
             if (CommonUtils.isNotNull(extra)) {
@@ -64,9 +66,11 @@ public class BoxInfoService {
                 boxInfoEntityRepository.createBoxInfo(boxInfoEntity);
             }
             boxUUIDs.add(boxUUID);
+            return true;
         } catch (Exception e) {
             LOG.errorv(e, "box info save failed");
             failures.add(boxUUID);
+            return false;
         }
     }
 
@@ -125,7 +129,7 @@ public class BoxInfoService {
 
     public BoxInfosRes upload(MultipartBody multipartBody) {
         ArrayList<String> success = new ArrayList<>();
-        ArrayList<String> fail = new ArrayList<>();
+        ArrayList<BoxFailureInfo> fail = new ArrayList<>();
         EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(this, operationUtils, success, fail)).sheet().doRead();
         return BoxInfosRes.of(success, fail);
     }
