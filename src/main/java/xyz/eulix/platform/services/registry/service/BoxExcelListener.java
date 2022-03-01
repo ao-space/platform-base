@@ -7,8 +7,11 @@ import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
+
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class BoxExcelListener implements ReadListener<BoxExcelModel> {
     private static final Logger LOG = Logger.getLogger("app.log");
@@ -42,7 +45,9 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
      */
     private void saveData() {
         //调用mapper插入数据库
-        for (Integer number:excelList.keySet()) {
+        Iterator<Integer> iterator = excelList.keySet().iterator();
+        while(iterator.hasNext()){
+            Integer number = iterator.next();
             BoxExcelModel model = excelList.get(number);
             if (CommonUtils.isNotNull(model.getCpuId()) && model.getCpuId().matches("[0-9a-fA-F]+")) {
                 String boxUUID = operationUtils.string2SHA256("eulixspace-productid-" + model.getCpuId());
