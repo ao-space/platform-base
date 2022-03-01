@@ -3,7 +3,6 @@ package xyz.eulix.platform.services.registry.dto.registry;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**

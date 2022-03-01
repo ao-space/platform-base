@@ -49,6 +49,9 @@ public class QuestionnaireService {
             throw new ServiceOperationException(ServiceError.PAYLOAD_SURVEY_ALREADY_EXIST);
         }
         QuestionnaireEntity qaEntity = qaReqToEntity(qaReq);
+        if(qaEntity.getEndAt().isBefore(qaEntity.getStartAt())){
+            throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, qaEntity.getEndAt().toString());
+        }
         qaEntityRepository.persist(qaEntity);
         return qaEntityToRes(qaEntity);
     }
@@ -68,6 +71,9 @@ public class QuestionnaireService {
             throw new ServiceOperationException(ServiceError.QUESTIONNAIRE_NOT_EXIST);
         }
         qaEntityRepository.updateById(qaId, updateReq.getTitle(), updateReq.getStartAt(), updateReq.getEndAt());
+        if(updateReq.getStartAt().isAfter(updateReq.getEndAt())){
+            throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, qaEntity.getEndAt().toString());
+        }
         return QuestionnaireRes.of(qaId,
                 updateReq.getTitle(),
                 qaEntity.getContent(),
