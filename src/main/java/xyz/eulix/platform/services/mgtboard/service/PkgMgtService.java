@@ -11,6 +11,7 @@ import xyz.eulix.platform.services.mgtboard.repository.PkgInfoEntityRepository;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;
+import xyz.eulix.platform.services.support.model.SortDirEnum;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
@@ -431,7 +432,7 @@ public class PkgMgtService {
         return latestPkgInfo.orElse(null);
     }
 
-    public PageListResult<PackageRes> listPackage(String pkgType, Integer currentPage, Integer pageSize) {
+    public PageListResult<PackageRes> listPackage(String sortKey, String sortDir, Integer currentPage, Integer pageSize) {
         List<PackageRes> pkgResList = new ArrayList<>();
         // 判断，如果为空，则设置为1
         if (currentPage == null || currentPage <= 0) {
@@ -442,16 +443,17 @@ public class PkgMgtService {
         }
         // 查询列表
         List<PkgInfoEntity> pkgInfoEntityList = null;
-        // 记录总数
-        Long totalCount = 0L;
-        if (CommonUtils.isNullOrEmpty(pkgType)) {
+        if (CommonUtils.isNullOrEmpty(sortKey)) {
             pkgInfoEntityList = pkgInfoEntityRepository.findAll().page(currentPage - 1, pageSize).list();
-            totalCount = pkgInfoEntityRepository.count();
         } else {
-            // 根据类型查询
-            pkgInfoEntityList = pkgInfoEntityRepository.findByAppType(pkgType, currentPage -1, pageSize);
-            totalCount = pkgInfoEntityRepository.countByAppType(pkgType);
+            // 根据类型排序
+            if (CommonUtils.isNullOrEmpty(sortDir)) {
+                sortDir = SortDirEnum.ASC.getName();
+            }
+            pkgInfoEntityList = pkgInfoEntityRepository.sortByPkgType(sortDir, currentPage -1, pageSize);
         }
+        // 记录总数
+        Long totalCount = pkgInfoEntityRepository.count();
         pkgInfoEntityList.forEach(pkgInfoEntity -> pkgResList.add(pkgInfoEntityToRes(pkgInfoEntity)));
         return PageListResult.of(pkgResList, PageInfo.of(totalCount, currentPage, pageSize));
     }

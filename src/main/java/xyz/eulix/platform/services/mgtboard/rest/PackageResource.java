@@ -10,6 +10,7 @@ import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.service.PkgMgtService;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
+import xyz.eulix.platform.services.support.model.SortDirEnum;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -153,11 +154,13 @@ public class PackageResource {
     @Logged
     @Operation(description = "查询软件包列表，需管理员权限")
     public PageListResult<PackageRes> packageList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                                  @ValueOfEnum(enumClass = PkgTypeEnum.class, valueMethod = "getName")
-                                                  @Parameter(schema = @Schema(enumeration = {"android", "ios", "box"})) @QueryParam("pkg_type") String pkgType,
+                                                  @ValueOfEnum(enumClass = SortKeyEnum.class, valueMethod = "getName")
+                                                      @Parameter(schema = @Schema(enumeration = {"pkg_type"})) @QueryParam("sort_key") String sortKey,
+                                                  @ValueOfEnum(enumClass = SortDirEnum.class, valueMethod = "getName")
+                                                      @Parameter(schema = @Schema(enumeration = {"asc","desc"})) @QueryParam("sort_dir") String sortDir,
                                                   @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
                                                   @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
-        return pkgMgtService.listPackage(pkgType, currentPage, pageSize);
+        return pkgMgtService.listPackage(sortKey, sortDir, currentPage, pageSize);
     }
 
     @RolesAllowed("admin")
