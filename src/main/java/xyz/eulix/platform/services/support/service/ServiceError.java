@@ -54,6 +54,7 @@ public enum ServiceError {
   DATABASE_ERROR(2027, "database error"),
 
   NETWORK_CLIENT_NOT_EXIST(2028, "network client does not exist"),
+  TIME_PARAMETER_ERROR(2029, "startTime {0} is after endTime {1}")
   ;
 
   /**
