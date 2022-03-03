@@ -3,6 +3,7 @@ package xyz.eulix.platform.services.mgtboard.repository;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import javax.enterprise.context.ApplicationScoped;
 
+import io.quarkus.panache.common.Sort;
 import xyz.eulix.platform.services.mgtboard.dto.SortKeyEnum;
 import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
 import xyz.eulix.platform.services.support.model.SortDirEnum;
@@ -24,10 +25,6 @@ public class PkgInfoEntityRepository implements PanacheRepository<PkgInfoEntity>
 
     // 根据ids查询资源
     private static final String FIND_BY_IDS = "id in (?1)";
-
-    // 根据pkg_type排序
-    private static final String SORT_BY_PKGTYPE_ASC = "order by pkg_type asc";
-    private static final String SORT_BY_PKGTYPE_DESC = "order by pkg_type desc";
 
     public void deleteByAppNameAndTypeAndVersion(String pkgName, String pkgType, String pkgVersion) {
         this.delete(FIND_BY_APPNAME_TYPE_VERSION, pkgName, pkgType, pkgVersion);
@@ -52,11 +49,11 @@ public class PkgInfoEntityRepository implements PanacheRepository<PkgInfoEntity>
         this.delete(FIND_BY_IDS, packageIds);
     }
 
-    public List<PkgInfoEntity> sortByPkgType(String sortDir, Integer currentPage, Integer pageSize) {
+    public List<PkgInfoEntity> sortByPkgType(String sortKey, String sortDir, Integer currentPage, Integer pageSize) {
         if (SortDirEnum.ASC.getName().equals(sortDir)) {
-            return this.find(SORT_BY_PKGTYPE_ASC).page(currentPage, pageSize).list();
+            return this.findAll(Sort.by(sortKey, Sort.Direction.Ascending)).page(currentPage, pageSize).list();
         } else {
-            return this.find(SORT_BY_PKGTYPE_DESC).page(currentPage, pageSize).list();
+            return this.findAll(Sort.by(sortKey, Sort.Direction.Descending)).page(currentPage, pageSize).list();
         }
     }
 }

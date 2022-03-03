@@ -452,7 +452,7 @@ public class PkgMgtService {
             if (CommonUtils.isNullOrEmpty(sortDir)) {
                 sortDir = SortDirEnum.ASC.getName();
             }
-            pkgInfoEntityList = pkgInfoEntityRepository.sortByPkgType(sortDir, currentPage -1, pageSize);
+            pkgInfoEntityList = pkgInfoEntityRepository.sortByPkgType(sortKey, sortDir, currentPage -1, pageSize);
         }
         // 记录总数
         Long totalCount = pkgInfoEntityRepository.count();
