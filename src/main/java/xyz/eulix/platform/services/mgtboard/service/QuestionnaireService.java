@@ -48,7 +48,7 @@ public class QuestionnaireService {
             LOG.warnv("payload survey already exist, payloadSurveyId:{0}", qaReq.getPayloadSurveyId());
             throw new ServiceOperationException(ServiceError.PAYLOAD_SURVEY_ALREADY_EXIST);
         }
-        if(qaReq.getEndAt().isBefore(qaReq.getStartAt())){
+        if(CommonUtils.isNotNull(qaReq.getEndAt()) && CommonUtils.isNotNull(qaReq.getStartAt()) && qaReq.getEndAt().isBefore(qaReq.getStartAt())){
             throw new ServiceOperationException(ServiceError.TIME_PARAMETER_ERROR,qaReq.getStartAt().toString(), qaReq.getEndAt().toString());
         }
         QuestionnaireEntity qaEntity = qaReqToEntity(qaReq);
@@ -71,8 +71,8 @@ public class QuestionnaireService {
             throw new ServiceOperationException(ServiceError.QUESTIONNAIRE_NOT_EXIST);
         }
         qaEntityRepository.updateById(qaId, updateReq.getTitle(), updateReq.getStartAt(), updateReq.getEndAt());
-        if(updateReq.getStartAt().isAfter(updateReq.getEndAt())){
-            throw new ServiceOperationException(ServiceError.TIME_PARAMETER_ERROR,qaEntity.getStartAt().toString() ,qaEntity.getEndAt().toString());
+        if(CommonUtils.isNotNull(updateReq.getEndAt()) && CommonUtils.isNotNull(updateReq.getStartAt()) && updateReq.getStartAt().isAfter(updateReq.getEndAt())){
+            throw new ServiceOperationException(ServiceError.TIME_PARAMETER_ERROR,updateReq.getStartAt().toString() ,updateReq.getEndAt().toString());
         }
         return QuestionnaireRes.of(qaId,
                 updateReq.getTitle(),

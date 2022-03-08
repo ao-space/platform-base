@@ -60,7 +60,7 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
                 if(!boxInfoService.upsertBoxInfo(boxUUID, null, model, success, failure)) {
                     fail.add(BoxFailureInfo.of(String.valueOf(number), boxUUID));
                 }
-            } else {
+            } else if(CommonUtils.isNotNull(model.getCpuId()) && CommonUtils.isNotNull(model.getNumber())){
                 fail.add(BoxFailureInfo.of(String.valueOf(number), ""));
             }
         }
@@ -68,7 +68,7 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
 
     @Override
     public void invoke(BoxExcelModel boxExcelModel, AnalysisContext analysisContext) {
-        excelList.put(analysisContext.readRowHolder().getRowIndex(), boxExcelModel);
+        excelList.put(analysisContext.readRowHolder().getRowIndex()+1, boxExcelModel);
         // 达到BATCH_COUNT了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
         if (excelList.size() >= BATCH_COUNT) {
             saveData();
