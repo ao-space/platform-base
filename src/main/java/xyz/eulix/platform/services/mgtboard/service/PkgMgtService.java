@@ -2,6 +2,7 @@ package xyz.eulix.platform.services.mgtboard.service;
 
 import com.github.zafarkhaja.semver.ParseException;
 import com.github.zafarkhaja.semver.Version;
+import io.quarkus.panache.common.Sort;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
@@ -446,7 +447,7 @@ public class PkgMgtService {
         // 查询列表
         List<PkgInfoEntity> pkgInfoEntityList = null;
         if (CommonUtils.isNullOrEmpty(sortKey)) {
-            pkgInfoEntityList = pkgInfoEntityRepository.findAll().page(currentPage - 1, pageSize).list();
+            pkgInfoEntityList = pkgInfoEntityRepository.findAll(Sort.by("updated_at").descending()).page(currentPage - 1, pageSize).list();
         } else {
             // 根据类型排序
             if (CommonUtils.isNullOrEmpty(sortDir)) {
