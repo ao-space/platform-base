@@ -1,10 +1,10 @@
-package xyz.eulix.platform.services.helpcenter.service;
+package xyz.eulix.platform.services.mgtboard.service;
 
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.helpcenter.dto.ArticleInfo;
-import xyz.eulix.platform.services.helpcenter.entity.ArticleEntity;
-import xyz.eulix.platform.services.helpcenter.repository.ArticleEntityRepository;
-import xyz.eulix.platform.services.helpcenter.repository.CatalogueEntityRepository;
+import xyz.eulix.platform.services.mgtboard.dto.ArticleInfo;
+import xyz.eulix.platform.services.mgtboard.entity.ArticleEntity;
+import xyz.eulix.platform.services.mgtboard.repository.ArticleEntityRepository;
+import xyz.eulix.platform.services.mgtboard.repository.CatalogueEntityRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
