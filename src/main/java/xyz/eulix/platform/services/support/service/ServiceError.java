@@ -54,7 +54,9 @@ public enum ServiceError {
   DATABASE_ERROR(2027, "database error"),
 
   NETWORK_CLIENT_NOT_EXIST(2028, "network client does not exist"),
-  TIME_PARAMETER_ERROR(2029, "startTime {0} is after endTime {1}")
+  TIME_PARAMETER_ERROR(2029, "startTime {0} is after endTime {1}"),
+  CATALOGUE_NOT_EXIST(2030, "catalogue path does not exist"),
+  CATALOGUE_HAS_CREATE(2031, "could not create duplicate catalogue name")
   ;
 
   /**

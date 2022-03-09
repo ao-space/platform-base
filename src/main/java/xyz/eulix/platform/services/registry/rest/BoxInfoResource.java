@@ -17,16 +17,13 @@ import xyz.eulix.platform.services.support.serialization.OperationUtils;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.List;
 
 @RequestScoped
@@ -122,5 +119,27 @@ public class BoxInfoResource {
         }
         LOG.infov("[Return] method: upload(), result: {0}, elapsed: {0}", utils.objectToJson(uploadRes), sw);
         return uploadRes;
+    }
+
+    @RolesAllowed("admin")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Path("/boxinfo/export")
+    @Operation(description = "设备信息导入接口")
+    public Response export(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
+                           @Valid @MultipartForm MultipartBody multipartBody) {
+        LOG.infov("[Invoke] method: export()");
+        Stopwatch sw = Stopwatch.createStarted();
+        try {
+            Response response = null;
+        } catch (Exception e) {
+            LOG.errorv(e,"[Throw] method: upload(), exception");
+            throw e;
+        } finally {
+            sw.stop();
+        }
+        LOG.infov("[Return] method: export(),elapsed: {0}", sw);
+        return Response.accepted().build();
     }
 }

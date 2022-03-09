@@ -15,7 +15,6 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.swing.*;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -133,4 +132,7 @@ public class BoxInfoService {
         return BoxInfosRes.of(success, fail);
     }
 
+    public Response export(List<String> list){
+        return  null;
+    }
 }
