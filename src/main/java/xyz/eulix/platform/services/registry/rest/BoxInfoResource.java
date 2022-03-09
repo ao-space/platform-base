@@ -134,7 +134,7 @@ public class BoxInfoResource {
         try {
             Response response = null;
         } catch (Exception e) {
-            LOG.errorv(e,"[Throw] method: upload(), exception");
+            LOG.errorv(e,"[Throw] method: export(), exception");
             throw e;
         } finally {
             sw.stop();
