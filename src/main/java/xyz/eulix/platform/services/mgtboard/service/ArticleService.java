@@ -5,6 +5,8 @@ import xyz.eulix.platform.services.mgtboard.dto.ArticleInfo;
 import xyz.eulix.platform.services.mgtboard.entity.ArticleEntity;
 import xyz.eulix.platform.services.mgtboard.repository.ArticleEntityRepository;
 import xyz.eulix.platform.services.mgtboard.repository.CatalogueEntityRepository;
+import xyz.eulix.platform.services.support.service.ServiceError;
+import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -40,12 +42,19 @@ public class ArticleService {
             null, articleEntity.getCreatedAt(), articleEntity.getUpdatedAt());
   }
 
-  public List<ArticleInfo> getArticleList(Long rootid){
+  public List<Long> getArticleIdList(Long rootid){
     List<ArticleEntity> articleEntities=articleEntityRepository.find("cata_id", rootid).list();
-    List<ArticleInfo> articleInfoList = new ArrayList<>();
-    articleEntities.forEach(articleEntity -> articleInfoList.add(ArticleInfo.of(articleEntity.getId(), articleEntity.getTitle(),
-            articleEntity.getCataId(), articleEntity.getState(),
-            articleEntity.getPublishdAt(), articleEntity.getCreatedAt(), articleEntity.getUpdatedAt())));
+    List<Long> articleInfoList = new ArrayList<>();
+    articleEntities.forEach(articleEntity -> {articleInfoList.add(articleEntity.getId());});
     return articleInfoList;
   }
+
+  public void deleteArticle(List<Long> articleIds){
+    try {
+      articleIds.forEach(id -> {articleEntityRepository.deleteById(id);});
+    } catch (Exception e) {
+      throw new ServiceOperationException(ServiceError.DATABASE_ERROR);
+    }
+  }
+
 }

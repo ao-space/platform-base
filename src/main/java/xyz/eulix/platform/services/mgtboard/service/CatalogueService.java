@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.services.mgtboard.dto.CatalogueRes;
 import xyz.eulix.platform.services.mgtboard.entity.CatalogueEntity;
 import xyz.eulix.platform.services.mgtboard.repository.CatalogueEntityRepository;
 import xyz.eulix.platform.services.support.service.ServiceError;
@@ -18,7 +19,13 @@ public class CatalogueService {
     @Inject
     CatalogueEntityRepository catalogueEntityRespository;
 
-    public CatalogueEntity saveCatalogue(Long rootid, String name){
+    @Inject
+    ArticleService articleService;
+
+    public CatalogueRes saveCatalogue(Long rootid, String name){
+        if(catalogueEntityRespository.findById(rootid) == null){
+            throw new ServiceOperationException(ServiceError.CATALOGUE_NOT_EXIST);
+        }
         if(!catalogueEntityRespository.findByCataName(name).isEmpty()){
             throw new ServiceOperationException(ServiceError.CATALOGUE_HAS_CREATE);
         }
@@ -26,46 +33,48 @@ public class CatalogueService {
         catalogueEntity.setCataName(name);
         catalogueEntity.setParentId(rootid);
         catalogueEntityRespository.create(catalogueEntity);
-        return  catalogueEntity;
+        return CatalogueRes.of(catalogueEntity.getId(), catalogueEntity.getCataName(),catalogueEntity.getParentId(),
+                catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt());
     }
 
-    public CatalogueEntity updateCatalogue(Long rootid, String name) {
+    public CatalogueRes updateCatalogue(Long rootid, String name) {
+        if(rootid.equals(1L) ){
+            throw new ServiceOperationException(ServiceError.CATALOGUE_IS_ROOT);
+        }
         catalogueEntityRespository.update(rootid, name);
-        return catalogueEntityRespository.findById(rootid);
+        CatalogueEntity catalogueEntity = catalogueEntityRespository.findById(rootid);
+        return CatalogueRes.of(catalogueEntity.getId(), catalogueEntity.getCataName(),catalogueEntity.getParentId(),
+                catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt());
     }
 
-    public List<CatalogueEntity> findByRootId(Long id){
-        return  catalogueEntityRespository.find("parent_id", id).list();
+    public List<CatalogueRes> findByRootId(Long id){
+        List<CatalogueRes> list =  new ArrayList<>();
+        catalogueEntityRespository.find("parent_id", id).list().forEach(catalogueEntity -> {
+            list.add(CatalogueRes.of(catalogueEntity.getId(), catalogueEntity.getCataName(), catalogueEntity.getParentId(),
+                    catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt()));
+        });
+        return list;
     }
 
     public void deleteFromRootId(Long rootid){
+        if(rootid.equals(1L) ){
+            throw new ServiceOperationException(ServiceError.CATALOGUE_IS_ROOT);
+        }
         List<Long> childCatalogue = new ArrayList<>();
         findFromRootId(rootid, childCatalogue);
         for(Long id:childCatalogue){
+            articleService.deleteArticle(articleService.getArticleIdList(id));
             catalogueEntityRespository.deleteByNodeId(id);
         }
         catalogueEntityRespository.deleteByNodeId(rootid);
     }
     public void findFromRootId(Long id, List<Long> listRoot){
-        List<CatalogueEntity>  list = findByRootId(id);
+        List<CatalogueRes>  list = findByRootId(id);
         if(list.size() == 0) {return ;}
-        for (CatalogueEntity catalogueEntity:list){
-            listRoot.add(catalogueEntity.getId());
-            findFromRootId(catalogueEntity.getId(), listRoot);
+        for (CatalogueRes catalogueRes:list){
+            listRoot.add(catalogueRes.getId());
+            findFromRootId(catalogueRes.getId(), listRoot);
         }
     }
 
-    public void judePath(String[] list){
-        if(list.length == 0 || !list[0].equals("1")) {throw new ServiceOperationException(ServiceError.CATALOGUE_NOT_EXIST);}
-        int i = list.length - 1;
-        if(catalogueEntityRespository.findById(Long.valueOf(list[i])) == null){
-            throw new ServiceOperationException(ServiceError.CATALOGUE_NOT_EXIST);
-        }
-        while(i > 0){
-            if(!catalogueEntityRespository.findById(Long.valueOf(list[i])).getParentId().equals(Long.valueOf(list[i-1]))){
-                throw new ServiceOperationException(ServiceError.CATALOGUE_NOT_EXIST);
-            }
-            i=i-1;
-        }
-    }
 }
