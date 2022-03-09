@@ -72,7 +72,7 @@ public class QuestionnaireService {
         }
         qaEntityRepository.updateById(qaId, updateReq.getTitle(), updateReq.getStartAt(), updateReq.getEndAt());
         if(CommonUtils.isNotNull(updateReq.getEndAt()) && CommonUtils.isNotNull(updateReq.getStartAt()) && updateReq.getStartAt().isAfter(updateReq.getEndAt())){
-            throw new ServiceOperationException(ServiceError.TIME_PARAMETER_ERROR,updateReq.getStartAt().toString() ,updateReq.getEndAt().toString());
+            throw new ServiceOperationException(ServiceError.TIME_PARAMETER_ERROR,qaEntity.getStartAt().toString() ,qaEntity.getEndAt().toString());
         }
         return QuestionnaireRes.of(qaId,
                 updateReq.getTitle(),
