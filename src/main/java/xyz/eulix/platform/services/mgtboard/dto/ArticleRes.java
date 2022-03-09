@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

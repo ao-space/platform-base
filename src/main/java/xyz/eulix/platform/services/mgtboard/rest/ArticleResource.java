@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class ArticleResource {
     public ArticleRes createArticle(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                     @Valid ArticleReq articleReq) {
 //        return articleService.createNewArticle(Long.valueOf(path),title, null);
-        return ArticleRes.of(null, null, null, null, null, null, null, null);
+        return ArticleRes.of( null, null, null,null, null, null, null, null);
     }
 
     @Logged
@@ -66,38 +67,50 @@ public class ArticleResource {
 
     @Logged
     @GET
-    @Path("/article/list")
+    @Path("/article/{articleid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "获取文章列表")
+    @Operation(description = "获取文章详细信息")
     public ArticleRes getArticleDetail(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                                  @NotBlank @Parameter(required = true) @QueryParam("cata_id") String cataId) {
-        return ArticleRes.of(null, null, "123", null, null, null, null, null);
+                                       @NotBlank @Parameter(required = true) @PathParam("articleid") Long articleId) {
+        return ArticleRes.of(null,  "123", null,null, null, null, null, null);
     }
 
     @RolesAllowed("admin")
     @Logged
     @DELETE
-    @Path("/article/{id}")
+    @Path("/article/{articleid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "删除文章")
     public BaseResultRes deleteArticle(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                       @NotNull @Parameter(required = true) @PathParam("id") Long articleId) {
+                                       @NotNull @Parameter(required = true) @PathParam("articleid") Long articleId) {
+        return BaseResultRes.of(true);
+    }
+
+    @RolesAllowed("admin")
+    @Logged
+    @DELETE
+    @Path("/article/batch")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "删除文章")
+    public BaseResultRes deleteArticles(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                        @Size(min = 1, max = 1000) @QueryParam("article_ids") List<@NotNull Long> articleIds) {
         return BaseResultRes.of(true);
     }
 
     @RolesAllowed("admin")
     @Logged
     @PUT
-    @Path("/article/{id}")
+    @Path("/article/{articleid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "修改文章")
     public ArticleRes updateArticle(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                    @NotNull @Parameter(required = true) @PathParam("id") Long articleId,
+                                    @NotNull @Parameter(required = true) @PathParam("articleid") Long articleId,
                                     @Valid ArticleReq articleReq) {
 //        return articleService.updateArticle(Long.valueOf(path),id, null);
-        return ArticleRes.of(null, null, null, null, null, null, null, null);
+        return ArticleRes.of(null, null,  null, null, null,null, null, null);
     }
 }

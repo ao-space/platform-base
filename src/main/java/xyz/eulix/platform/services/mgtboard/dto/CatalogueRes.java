@@ -5,7 +5,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import java.time.OffsetDateTime;
 
 @Data(staticConstructor = "of")
-public class QatalogueRes {
+public class CatalogueRes {
     @Schema(description = "id")
     private final Long id;
 
