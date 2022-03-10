@@ -23,7 +23,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides box and client registry service.
@@ -34,6 +36,9 @@ public class BoxInfoService {
 
     @Inject
     BoxInfoEntityRepository boxInfoEntityRepository;
+
+    @Inject
+    RegistryBoxEntityRepository registryBoxEntityRepository;
 
     @Inject
     OperationUtils operationUtils;
@@ -79,6 +84,7 @@ public class BoxInfoService {
 
     public PageListResult<BoxInfo> listBoxInfo(Integer currentPage, Integer pageSize) {
         List<BoxInfo> boxInfos = new ArrayList<>();
+        List<String> boxUUIDs = new ArrayList<>();
         // 判断，如果为空，则设置为1
         if (currentPage == null || currentPage <= 0) {
             currentPage = 1;
@@ -88,8 +94,20 @@ public class BoxInfoService {
         }
         // 1.查询列表
         List<BoxInfoEntity> boxInfoEntities = boxInfoEntityRepository.findAll().page(currentPage - 1, pageSize).list();
-        boxInfoEntities.forEach(boxInfoEntity -> boxInfos.add(entityToBoxInfo(boxInfoEntity)));
-        // 2.记录总数
+        boxInfoEntities.forEach(boxInfoEntity -> {
+            boxUUIDs.add(boxInfoEntity.getBoxUUID());
+        });
+        // 2.查询是否已注册
+        List<RegistryBoxEntity> registryBoxEntities = registryBoxEntityRepository.findByBoxUUIDs(boxUUIDs);
+        Map<String, RegistryBoxEntity> boxEntityMap = registryBoxEntities.stream().collect(Collectors.toMap(RegistryBoxEntity::getBoxUUID, entity -> entity));
+        boxInfoEntities.forEach(boxInfoEntity -> {
+            BoxInfo boxInfo = entityToBoxInfo(boxInfoEntity);
+            if (boxEntityMap.containsKey(boxInfoEntity.getBoxUUID())) {
+                boxInfo.setRegistered(true);
+            }
+            boxInfos.add(boxInfo);
+        });
+        // 3.记录总数
         Long totalCount = boxInfoEntityRepository.count();
         return PageListResult.of(boxInfos, PageInfo.of(totalCount, currentPage, pageSize));
     }
