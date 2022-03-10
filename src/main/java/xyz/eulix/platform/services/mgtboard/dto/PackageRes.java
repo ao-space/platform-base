@@ -2,6 +2,10 @@ package xyz.eulix.platform.services.mgtboard.dto;
 
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.Column;
+import java.time.OffsetDateTime;
 
 @Data(staticConstructor = "of")
 public class PackageRes {
@@ -48,5 +52,9 @@ public class PackageRes {
     @Schema(description = "所需的最小盒子版本,用于app版本")
     private final String minBoxVersion;
 
+    @Schema(description = "创建时间")
+    private final OffsetDateTime createdAt;
 
+    @Schema(description = "更新时间")
+    private final OffsetDateTime updatedAt;
 }

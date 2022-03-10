@@ -344,7 +344,9 @@ public class PkgMgtService {
                 pkgInfoEntity.getIsForceUpdate(),
                 pkgInfoEntity.getMinCompatibleAndroidVersion(),
                 pkgInfoEntity.getMinCompatibleIOSVersion(),
-                pkgInfoEntity.getMinCompatibleBoxVersion());
+                pkgInfoEntity.getMinCompatibleBoxVersion(),
+                pkgInfoEntity.getCreatedAt(),
+                pkgInfoEntity.getUpdatedAt());
     }
 
     private PkgInfoEntity pkgInfoReqToEntity(PackageReq packageReq) {
