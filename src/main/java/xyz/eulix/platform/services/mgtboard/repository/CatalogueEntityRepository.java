@@ -9,6 +9,11 @@ import java.util.List;
 
 @ApplicationScoped
 public class CatalogueEntityRepository implements PanacheRepository<CatalogueEntity> {
+    private static final String FIND_BY_IDS = "id in (?1)";
+
+    @Transactional
+    public void deleteByNodeIds(List<Long> ids) {this.delete(FIND_BY_IDS, ids);}
+
     @Transactional
     public Long deleteByNodeId(Long id){
         return delete("id in (?1)", id);

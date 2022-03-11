@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.registry.dto.registry;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -11,6 +12,7 @@ import java.time.OffsetDateTime;
  * of registry information.
  */
 @Data
+@JsonIgnoreProperties
 public class BoxInfo {
     @NotBlank
     @Schema(description = "盒子的 UUID")

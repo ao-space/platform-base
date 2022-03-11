@@ -40,6 +40,10 @@ public class RegistryClientEntityRepository implements PanacheRepository<Registr
         this.delete(FIND_BY_BOXUUID_USERID, boxUUID, userId);
     }
 
+    public List<RegistryClientEntity> findByBoxUUIdAndUserId(String boxUUID, String userId){
+        return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).list();
+    }
+
     public void deleteByBoxUUID(String boxUUID) {
         this.delete(FIND_BY_BOXUUID, boxUUID);
     }
