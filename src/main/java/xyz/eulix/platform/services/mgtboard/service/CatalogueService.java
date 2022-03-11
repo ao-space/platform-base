@@ -49,10 +49,9 @@ public class CatalogueService {
 
     public List<CatalogueRes> findByRootId(Long id){
         List<CatalogueRes> list =  new ArrayList<>();
-        catalogueEntityRespository.find("parent_id", id).list().forEach(catalogueEntity -> {
+        catalogueEntityRespository.find("parent_id", id).list().forEach(catalogueEntity ->
             list.add(CatalogueRes.of(catalogueEntity.getId(), catalogueEntity.getCataName(), catalogueEntity.getParentId(),
-                    catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt()));
-        });
+                    catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt())));
         return list;
     }
 
@@ -60,13 +59,15 @@ public class CatalogueService {
         if(rootid.equals(1L) ){
             throw new ServiceOperationException(ServiceError.CATALOGUE_IS_ROOT);
         }
-        List<Long> childCatalogue = new ArrayList<>();
-        findFromRootId(rootid, childCatalogue);
-        for(Long id:childCatalogue){
-            articleService.deleteArticle(articleService.getArticleIdList(id));
-            catalogueEntityRespository.deleteByNodeId(id);
+        List<Long> childCatalogueIds = new ArrayList<>();
+        List<Long> articleIds = new ArrayList<>();
+        findFromRootId(rootid, childCatalogueIds);
+        childCatalogueIds.add(rootid);
+        for(Long id:childCatalogueIds){
+            articleIds.addAll(articleService.getArticleIdList(id));
         }
-        catalogueEntityRespository.deleteByNodeId(rootid);
+        articleService.deleteArticle(articleIds);
+        catalogueEntityRespository.deleteByNodeIds(childCatalogueIds);;
     }
     public void findFromRootId(Long id, List<Long> listRoot){
         List<CatalogueRes>  list = findByRootId(id);

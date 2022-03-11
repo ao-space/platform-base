@@ -49,4 +49,8 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
     public void deleteSubdomainByBoxUUID(String boxUUID) {
         this.delete(FIND_BY_BOXUUID, boxUUID);
     }
+
+    public SubdomainEntity findByBoxUUIDAndUserId(String boxUUID, String userId){
+        return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).firstResult();
+    }
 }

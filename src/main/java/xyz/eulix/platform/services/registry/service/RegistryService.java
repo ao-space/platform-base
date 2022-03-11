@@ -24,6 +24,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -389,5 +390,22 @@ public class RegistryService {
             LOG.infov("network client auth failed, client id:{0}, secret key:{1}", clientId, secretKey);
         }
         return registryBoxEntityOp.isPresent();
+    }
+
+    public BoxRegistryDetailInfo boxRegistryBindUserAndClientInfo(String uuid) {
+        RegistryBoxEntity boxEntity = boxEntityRepository.findByBoxUUID(uuid).get();
+        if(boxEntity == null) {throw new ServiceOperationException(ServiceError.BOX_NOT_REGISTERED);}
+        List<UserRegistryDetailInfo> userRegistryDetailInfos = new ArrayList<>();
+        for(RegistryUserEntity userEntity:userEntityRepository.findByBoxUUId(uuid)){
+            List<ClientRegistryDetailInfo> clientRegistryDetailInfos = new ArrayList<>();
+            List<RegistryClientEntity> clientEntities = clientEntityRepository.findByBoxUUIdAndUserId(uuid, userEntity.getUserId());
+            clientEntities.forEach(clientEntitie -> clientRegistryDetailInfos.add(ClientRegistryDetailInfo.of(
+                    clientEntitie.getRegistryType(), clientEntitie.getClientUUID(), clientEntitie.getCreatedAt())));
+            SubdomainEntity subdomainEntity = subdomainEntityRepository.findByBoxUUIDAndUserId(uuid, userEntity.getUserId());
+            userRegistryDetailInfos.add(UserRegistryDetailInfo.of(
+                    subdomainEntity == null? null:subdomainEntity.getUserDomain(),subdomainEntity == null? null:subdomainEntity.getSubdomain(), userEntity.getRegistryType(),
+                    userEntity.getUserId(), userEntity.getCreatedAt(), clientRegistryDetailInfos));
+        }
+        return BoxRegistryDetailInfo.of(boxEntity.getNetworkClientId(), boxEntity.getCreatedAt(), boxEntity.getUpdatedAt(), userRegistryDetailInfos );
     }
 }

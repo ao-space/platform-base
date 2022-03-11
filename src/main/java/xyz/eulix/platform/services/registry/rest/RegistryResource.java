@@ -1,12 +1,9 @@
 package xyz.eulix.platform.services.registry.rest;
 
-import com.google.common.base.Stopwatch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
-import xyz.eulix.platform.services.mgtboard.dto.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
@@ -253,22 +250,11 @@ public class RegistryResource {
     @RolesAllowed("admin")
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @Path("/boxinfo/registried")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/registry/boxinfo")
     @Operation(description = "已注册信息查询")
-    public Response registriesBoxInfos(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                                       @Valid @MultipartForm MultipartBody multipartBody) {
-        LOG.infov("[Invoke] method: export()");
-        Stopwatch sw = Stopwatch.createStarted();
-        try {
-            Response response = null;
-        } catch (Exception e) {
-            LOG.errorv(e,"[Throw] method: export(), exception");
-            throw e;
-        } finally {
-            sw.stop();
-        }
-        LOG.infov("[Return] method: export(),elapsed: {0}", sw);
-        return Response.accepted().build();
+    public BoxRegistryDetailInfo registriesBoxInfos(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
+                                                          @NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID) {
+        return registryService.boxRegistryBindUserAndClientInfo(boxUUID);
     }
 }

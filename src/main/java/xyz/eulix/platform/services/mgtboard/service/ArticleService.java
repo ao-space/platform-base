@@ -44,14 +44,14 @@ public class ArticleService {
 
   public List<Long> getArticleIdList(Long rootid){
     List<ArticleEntity> articleEntities=articleEntityRepository.find("cata_id", rootid).list();
-    List<Long> articleInfoList = new ArrayList<>();
-    articleEntities.forEach(articleEntity -> {articleInfoList.add(articleEntity.getId());});
-    return articleInfoList;
+    List<Long> articleIdList = new ArrayList<>();
+    articleEntities.forEach(articleEntity -> {articleIdList.add(articleEntity.getId());});
+    return articleIdList;
   }
 
   public void deleteArticle(List<Long> articleIds){
     try {
-      articleIds.forEach(id -> {articleEntityRepository.deleteById(id);});
+      articleEntityRepository.deleteByIds(articleIds);
     } catch (Exception e) {
       throw new ServiceOperationException(ServiceError.DATABASE_ERROR);
     }

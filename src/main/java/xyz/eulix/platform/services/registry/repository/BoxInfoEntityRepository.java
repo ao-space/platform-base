@@ -29,6 +29,10 @@ public class BoxInfoEntityRepository implements PanacheRepository<BoxInfoEntity>
         this.delete(FIND_BY_BOXUUIDS, boxUUIDs);
     }
 
+    public List<BoxInfoEntity> findByBoxUUIDS(List<String> boxUUIDs) {
+        return this.find(FIND_BY_BOXUUIDS, boxUUIDs).list();
+    }
+
     @Transactional
     public int updateByBoxUUID(String extra, String boxUUID){
         return update("set extra=?1, updated_at=now() where box_uuid=?2 ", extra, boxUUID);

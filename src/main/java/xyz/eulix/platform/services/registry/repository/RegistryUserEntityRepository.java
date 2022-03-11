@@ -37,4 +37,8 @@ public class RegistryUserEntityRepository implements PanacheRepository<RegistryU
     public void deleteByBoxUUID(String boxUUID) {
         this.delete(FIND_BY_BOXUUID, boxUUID);
     }
+
+    public List<RegistryUserEntity> findByBoxUUId(String uuid){
+        return this.find(FIND_BY_BOXUUID, uuid).list();
+    }
 }

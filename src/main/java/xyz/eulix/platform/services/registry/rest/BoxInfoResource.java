@@ -124,15 +124,16 @@ public class BoxInfoResource {
     @RolesAllowed("admin")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/boxinfo/export")
-    @Operation(description = "设备信息导入接口")
+    @Operation(description = "设备信息导出接口")
     public Response export(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                           @Valid @MultipartForm MultipartBody multipartBody) {
+                           @Size(min = 1, max = 1000) @Valid @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
         LOG.infov("[Invoke] method: export()");
         Stopwatch sw = Stopwatch.createStarted();
+        Response response;
         try {
-            Response response = null;
+            response = boxInfoService.export(boxUUIDs);
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: export(), exception");
             throw e;
@@ -140,6 +141,6 @@ public class BoxInfoResource {
             sw.stop();
         }
         LOG.infov("[Return] method: export(),elapsed: {0}", sw);
-        return Response.accepted().build();
+        return response;
     }
 }

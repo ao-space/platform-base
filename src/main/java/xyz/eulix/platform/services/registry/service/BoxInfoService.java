@@ -17,10 +17,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +152,19 @@ public class BoxInfoService {
         return BoxInfosRes.of(success, fail);
     }
 
-    public Response export(List<String> list){
-        return  null;
+    public Response export(List<String> boxInfosReq){
+        var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + ".xlsx",
+                StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        List<BoxExcelModel> lists = new ArrayList<>();
+        List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(boxInfosReq);
+        for (BoxInfoEntity boxInfoEntity : entities) {
+            lists.add(operationUtils.jsonToObject(boxInfoEntity.getExtra(), BoxExcelModel.class));
+        }
+        Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
+                EasyExcel.write(output, BoxExcelModel.class).sheet("sheet1").doWrite(lists));
+        response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.header("Content-Disposition", "attachment;filename=" + fileName);
+        return response.build();
     }
 }

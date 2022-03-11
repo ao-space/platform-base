@@ -8,7 +8,6 @@ import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
