@@ -92,8 +92,10 @@ CREATE TABLE IF NOT EXISTS network_server_info (
     UNIQUE KEY uk_identifier (identifier)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
+ALTER TABLE network_server_info ADD extra VARCHAR(1024) DEFAULT NULL COMMENT '扩展字段,json格式';
+
 delete from network_server_info;
-insert into network_server_info (server_protocol, server_addr, server_port, identifier, created_at, updated_at) values ('tls','ts.platform.eulix.xyz','59000','ts.platform.eulix.xyz', now(), now());
+insert into network_server_info (server_protocol, server_addr, server_port, identifier, extra, created_at, updated_at) values ('tls','ts.platform.eulix.xyz','59000','ts.platform.eulix.xyz', '{"stun_addr":"stun:stun-ts.dev-platform.eulix.xyz:3478"}', now(), now());
 
 CREATE TABLE IF NOT EXISTS pkey_auth (
     id BIGINT NOT NULL AUTO_INCREMENT,
