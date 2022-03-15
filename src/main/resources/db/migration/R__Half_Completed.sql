@@ -26,3 +26,13 @@ CREATE TABLE IF NOT EXISTS article_info (
     PRIMARY KEY (id),
     KEY uk_cataid (cata_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS reserved_domain (
+   id BIGINT NOT NULL AUTO_INCREMENT,
+   regex VARCHAR(128) NOT NULL COMMENT '正则表达式',
+   description VARCHAR(256) NOT NULL COMMENT '描述',
+   created_at DATETIME DEFAULT NULL,
+   updated_at DATETIME DEFAULT NULL,
+   version INT DEFAULT 0,
+   PRIMARY KEY (id)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;

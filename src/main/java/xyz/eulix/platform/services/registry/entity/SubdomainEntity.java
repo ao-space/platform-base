@@ -1,20 +1,21 @@
 package xyz.eulix.platform.services.registry.entity;
 
 import lombok.*;
-import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
 import xyz.eulix.platform.services.registry.dto.registry.SubdomainStateEnum;
 import xyz.eulix.platform.services.support.model.BaseEntity;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 @Getter @Setter @ToString(callSuper = true)
 @Entity @Table(name = "subdomain")
+// 用于正则匹配保留域名对应的已经注册域名. 由于需要使用 mysql 的 regexp/rlike 关键字来查询, 所以使用 NamedNativeQueries.
+@NamedNativeQueries({
+        @NamedNativeQuery(name = "SubdomainEntity.findByRegexp",query = "select * from subdomain where subdomain REGEXP :regexp", resultClass=SubdomainEntity.class)
+})
 public class SubdomainEntity extends BaseEntity {
 
   @NotBlank

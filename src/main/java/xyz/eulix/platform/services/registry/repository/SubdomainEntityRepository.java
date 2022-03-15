@@ -1,13 +1,12 @@
 package xyz.eulix.platform.services.registry.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
-import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
-import xyz.eulix.platform.services.registry.entity.RegistryUserEntity;
 import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Optional;
+
 
 /**
  * All Registry Entity related storage operations including standard CRUD and
@@ -52,5 +51,11 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
 
     public SubdomainEntity findByBoxUUIDAndUserId(String boxUUID, String userId){
         return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).firstResult();
+    }
+
+    // 用正则来匹配subdomain
+    public List<SubdomainEntity> findByRegularExpression(String regex){
+        // 需要使用 mysql 特有的 regexp/rlike 关键字来进行正则查询.
+        return getEntityManager().createNamedQuery("SubdomainEntity.findByRegexp").setParameter("regexp", regex).getResultList();
     }
 }
