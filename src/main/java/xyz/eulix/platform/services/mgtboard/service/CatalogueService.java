@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
+import io.quarkus.panache.common.Sort;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.mgtboard.dto.CatalogueRes;
 import xyz.eulix.platform.services.mgtboard.entity.CatalogueEntity;
@@ -60,7 +61,7 @@ public class CatalogueService {
 
     public List<CatalogueRes> findByRootId(Long id){
         List<CatalogueRes> list =  new ArrayList<>();
-        catalogueEntityRespository.find("parent_id", id).list().forEach(catalogueEntity ->
+        catalogueEntityRespository.find("parent_id", Sort.by("created_at").descending(), id).list().forEach(catalogueEntity ->
             list.add(CatalogueRes.of(catalogueEntity.getId(),
                     catalogueEntity.getCataName(),
                     catalogueEntity.getParentId(),
