@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 public class QuestionnaireResource {
     private static final Logger LOG = Logger.getLogger("app.log");
 
+
     @Inject
     QuestionnaireService questionnaireService;
 
