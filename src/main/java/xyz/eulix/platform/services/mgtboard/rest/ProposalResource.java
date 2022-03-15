@@ -6,6 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.service.ProposalService;
 import xyz.eulix.platform.services.support.log.Logged;
@@ -37,6 +38,9 @@ public class ProposalResource {
 
     @Inject
     OperationUtils utils;
+
+    @Inject
+    ApplicationProperties properties;
 
     @POST
     @Path("/proposal")
@@ -113,7 +117,7 @@ public class ProposalResource {
         Stopwatch sw = Stopwatch.createStarted();
         UploadFileRes uploadFileRes;
         try {
-            uploadFileRes = proposalService.upload(multipartBody);
+            uploadFileRes = proposalService.upload(multipartBody, isPublish);
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: upload(), exception");
             throw e;
@@ -145,6 +149,29 @@ public class ProposalResource {
         }
         LOG.infov("[Return] method: download(), result: ok, elapsed: {0}", sw);
         return response;
+    }
+
+    @RolesAllowed("admin")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/file/delete/{filePath}")
+    @Operation(description = "文件删除接口")
+    public BaseResultRes delete(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
+                                  @NotNull @Parameter(required = true) @PathParam("filePath") String filePath) {
+        LOG.infov("[Invoke] method: delete(), fileName: {0}", filePath.substring(filePath.lastIndexOf("/")+1));
+        Stopwatch sw = Stopwatch.createStarted();
+        try {
+            proposalService.delete(filePath);
+
+        } catch (Exception e) {
+            LOG.errorv(e,"[Throw] method: delete(), exception");
+            throw e;
+        } finally {
+            sw.stop();
+        }
+        LOG.infov("[Return] method: delete(), result: ok, elapsed: {0}", sw);
+        return BaseResultRes.of(true);
     }
 
     @GET

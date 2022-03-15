@@ -3,8 +3,7 @@ package xyz.eulix.platform.services.support.boundary.oss;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
-import com.aliyun.oss.model.OSSObject;
-import com.aliyun.oss.model.PutObjectResult;
+import com.aliyun.oss.model.*;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.support.service.ServiceError;
@@ -18,6 +17,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
+
+import com.aliyun.oss.internal.OSSHeaders;
 
 /**
  * OSS 客户端
@@ -76,6 +77,28 @@ public class OSSClient {
     }
 
     /**
+     * 上传文件至 oss
+     *
+     * @param objectName Object完整路径
+     * @param file 文件
+     * @return 上传结果
+     */
+    public PutObjectResult fileUploadPublic(String objectName, File file) {
+        try {
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, file);
+            // 如果需要上传时设置存储类型和访问权限，请参考以下示例代码。
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setHeader(OSSHeaders.OSS_STORAGE_CLASS, StorageClass.Standard.toString());
+            metadata.setObjectAcl(CannedAccessControlList.PublicRead);
+            putObjectRequest.setMetadata(metadata);
+            return ossClient.putObject(putObjectRequest);
+        } catch (OSSException e) {
+            LOG.error("OSS upload public failed, exception", e);
+            throw new ServiceOperationException(ServiceError.UPLOAD_FILE_FAILED);
+        }
+    }
+
+    /**
      * 判断文件是否存在
      *
      * @param objectName Object完整路径
@@ -120,5 +143,22 @@ public class OSSClient {
         // 生成以GET方法访问的签名URL，访客可以直接通过浏览器访问相关内容。
         URL fileUrl = ossClient.generatePresignedUrl(bucketName, objectName, expiration);
         return fileUrl.toString();
+    }
+
+    /**
+     * 删除桶下指定文件
+     *
+     * @param bucketName 桶名
+     * @param file 文件名
+     * @return 文件流
+     */
+    public void deleteObject(String bucketName, String file) {
+        LOG.info("file: " + file);
+        try {
+            ossClient.deleteObject(bucketName, file);
+        } catch (OSSException e) {
+            LOG.error("OSS delete failed, exception", e);
+            throw new ServiceOperationException(ServiceError.DELETE_FILE_FAILED);
+        }
     }
 }

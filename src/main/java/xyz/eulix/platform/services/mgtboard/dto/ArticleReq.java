@@ -3,14 +3,13 @@ package xyz.eulix.platform.services.mgtboard.dto;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Data(staticConstructor = "of")
 public class ArticleReq {
-    @NotBlank
+    @NotNull
+    @Size(max = 10)
     @Schema(required = true, description = "标题")
     private String title;
 
@@ -20,6 +19,6 @@ public class ArticleReq {
     @Schema(description = "目录id")
     private Long cataId;
 
-    @Schema(description = "是否发布")
-    private Boolean isPublish;
+    @Schema(description = "是否发布", enumeration = {"0", "1"})
+    private Integer isPublish;
 }

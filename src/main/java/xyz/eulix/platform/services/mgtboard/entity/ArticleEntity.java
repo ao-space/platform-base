@@ -8,14 +8,14 @@ import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
 
 @Data
 @Entity
 @Table(name = "article_info")
 public class ArticleEntity extends BaseEntity {
-    @NotNull
+    @NotBlank
     @Column(name = "title")
     private String title;
 

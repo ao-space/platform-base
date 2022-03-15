@@ -58,8 +58,10 @@ public enum ServiceError {
   CATALOGUE_NOT_EXIST(2030, "catalogue path does not exist"),
   CATALOGUE_HAS_CREATE(2031, "could not create duplicate catalogue name"),
   CATALOGUE_IS_ROOT(2032, "could not modify root catalogue"),
-
-  RESERVED_DOMAIN_IS_EMPTY(2033, "regex is empty. Please try others."),
+  ARTICLE_HAS_CREATE(2033, "could not create duplicate article name"),
+  ARTICLE_NOT_EXIST(2034, "article does not exist"),
+  DELETE_FILE_FAILED(2035, "delete file failed"),
+  RESERVED_DOMAIN_IS_EMPTY(2036, "regex is empty. Please try others.")
   ;
 
   /**
