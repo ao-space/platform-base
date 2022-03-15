@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
 import io.quarkus.panache.common.Sort;
+import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.ReservedDomainEntity;
 import xyz.eulix.platform.services.mgtboard.repository.ReservedDomainEntityRepository;
@@ -8,6 +9,8 @@ import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
 import xyz.eulix.platform.services.registry.repository.SubdomainEntityRepository;
 import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;
+import xyz.eulix.platform.services.support.service.ServiceError;
+import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,6 +20,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class ReservedDomainService {
+    private static final Logger LOG = Logger.getLogger("app.log");
 
     @Inject
     ReservedDomainEntityRepository reservedDomainEntityRepository;
@@ -80,12 +84,12 @@ public class ReservedDomainService {
         List<ReservedDomainMatchInfo> matchInfo = new ArrayList<ReservedDomainMatchInfo>();
         ReservedDomainEntity entity = reservedDomainEntityRepository.findById(regexId);
         if (entity.getRegex().isEmpty()) {
-            return matchInfo;
+            LOG.warnv("entity.getRegex is empty, regexId:{0}", regexId);
+            throw new ServiceOperationException(ServiceError.RESERVED_DOMAIN_IS_EMPTY);
         }
 
         List<SubdomainEntity> subdomainEntities = subdomainEntityRepository.findByRegularExpression(entity.getRegex());
         subdomainEntities.forEach(subDomain -> matchInfo.add(subdomainEntityToMatchInfo(subDomain)));
-
         return matchInfo;
     }
 

@@ -2,6 +2,8 @@ package xyz.eulix.platform.services.registry.service;
 
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
+import xyz.eulix.platform.services.mgtboard.entity.ReservedDomainEntity;
+import xyz.eulix.platform.services.mgtboard.repository.ReservedDomainEntityRepository;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
@@ -27,6 +29,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Provides box and client registry service.
@@ -58,6 +61,9 @@ public class RegistryService {
 
     @Inject
     BoxInfoService boxInfoService;
+
+    @Inject
+    ReservedDomainEntityRepository reservedDomainEntityRepository;
 
     public boolean isValidBoxUUID(String boxUUID) {
         final String policy = properties.getRegistryBoxUUIDPolicy().trim();
@@ -341,10 +347,19 @@ public class RegistryService {
     public SubdomainEntity subdomainGen(String boxUUID, Integer effectiveTime) {
         // 生成临时subdomain
         SubdomainEntity subdomainEntity;
+        // 查出所有保留域名.
+        List<ReservedDomainEntity> allReservedDomainEntity = reservedDomainEntityRepository.findAll().list();
         while (true) {
             String subdomain = null;
             try {
+                // 生成一个随机域名.
                 subdomain = CommonUtils.randomLetters(1) + CommonUtils.randomDigestAndLetters(7);
+                // 是保留域名则重新生成
+                if (isReservedDomain(subdomain, allReservedDomainEntity)) {
+                    LOG.infov("subdomain:{0} isReservedDomain, retry...", subdomain);
+                    continue;
+                }
+                // 尝试存储到数据库
                 subdomainEntity = subdomainSave(boxUUID, subdomain, effectiveTime);
                 break;
             } catch (PersistenceException exception) {
@@ -356,8 +371,16 @@ public class RegistryService {
                 }
             }
         }
-
         return subdomainEntity;
+    }
+
+    private boolean isReservedDomain(String subdomain, List<ReservedDomainEntity> allReservedDomainEntity) {
+        for (ReservedDomainEntity entity:allReservedDomainEntity) {
+            if (Pattern.compile(entity.getRegex()).matcher(subdomain).matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Transactional
