@@ -57,7 +57,9 @@ public enum ServiceError {
   TIME_PARAMETER_ERROR(2029, "startTime {0} is after endTime {1}"),
   CATALOGUE_NOT_EXIST(2030, "catalogue path does not exist"),
   CATALOGUE_HAS_CREATE(2031, "could not create duplicate catalogue name"),
-  CATALOGUE_IS_ROOT(2032, "could not modify root catalogue")
+  CATALOGUE_IS_ROOT(2032, "could not modify root catalogue"),
+
+  RESERVED_DOMAIN_IS_EMPTY(2033, "regex is empty. Please try others."),
   ;
 
   /**
