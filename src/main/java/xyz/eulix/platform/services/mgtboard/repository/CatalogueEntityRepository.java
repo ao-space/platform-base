@@ -21,7 +21,7 @@ public class CatalogueEntityRepository implements PanacheRepository<CatalogueEnt
 
     @Transactional
     public int update(Long id, String name){
-        return update("set cata_name=?1, updated_at=now() where id=?2", name, id);
+        return update("set cata_name=?1 , updated_at = now() where id=?2", name, id);
     }
 
     public List<CatalogueEntity> findByCataName(String name) {

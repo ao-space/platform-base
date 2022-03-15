@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS catalogue_info (
     updated_at DATETIME DEFAULT NULL,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    KEY uk_parentid (parent_id)
+    KEY uk_parentid (parent_id),
+    UNIQUE KEY uk_cataname (cata_name)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
 insert ignore into catalogue_info (id, cata_name, created_at, updated_at) values ('1', '帮助中心', now(), now());
@@ -24,7 +25,8 @@ CREATE TABLE IF NOT EXISTS article_info (
     updated_at DATETIME DEFAULT NULL,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    KEY uk_cataid (cata_id)
+    KEY uk_cataid (cata_id),
+    UNIQUE KEY uk_title (title)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS reserved_domain (
@@ -36,3 +38,4 @@ CREATE TABLE IF NOT EXISTS reserved_domain (
    version INT DEFAULT 0,
    PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
+
