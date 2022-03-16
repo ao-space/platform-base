@@ -152,12 +152,13 @@ public class BoxInfoService {
         return BoxInfosRes.of(success, fail);
     }
 
-    public Response export(List<String> boxInfosReq){
+    public Response export(List<BoxInfo> boxInfosReq){
+        if(boxInfosReq.isEmpty()) {throw new ServiceOperationException(ServiceError.BOXUUIDS_IS_EMPTY);}
         var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + ".xlsx",
                 StandardCharsets.UTF_8).replaceAll("\\+", "%20");
         List<BoxExcelModel> lists = new ArrayList<>();
-        List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(boxInfosReq);
+        List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(this.boxInfosToBoxUUIDs(boxInfosReq));
         for (BoxInfoEntity boxInfoEntity : entities) {
             lists.add(operationUtils.jsonToObject(boxInfoEntity.getExtra(), BoxExcelModel.class));
         }
@@ -166,5 +167,11 @@ public class BoxInfoService {
         response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
+    }
+
+    public List<String> boxInfosToBoxUUIDs(List<BoxInfo> boxInfos){
+        List<String> boxUUIDs = new ArrayList<>();
+        boxInfos.forEach(boxInfo -> boxUUIDs.add(boxInfo.getBoxUUID()));
+        return  boxUUIDs;
     }
 }

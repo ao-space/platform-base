@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -128,12 +129,12 @@ public class BoxInfoResource {
     @Path("/boxinfo/export")
     @Operation(description = "设备信息导出接口")
     public Response export(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                           @Size(min = 1, max = 1000) @Valid @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
+                           @Valid @NotNull  BoxInfosReq boxInfosReq) {
         LOG.infov("[Invoke] method: export()");
         Stopwatch sw = Stopwatch.createStarted();
         Response response;
         try {
-            response = boxInfoService.export(boxUUIDs);
+            response = boxInfoService.export(boxInfosReq.getBoxInfos());
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: export(), exception");
             throw e;
