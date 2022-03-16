@@ -9,6 +9,7 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.service.ProposalService;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
@@ -117,7 +118,7 @@ public class ProposalResource {
         Stopwatch sw = Stopwatch.createStarted();
         UploadFileRes uploadFileRes;
         try {
-            uploadFileRes = proposalService.upload(multipartBody, isPublish);
+            uploadFileRes = proposalService.upload(multipartBody, CommonUtils.isNull(isPublish)?false:isPublish);
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: upload(), exception");
             throw e;
