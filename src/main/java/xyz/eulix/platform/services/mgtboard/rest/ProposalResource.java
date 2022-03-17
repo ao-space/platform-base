@@ -156,14 +156,14 @@ public class ProposalResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/file/delete/{filePath}")
+    @Path("/file/delete")
     @Operation(description = "文件删除接口")
     public BaseResultRes delete(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                                  @NotNull @Parameter(required = true) @PathParam("filePath") String filePath) {
-        LOG.infov("[Invoke] method: delete(), fileName: {0}", filePath.substring(filePath.lastIndexOf("/")+1));
+                                @NotNull @Valid FileReq fileReq) {
+        LOG.infov("[Invoke] method: delete(), fileName: {0}", fileReq.getFilePath().substring(fileReq.getFilePath().lastIndexOf("/")+1));
         Stopwatch sw = Stopwatch.createStarted();
         try {
-            proposalService.delete(filePath);
+            proposalService.delete(fileReq.getFilePath());
 
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: delete(), exception");

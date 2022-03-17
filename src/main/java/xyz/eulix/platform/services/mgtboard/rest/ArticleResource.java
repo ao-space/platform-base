@@ -7,7 +7,6 @@ import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.mgtboard.dto.ArticleReq;
 import xyz.eulix.platform.services.mgtboard.dto.ArticleRes;
 import xyz.eulix.platform.services.mgtboard.service.ArticleService;
-import xyz.eulix.platform.services.mgtboard.service.CatalogueService;
 import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
@@ -22,7 +21,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.List;
 
 @RequestScoped
@@ -48,7 +46,7 @@ public class ArticleResource {
 
     @Logged
     @GET
-    @Path("/article/list}")
+    @Path("/article/list")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "获取文章列表")

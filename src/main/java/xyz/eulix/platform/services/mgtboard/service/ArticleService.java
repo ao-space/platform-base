@@ -14,6 +14,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,6 +138,7 @@ public class ArticleService {
 		}
 	}
 
+	@Transactional
 	public void deleteArticle(Long articleId) {
 		if (CommonUtils.isNull(articleEntityRepository.findById(articleId))) {
 			throw new ServiceOperationException(ServiceError.ARTICLE_NOT_EXIST);
