@@ -59,7 +59,7 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
                 if(!boxInfoService.upsertBoxInfo(boxUUID, null, model, success, failure)) {
                     fail.add(BoxFailureInfo.of(String.valueOf(number), boxUUID));
                 }
-            } else if(CommonUtils.isNotNull(model.getCpuId()) && CommonUtils.isNotNull(model.getNumber())){
+            } else{
                 fail.add(BoxFailureInfo.of(String.valueOf(number), ""));
             }
         }
