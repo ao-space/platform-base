@@ -416,8 +416,12 @@ public class RegistryService {
     }
 
     public BoxRegistryDetailInfo boxRegistryBindUserAndClientInfo(String uuid) {
-        RegistryBoxEntity boxEntity = boxEntityRepository.findByBoxUUID(uuid).get();
-        if(boxEntity == null) {throw new ServiceOperationException(ServiceError.BOX_NOT_REGISTERED);}
+        Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUID(uuid);
+        if (boxEntityOp.isEmpty()) {
+            LOG.warnv("box uuid had not registered, boxuuid:{0}", uuid);
+            throw new ServiceOperationException(ServiceError.BOX_NOT_REGISTERED);
+        }
+        var boxEntity = boxEntityOp.get();
         List<UserRegistryDetailInfo> userRegistryDetailInfos = new ArrayList<>();
         for(RegistryUserEntity userEntity:userEntityRepository.findByBoxUUId(uuid)){
             List<ClientRegistryDetailInfo> clientRegistryDetailInfos = new ArrayList<>();
