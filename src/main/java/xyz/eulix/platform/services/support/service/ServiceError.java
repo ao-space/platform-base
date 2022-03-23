@@ -61,8 +61,8 @@ public enum ServiceError {
   ARTICLE_HAS_CREATE(2033, "could not create duplicate article name"),
   ARTICLE_NOT_EXIST(2034, "article does not exist"),
   DELETE_FILE_FAILED(2035, "delete file failed"),
-  RESERVED_DOMAIN_IS_EMPTY(2036, "regex is empty. Please try others."),
-  BOXUUIDS_IS_EMPTY(2036, "boxuuid list is empty, please choose at least one box.")
+  BOXUUIDS_IS_EMPTY(2036, "boxuuid list is empty, please choose at least one box."),
+  RESERVED_DOMAIN_LENGTH_ERROR(2037, "regex length error. Please try others.")
   ;
 
   /**
