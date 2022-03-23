@@ -22,6 +22,9 @@ import java.util.List;
 public class ReservedDomainService {
     private static final Logger LOG = Logger.getLogger("app.log");
 
+    // 保留域名规则长度上限
+    private static final Integer REGEX_LENGTH_LIMIT = 100;
+
     @Inject
     ReservedDomainEntityRepository reservedDomainEntityRepository;
 
@@ -31,6 +34,12 @@ public class ReservedDomainService {
     // 创建保留域名
     @Transactional
     public ReservedDomainCreateRsp create(ReservedDomainCreateReq req) {
+
+        if (req.getRegex().isEmpty() || req.getRegex().length()>REGEX_LENGTH_LIMIT) {
+            LOG.warnv("entity.getRegex LEN error, req.getRegex():{0}", req.getRegex());
+            throw new ServiceOperationException(ServiceError.RESERVED_DOMAIN_LENGTH_ERROR);
+        }
+
         ReservedDomainEntity entity = ReservedDomainEntity.of(req.getRegex(), req.getDesc());
         reservedDomainEntityRepository.persist(entity);
         ReservedDomainCreateRsp rsp = ReservedDomainCreateRsp.of(entity.getId());
@@ -49,6 +58,12 @@ public class ReservedDomainService {
     // 更新保留域名
     @Transactional
     public ReservedDomainUpdateRsp update(Long regexId, ReservedDomainUpdateReq req) {
+
+        if (req.getRegex().isEmpty() || req.getRegex().length()>REGEX_LENGTH_LIMIT) {
+            LOG.warnv("entity.getRegex LEN error, req.getRegex():{0}", req.getRegex());
+            throw new ServiceOperationException(ServiceError.RESERVED_DOMAIN_LENGTH_ERROR);
+        }
+
         ReservedDomainEntity entity = ReservedDomainEntity.of(req.getRegex(), req.getDesc());
         Long updatedCount = reservedDomainEntityRepository.updateByRegexId(regexId, entity);
         ReservedDomainUpdateRsp rsp = ReservedDomainUpdateRsp.of(updatedCount);
@@ -85,7 +100,7 @@ public class ReservedDomainService {
         ReservedDomainEntity entity = reservedDomainEntityRepository.findById(regexId);
         if (entity.getRegex().isEmpty()) {
             LOG.warnv("entity.getRegex is empty, regexId:{0}", regexId);
-            throw new ServiceOperationException(ServiceError.RESERVED_DOMAIN_IS_EMPTY);
+            throw new ServiceOperationException(ServiceError.RESERVED_DOMAIN_LENGTH_ERROR);
         }
 
         List<SubdomainEntity> subdomainEntities = subdomainEntityRepository.findByRegularExpression(entity.getRegex());
