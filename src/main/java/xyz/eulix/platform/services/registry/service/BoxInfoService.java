@@ -92,7 +92,7 @@ public class BoxInfoService {
             currentPage = 1;
         }
         if (pageSize == null) {
-            pageSize = 1000;
+            pageSize = 2000;
         }
         // 1.查询列表
         List<BoxInfoEntity> boxInfoEntities = boxInfoEntityRepository.findAll().page(currentPage - 1, pageSize).list();
