@@ -73,7 +73,7 @@ public class BoxInfoResource {
     @Operation(description = "查询盒子uuid列表，需管理员权限。")
     public PageListResult<BoxInfo> boxInfoList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                               @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
+                                               @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize) {
         return boxInfoService.listBoxInfo(currentPage, pageSize);
     }
 
