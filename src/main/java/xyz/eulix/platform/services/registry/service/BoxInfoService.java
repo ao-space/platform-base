@@ -114,6 +114,9 @@ public class BoxInfoService {
         return PageListResult.of(boxInfos, PageInfo.of(totalCount, currentPage, pageSize));
     }
 
+    public PageListResult<BoxInfo> listBoxInfo(Integer currentPage, Integer pageSize, boolean isRegistry){
+        return  null;
+    }
     private BoxInfo entityToBoxInfo(BoxInfoEntity boxInfoEntity) {
         BoxInfo boxInfo = new BoxInfo();
         {
