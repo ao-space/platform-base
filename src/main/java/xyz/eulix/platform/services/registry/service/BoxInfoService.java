@@ -113,10 +113,38 @@ public class BoxInfoService {
         Long totalCount = boxInfoEntityRepository.count();
         return PageListResult.of(boxInfos, PageInfo.of(totalCount, currentPage, pageSize));
     }
-
-    public PageListResult<BoxInfo> listBoxInfo(Integer currentPage, Integer pageSize, boolean isRegistry){
-        return  null;
+    
+    public PageListResult<BoxInfo> listBoxInfo(Integer currentPage, Integer pageSize, Boolean isRegistry){
+        List<BoxInfo> boxInfos = new ArrayList<>();
+        // 判断，如果为空，则设置为1
+        if (currentPage == null || currentPage <= 0) {
+            currentPage = 1;
+        }
+        if (pageSize == null) {
+            pageSize = 2000;
+        }
+        List<BoxInfoEntity> boxInEntities= boxInfoEntityRepository.findWithBoxRegistries(isRegistry).page(currentPage - 1, pageSize).list();
+        boxInEntities.forEach(boxInfoEntity -> {
+            BoxInfo boxInfo = entityToBoxInfo(boxInfoEntity);
+            boxInfo.setRegistered(isRegistry.booleanValue());
+            boxInfos.add(boxInfo);
+        });
+        return PageListResult.of(boxInfos, PageInfo.of(boxInfoEntityRepository.getWithBoxRegistriesCount(isRegistry), currentPage, pageSize));
     }
+    public PageListResult<BoxInfo> findBoxByBoxUUID(String boxUUID ){
+        Optional<BoxInfoEntity> boxInfoEntityOP = boxInfoEntityRepository.findByBoxUUID(boxUUID);
+        List<BoxInfo> boxInfos = new ArrayList<>();
+        if(boxInfoEntityOP.isEmpty()) {return PageListResult.of(boxInfos, PageInfo.of(0L, 1, 1));}
+        BoxInfo boxInfo = entityToBoxInfo(boxInfoEntityOP.get());
+        if (registryBoxEntityRepository.findByBoxUUID(boxUUID).isPresent()) {
+            boxInfo.setRegistered(true);
+        }else{
+            boxInfo.setRegistered(false);
+        }
+        boxInfos.add(boxInfo);
+        return PageListResult.of(boxInfos, PageInfo.of(1L, 1, 1));
+    }
+
     private BoxInfo entityToBoxInfo(BoxInfoEntity boxInfoEntity) {
         BoxInfo boxInfo = new BoxInfo();
         {

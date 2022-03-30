@@ -10,6 +10,7 @@ import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
 import xyz.eulix.platform.services.mgtboard.dto.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.service.BoxInfoService;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
@@ -74,9 +75,16 @@ public class BoxInfoResource {
     public PageListResult<BoxInfo> boxInfoList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
                                                @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize,
-                                               @Parameter(description = "是否注册") @QueryParam("isregistry") boolean isregistry,
-                                               @Parameter(description = "boxuuid") @QueryParam("boxuuid") String boxuuid,
-                                               @Parameter(description = "cpuid") @QueryParam("cpuid") String xpuid) {
+                                               @Parameter(description = "是否注册") @QueryParam("isregistry") Boolean isRegistry,
+                                               @Parameter(description = "boxuuid") @QueryParam("boxuuid") String boxUUID,
+                                               @Parameter(description = "cpuid") @QueryParam("cpuid") String cpuId) {
+        if(CommonUtils.isNotNull(isRegistry)){
+            return boxInfoService.listBoxInfo(currentPage, pageSize, isRegistry);
+        }else if(CommonUtils.isNotNull(boxUUID)){
+            return boxInfoService.findBoxByBoxUUID(boxUUID);
+        }else if(CommonUtils.isNotNull(cpuId)){
+            return boxInfoService.findBoxByBoxUUID(utils.string2SHA256("eulixspace-productid-" + cpuId));
+        }
         return boxInfoService.listBoxInfo(currentPage, pageSize);
     }
 

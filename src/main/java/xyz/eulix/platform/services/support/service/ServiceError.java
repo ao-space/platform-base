@@ -62,7 +62,8 @@ public enum ServiceError {
   ARTICLE_NOT_EXIST(2034, "article does not exist"),
   DELETE_FILE_FAILED(2035, "delete file failed"),
   BOXUUIDS_IS_EMPTY(2036, "boxuuid list is empty, please choose at least one box."),
-  RESERVED_DOMAIN_LENGTH_ERROR(2037, "regex length error. Please try others.")
+  RESERVED_DOMAIN_LENGTH_ERROR(2037, "regex length error. Please try others."),
+  BOX_BOT_EXIST(2038, "box does not exist.")
   ;
 
   /**

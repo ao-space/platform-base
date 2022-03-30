@@ -5,9 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import xyz.eulix.platform.services.support.model.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Getter @Setter @ToString(callSuper = true)
@@ -23,4 +21,8 @@ public class BoxInfoEntity extends BaseEntity {
   // 扩展信息，json结构
   @Column(name = "extra")
   private String extra;
+
+  @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+  @JoinColumn(name ="box_uuid",referencedColumnName="box_uuid",insertable=false,updatable=false)
+  private RegistryBoxEntity registryBoxEntity;
 }

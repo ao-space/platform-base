@@ -3,13 +3,9 @@ package xyz.eulix.platform.services.registry.entity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
 import xyz.eulix.platform.services.support.model.BaseEntity;
-import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Getter @Setter @ToString(callSuper = true)
