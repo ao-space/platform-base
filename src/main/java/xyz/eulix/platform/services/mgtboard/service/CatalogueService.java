@@ -10,6 +10,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,8 @@ public class CatalogueService {
         if(!cataEntityList.isEmpty() && !cataEntityList.contains(catalogueEntity)) {throw new ServiceOperationException(ServiceError.CATALOGUE_HAS_CREATE);}
         catalogueEntityRespository.update(catatId, name);
         catalogueEntity = catalogueEntityRespository.findById(catatId);
+        catalogueEntity.setCataName(name);
+        catalogueEntity.setUpdatedAt(OffsetDateTime.now());
         return CatalogueRes.of(catalogueEntity.getId(),
                 catalogueEntity.getCataName(),
                 catalogueEntity.getParentId(),
