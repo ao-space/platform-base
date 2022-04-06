@@ -27,9 +27,6 @@ public class ArticleService {
 	@Inject
 	ArticleEntityRepository articleEntityRepository;
 
-	@Inject
-	ProposalService proposalService;
-
 	public ArticleRes createNewArticle(Long cataid, String title, String context, Integer state) {
 		var articleEntity = new ArticleEntity();
 		if (catalogueEntityRepository.findById(cataid) == null) {
@@ -42,11 +39,7 @@ public class ArticleService {
 		articleEntity.setContent(context);
 		articleEntity.setTitle(title);
 		articleEntity.setState(state);
-		try {
-			articleEntityRepository.create(articleEntity);
-		} catch (Exception ie) {
-			throw new ServiceOperationException(ServiceError.DATABASE_ERROR);
-		}
+		articleEntityRepository.create(articleEntity);
 		return ArticleRes.of(articleEntity.getId(),
 				articleEntity.getTitle(),
 				articleEntity.getContent(),
@@ -71,11 +64,7 @@ public class ArticleService {
 		articleEntity.setTitle(title);
 		articleEntity.setContent(context);
 		articleEntity.setState(state);
-		try {
-			articleEntityRepository.update(articleEntity);
-		} catch (Exception ie) {
-			throw new ServiceOperationException(ServiceError.DATABASE_ERROR);
-		}
+		articleEntityRepository.update(articleEntity);
 		return ArticleRes.of(articleEntity.getId(),
 				articleEntity.getTitle(),
 				articleEntity.getContent(),
