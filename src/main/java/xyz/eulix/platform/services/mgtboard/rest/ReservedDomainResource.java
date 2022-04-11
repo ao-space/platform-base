@@ -70,7 +70,7 @@ public class ReservedDomainResource {
     @Operation(description = "查询保留域名")
     public PageListResult<ReservedDomainInfo> queryReservedDomain(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                               @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
+                                               @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize) {
         return reservedDomainService.queryReservedDomain(currentPage, pageSize);
     }
 

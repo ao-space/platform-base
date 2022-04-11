@@ -101,7 +101,7 @@ public class ProposalResource {
     @Operation(description = "获取意见反馈列表")
     public PageListResult<ProposalRes> proposalList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                     @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                                    @Parameter(required = true, description = "每页数量，最大1000") @Max(1000)
+                                                    @Parameter(required = true, description = "每页数量，最大2000") @Max(2000)
                                                         @QueryParam("page_size") Integer pageSize) {
         return proposalService.listProposal(currentPage, pageSize);
     }
