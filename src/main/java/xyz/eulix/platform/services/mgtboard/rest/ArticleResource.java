@@ -53,7 +53,7 @@ public class ArticleResource {
     public PageListResult<ArticleRes> getArticles(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                   @Parameter(required = true, description = "目录id") @QueryParam("cata_id") Long cataId,
                                                   @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                                  @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
+                                                  @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize) {
         return articleService.getArticleList(cataId, currentPage, pageSize);
     }
 
@@ -89,7 +89,7 @@ public class ArticleResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "删除文章列表")
     public BaseResultRes deleteArticles(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                        @Size(min = 1, max = 1000) @QueryParam("article_ids") List<@NotNull Long> articleIds) {
+                                        @Size(min = 1, max = 2000) @QueryParam("article_ids") List<@NotNull Long> articleIds) {
         articleService.deleteArticle(articleIds);
         return BaseResultRes.of(true);
     }

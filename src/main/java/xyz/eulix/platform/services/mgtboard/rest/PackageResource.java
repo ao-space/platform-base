@@ -159,7 +159,7 @@ public class PackageResource {
                                                   @ValueOfEnum(enumClass = SortDirEnum.class, valueMethod = "getName")
                                                       @Parameter(schema = @Schema(enumeration = {"asc","desc"})) @QueryParam("sort_dir") String sortDir,
                                                   @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                                  @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
+                                                  @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize) {
         return pkgMgtService.listPackage(sortKey, sortDir, currentPage, pageSize);
     }
 
@@ -169,7 +169,7 @@ public class PackageResource {
     @Logged
     @Operation(description = "批量删除软件包版本，需管理员权限")
     public BaseResultRes packagesDel(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                     @Size(min = 1, max = 1000) @QueryParam("package_ids") List<@NotNull Long> packageIds) {
+                                     @Size(min = 1, max = 2000) @QueryParam("package_ids") List<@NotNull Long> packageIds) {
         pkgMgtService.delPkginfos(packageIds);
         return BaseResultRes.of(true);
     }
