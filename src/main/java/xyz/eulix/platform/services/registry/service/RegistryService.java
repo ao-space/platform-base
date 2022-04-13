@@ -26,9 +26,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 /**
@@ -40,6 +42,23 @@ public class RegistryService {
 
     // 盒子可申请的subdomain数量上限
     private static final Integer SUBDOMAIN_UPPER_LIMIT = 1000;
+
+    // 有效期，单位秒，最长7天
+    private static final Integer MAX_EFFECTIVE_TIME = 7 * 24 * 60 * 60;
+
+    // 推荐subdomain数量上限
+    private static final Integer RECOMMEND_SUBDOMAIN_UPPER_LIMIT = 5;
+
+    // 推荐subdomain重试上限
+    private static final Integer RECOMMEND_SUBDOMAIN_RETRYS = 10;
+
+    // 推荐subdomain最短长度
+    private static final Integer RECOMMEND_SUBDOMAIN_MIN_LENGTH = 6;
+
+    // 推荐subdomain最大长度
+    private static final Integer RECOMMEND_SUBDOMAIN_MAX_LENGTH = 20;
+
+    private final static Random random = new java.security.SecureRandom();
 
     @Inject
     ApplicationProperties properties;
@@ -131,10 +150,8 @@ public class RegistryService {
 
     @Transactional
     public BoxRegistryResult registryBox(BoxRegistryInfo info) {
-        // 申请subdomain，兼容network proxy缺失
-        SubdomainEntity subdomainEntity = subdomainGen(info.getBoxUUID());
         // 注册box
-        RegistryBoxEntity boxEntity = registryBox(info.getBoxUUID(), subdomainEntity.getSubdomain());
+        RegistryBoxEntity boxEntity = registryBox(info.getBoxUUID());
         // 计算路由
         networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
         return BoxRegistryResult.of(boxEntity.getBoxRegKey(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
@@ -150,22 +167,25 @@ public class RegistryService {
         subdomainEntityRepository.updateBySubdomain(userRegistryInfo.getUserId(), SubdomainStateEnum.USED.getState(),
                 userRegistryInfo.getSubdomain());
 
+        // 添加用户面路由：用户域名 - network server 地址 & network client id
+        networkService.cacheNSRoute(userDomain, userRegistryInfo.getBoxUUID());
+
         // 注册client（用户的绑定设备）
-        RegistryClientEntity clientEntity = registryClient(userRegistryInfo.getBoxUUID(), userEntity.getUserId(),userRegistryInfo.getClientUUID(),
+        RegistryClientEntity clientEntity = registryClient(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId(),userRegistryInfo.getClientUUID(),
                 RegistryTypeEnum.CLIENT_BIND);
 
         return UserRegistryResult.of(userDomain, userEntity.getUserRegKey(), clientEntity.getClientRegKey());
     }
 
     @Transactional
-    public RegistryBoxEntity registryBox(String boxUUID, String subdomain) {
+    public RegistryBoxEntity registryBox(String boxUUID) {
         // 注册box
         RegistryBoxEntity boxEntity = new RegistryBoxEntity();
         {
             boxEntity.setBoxUUID(boxUUID);
             boxEntity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
             // network client
-            boxEntity.setNetworkClientId(subdomain);    // 兼容network proxy缺失
+            boxEntity.setNetworkClientId(CommonUtils.getUUID());
             boxEntity.setNetworkSecretKey("nrk_" + CommonUtils.createUnifiedRandomCharacters(10));
         }
         boxEntityRepository.persist(boxEntity);
@@ -328,13 +348,13 @@ public class RegistryService {
     }
 
     /**
-     * 分发全局唯一的 subdomain，无超时时间
+     * 分发全局唯一的 subdomain，超时时间 7天
      *
      * @param boxUUID boxUUID
      * @return subdomain
      */
     public SubdomainEntity subdomainGen(String boxUUID) {
-        return subdomainGen(boxUUID, null);
+        return subdomainGen(boxUUID, MAX_EFFECTIVE_TIME);
     }
 
     /**
@@ -434,5 +454,182 @@ public class RegistryService {
                     userEntity.getUserId(), userEntity.getCreatedAt(), clientRegistryDetailInfos));
         }
         return BoxRegistryDetailInfo.of(boxEntity.getNetworkClientId(), boxEntity.getCreatedAt(), boxEntity.getUpdatedAt(), userRegistryDetailInfos );
+    }
+
+    /**
+     * 更新域名
+     *
+     * @param boxUUID boxUUID
+     * @param userId userId
+     * @param subdomain subdomain
+     * @return SubdomainEntity
+     */
+    public SubdomainUpdateResult subdomainUpdate(String boxUUID, String userId, String subdomain) {
+        SubdomainUpdateResult updateResult = new SubdomainUpdateResult();
+        // 合法性校验，历史域名是否已使用
+        SubdomainEntity subdomainEntityOld = subdomainEntityRepository.findByBoxUUIDAndUserId(boxUUID, userId);
+        String subdomainOld = subdomainEntityOld.getSubdomain();
+        if (!SubdomainStateEnum.USED.getState().equals(subdomainEntityOld.getState())) {
+            LOG.warnv("subdomain:{0} is not in use", subdomainEntityOld.getState());
+            throw new ServiceOperationException(ServiceError.SUBDOMAIN_NOT_IN_USER);
+        }
+        // 唯一性校验 & 幂等设计，防止数据库、redis数据不一致，建议client失败重试3次
+        Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findBySubdomain(subdomain);
+        if (subdomainEntityOp.isPresent() && !subdomainOld.equals(subdomain)) {
+            LOG.warnv("subdomain already exist, subdomain:{0}", subdomain);
+            updateResult.setSuccess(false);
+            updateResult.setCode(ServiceError.SUBDOMAIN_ALREADY_EXIST.getCode());
+            updateResult.setError(ServiceError.SUBDOMAIN_ALREADY_EXIST.getMessage());
+            List<String> recommends = new ArrayList<>();
+            recommendSubdomains(subdomain, recommends);
+            updateResult.setRecommends(recommends);
+            return updateResult;
+        }
+        // 黑名单校验
+        List<ReservedDomainEntity> allReservedDomainEntity = reservedDomainEntityRepository.findAll().list();
+        if (isReservedDomain(subdomain, allReservedDomainEntity)) {
+            LOG.infov("subdomain:{0} is reserved", subdomain);
+            updateResult.setSuccess(false);
+            updateResult.setCode(ServiceError.SUBDOMAIN_IS_RESERVED.getCode());
+            updateResult.setError(ServiceError.SUBDOMAIN_IS_RESERVED.getMessage());
+            updateResult.setRecommends(new ArrayList<>());
+            return updateResult;
+        }
+
+        LOG.infov("subdomain update begin, from:{0} to:{1}", subdomainOld, subdomain);
+        // 更新域名
+        String userDomain = subdomain + "." + properties.getRegistrySubdomain();
+        subdomainEntityRepository.updateSubdomainByBoxUUIDAndUserId(boxUUID, userId, subdomain, userDomain);
+        // 添加用户面路由：用户域名 - network server 地址 & network client id
+        networkService.cacheNSRoute(userDomain, boxUUID);
+
+        if (!subdomainOld.equals(subdomain)) {
+            String userDomainOld = subdomainEntityOld.getUserDomain();
+            // 更新历史用户面路由，设置超时时间为7天
+            networkService.expireNSRoute(userDomainOld, MAX_EFFECTIVE_TIME);
+            LOG.infov("expire history subdomain succeed, subdomain:{0} expire seconds:{1}s", subdomainOld, MAX_EFFECTIVE_TIME);
+        }
+        LOG.infov("subdomain update succeed, from:{0} to:{1}", subdomainOld, subdomain);
+
+        updateResult.setSuccess(true);
+        updateResult.setBoxUUID(boxUUID);
+        updateResult.setUserId(userId);
+        updateResult.setSubdomain(subdomain);
+        return updateResult;
+    }
+
+    /**
+     * 域名推荐规则：
+     *
+     * 1.补年份（如2022）、月份+日期（如0330）；
+     * 2.补2~3位字母（从a ~ z），字母随机；
+     * 3.从已输入的末位开始扣，直到扣到6位；
+     * 4.若可供推荐的不够5个，就从第6位开始，按照前2个规则补；
+     */
+    private void recommendSubdomains(String subdomain, List<String> recommends) {
+        recommendYear(subdomain, recommends);
+        recommendDate(subdomain, recommends);
+        // 补2~3位字母（从a ~ z），字母随机；
+        recommendRandomNum(subdomain, recommends);
+        // 从已输入的末位开始扣，直到扣到6位；
+        recommendSquashNum(subdomain, recommends);
+        // 若可供推荐的不够5个，就从第6位开始，按照前2个规则补；
+        subdomain = subdomain.substring(0, RECOMMEND_SUBDOMAIN_MIN_LENGTH);
+        recommendYear(subdomain, recommends);
+        recommendDate(subdomain, recommends);
+        recommendRandomNum(subdomain, recommends);
+    }
+
+    private void recommendYear(String subdomain, List<String> recommends) {
+        if (recommends.size() >= RECOMMEND_SUBDOMAIN_UPPER_LIMIT) {
+            return;
+        }
+        String recommend = recommendYear(subdomain);
+        if (isSubdomainIllegal(recommend)) {
+            recommends.add(recommend);
+        }
+    }
+
+    private void recommendDate(String subdomain, List<String> recommends) {
+        if (recommends.size() >= RECOMMEND_SUBDOMAIN_UPPER_LIMIT) {
+            return;
+        }
+        String recommend = recommendDate(subdomain);
+        if (isSubdomainIllegal(recommend)) {
+            recommends.add(recommend);
+        }
+    }
+
+    private void recommendRandomNum(String subdomain, List<String> recommends) {
+        if (recommends.size() >= RECOMMEND_SUBDOMAIN_UPPER_LIMIT) {
+            return;
+        }
+        for (int i=0; i < RECOMMEND_SUBDOMAIN_RETRYS; i++) {
+            String recommend = recommendRandomNum(subdomain);
+            if (!isSubdomainIllegal(recommend)) {
+                continue;
+            }
+            recommends.add(recommend);
+            if (recommends.size() >= RECOMMEND_SUBDOMAIN_UPPER_LIMIT) {
+                return;
+            }
+        }
+    }
+
+    private void recommendSquashNum(String subdomain, List<String> recommends) {
+        if (recommends.size() >= RECOMMEND_SUBDOMAIN_UPPER_LIMIT) {
+            return;
+        }
+        while (subdomain.length() > RECOMMEND_SUBDOMAIN_MIN_LENGTH) {
+            subdomain = recommendSquashNum(subdomain);
+            if (!isSubdomainIllegal(subdomain)) {
+                continue;
+            }
+            recommends.add(subdomain);
+            if (recommends.size() >= RECOMMEND_SUBDOMAIN_UPPER_LIMIT) {
+                return;
+            }
+        }
+    }
+
+    private String recommendYear(String subdomain) {
+        OffsetDateTime dateTime = OffsetDateTime.now();
+        return subdomain + dateTime.getYear();
+    }
+
+    private String recommendDate(String subdomain) {
+        OffsetDateTime dateTime = OffsetDateTime.now();
+        return subdomain + dateTime.format(DateTimeFormatter.ofPattern("MMdd"));
+    }
+
+    private String recommendRandomNum(String subdomain) {
+        if (random.nextBoolean()) {
+            String ramdomAB = CommonUtils.randomLetters(2);
+            return subdomain + ramdomAB;
+        } else {
+            String ramdomABC = CommonUtils.randomLetters(3);
+            return subdomain + ramdomABC;
+        }
+    }
+
+    private String recommendSquashNum(String subdomain) {
+        return subdomain.substring(0, subdomain.length()-1);
+    }
+
+    private Boolean isSubdomainIllegal(String subdomain) {
+        if (subdomain.length() > RECOMMEND_SUBDOMAIN_MAX_LENGTH) {
+            return false;
+        }
+        Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findBySubdomain(subdomain);
+        if (subdomainEntityOp.isPresent()) {
+            LOG.debugv("subdomain already exist, subdomain:{0}", subdomain);
+            return false;
+        }
+        List<ReservedDomainEntity> allReservedDomainEntity = reservedDomainEntityRepository.findAll().list();
+        if (isReservedDomain(subdomain, allReservedDomainEntity)) {
+            LOG.debugv("subdomain:{0} is reserved", subdomain);
+            return false;
+        }
+        return true;
     }
 }
