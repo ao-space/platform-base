@@ -505,9 +505,10 @@ public class RegistryService {
 
         if (!subdomainOld.equals(subdomain)) {
             String userDomainOld = subdomainEntityOld.getUserDomain();
-            // 更新历史用户面路由，设置超时时间为7天
-            networkService.expireNSRoute(userDomainOld, MAX_EFFECTIVE_TIME);
-            LOG.infov("expire history subdomain succeed, subdomain:{0} expire seconds:{1}s", subdomainOld, MAX_EFFECTIVE_TIME);
+            Integer subdomainEffectiveTime = properties.getSubdomainEffectiveTime() * 24 * 60 * 60;
+            // 更新历史用户面路由，设置超时时间为30天
+            networkService.expireNSRoute(userDomainOld, subdomainEffectiveTime);
+            LOG.infov("expire history subdomain succeed, subdomain:{0} expire seconds:{1}s", subdomainOld, subdomainEffectiveTime);
         }
         LOG.infov("subdomain update succeed, from:{0} to:{1}", subdomainOld, subdomain);
 
