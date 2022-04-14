@@ -72,4 +72,7 @@ public interface ApplicationProperties {
 
     @ConfigProperty(name = "oss.bucket.name")
     String getOSSBucketName();
+
+    @ConfigProperty(name = "subdomain.effective-time", defaultValue = "30")
+    Integer getSubdomainEffectiveTime();
 }
