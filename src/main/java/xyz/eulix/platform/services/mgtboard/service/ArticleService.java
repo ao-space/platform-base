@@ -81,7 +81,7 @@ public class ArticleService {
 			currentPage = 1;
 		}
 		if (pageSize == null) {
-			pageSize = 1000;
+			pageSize = 2000;
 		}
 		List<ArticleEntity> articleEntityList = articleEntityRepository.findByCataIdAndSortBySortKey(Sort.by("updated_at").descending(), cataId, currentPage - 1, pageSize);
 		articleEntityList.forEach(articleEntity -> articleResList.add(ArticleRes.of(articleEntity.getId(),
@@ -92,7 +92,8 @@ public class ArticleService {
 				articleEntity.getPublishdAt(),
 				articleEntity.getCreatedAt(),
 				articleEntity.getUpdatedAt())));
-		return PageListResult.of(articleResList, PageInfo.of(articleResList.size(), currentPage, pageSize));
+		Long count = articleEntityRepository.count("cata_id = ?1", cataId);
+		return PageListResult.of(articleResList, PageInfo.of(count, currentPage, pageSize));
 	}
 
 	public List<Long> getArticleIdList(Long rootid) {

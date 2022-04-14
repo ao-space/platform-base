@@ -63,7 +63,7 @@ public class ReservedDomainService {
             currentPage = 1;
         }
         if (pageSize == null) {
-            pageSize = 1000;
+            pageSize = 2000;
         }
 
         List<ReservedDomainEntity> boxInfoEntities = reservedDomainEntityRepository.findAll(Sort.by("updated_at").descending()).page(currentPage - 1, pageSize).list();

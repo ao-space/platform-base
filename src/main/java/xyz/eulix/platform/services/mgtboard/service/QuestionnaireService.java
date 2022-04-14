@@ -129,7 +129,7 @@ public class QuestionnaireService {
             currentPage = 1;
         }
         if (pageSize == null) {
-            pageSize = 1000;
+            pageSize = 2000;
         }
         // 1.查询列表
         List<QuestionnaireEntity> qaEntities = qaEntityRepository.findAll().page(currentPage - 1, pageSize).list();
