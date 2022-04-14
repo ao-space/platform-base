@@ -60,7 +60,7 @@ public class BoxInfoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "删除盒子uuid，需管理员权限")
     public BaseResultRes delBoxInfos(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                     @Size(min = 1, max = 1000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
+                                     @Size(min = 1, max = 2000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
         boxInfoService.delBoxInfos(boxUUIDs);
         return BaseResultRes.of(true);
     }
