@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS push_token (
     updated_at DATETIME DEFAULT NULL,
     version INT DEFAULT 0,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_clientid (client_uuid)
+    UNIQUE KEY uk_push_clientid (client_uuid)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
