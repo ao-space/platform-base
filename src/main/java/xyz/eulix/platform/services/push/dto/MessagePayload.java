@@ -3,15 +3,16 @@ package xyz.eulix.platform.services.push.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor(staticName = "of")
 public class MessagePayload {
-    @NotBlank
+    @NotNull
+    @ValueOfEnum(enumClass = DisplayTypeEnum.class, valueMethod = "getName")
     @Schema(description = "消息类型，枚举：notification-通知/message-消息")
     private String displayType;
 

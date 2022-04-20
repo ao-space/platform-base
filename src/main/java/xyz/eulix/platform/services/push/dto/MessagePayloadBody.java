@@ -3,10 +3,8 @@ package xyz.eulix.platform.services.push.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import xyz.eulix.platform.services.support.boundary.push.AfterOpenAction;
+import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 @Data
 @AllArgsConstructor(staticName = "of")
@@ -17,6 +15,7 @@ public class MessagePayloadBody {
     @Schema(description = "通知文字描述，当displayType=notification时必填")
     private String title;
 
+    @ValueOfEnum(enumClass = AfterOpenAction.class, valueMethod = "getName")
     @Schema(description = "点击通知的后续行为(默认为打开app)，当displayType=notification时必填")
     private String afterOpen;
 

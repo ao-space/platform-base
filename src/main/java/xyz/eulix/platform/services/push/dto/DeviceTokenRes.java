@@ -3,7 +3,6 @@ package xyz.eulix.platform.services.push.dto;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import javax.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
 
 @Data(staticConstructor = "of")
