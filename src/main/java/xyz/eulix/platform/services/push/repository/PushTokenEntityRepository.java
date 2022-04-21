@@ -9,13 +9,13 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class PushTokenEntityRepository implements PanacheRepository<PushTokenEntity> {
-    // 鏍规嵁client_uuid鏌ヨ璧勬簮
+    // 根据client_uuid查询资源
     private static final String FIND_BY_CLIENTUUID = "client_uuid=?1";
 
-    // 鏍规嵁client_uuids鏌ヨ璧勬簮
+    // 根据client_uuids查询资源
     private static final String FIND_BY_CLIENTUUIDS = "client_uuid in (?1)";
 
-    // 鏍规嵁id鏇存柊璧勬簮
+    // 根据id更新资源
     private static final String UPDATE_BY_ID = "deviceToken=?1, extra=?2, updated_at=now() where client_uuid=?3";
 
     public Optional<PushTokenEntity> findByClientUUID(String clientUUID) {

@@ -57,7 +57,7 @@ public class PushService {
 
     @Transactional
     public DeviceTokenRes registryDeviceToken(DeviceTokenReq deviceTokenReq) {
-        // æŸ¥è¯¢é—®å·æ˜¯å¦å­˜åœ¨
+        // ²éÑ¯ÎÊ¾íÊÇ·ñ´æÔÚ
         PushTokenEntity pushTokenEntity = deviceTokenReqToEntity(deviceTokenReq);
         Optional<PushTokenEntity> pushTokenEntityOp = pushTokenEntityRepository.findByClientUUID(deviceTokenReq.getClientUUID());
         if (pushTokenEntityOp.isEmpty()) {
@@ -92,14 +92,14 @@ public class PushService {
     }
 
     public Boolean pushMessage(PushMessage pushMessage) {
-        // æ ¡éªŒç›’å­åˆæ³•æ€§
+        // Ğ£ÑéºĞ×ÓºÏ·¨ĞÔ
         registryService.hasBoxNotRegistered(pushMessage.getBoxUUID(), pushMessage.getBoxRegKey());
 
         switch (MessageTypeEnum.fromValue(pushMessage.getType())) {
             case BROADCAST:
                 return messageBroadcast(pushMessage);
             case CLIENTCAST:
-                // å‚æ•°æ ¡éªŒ
+                // ²ÎÊıĞ£Ñé
                 List<PushMessage.UserIdAndClientUUID> clientUUIDS = pushMessage.getClientUUIDs();
                 if (CommonUtils.isNullOrEmpty(clientUUIDS)) {
                     throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.clientUUIDs");
@@ -129,7 +129,7 @@ public class PushService {
 
     private AndroidListcast pushMessageToAndroidListcast(PushMessage pushMessage) {
         AndroidListcast listcast = new AndroidListcast(appKey, appSecret);
-        // è·å– device token åˆ—è¡¨
+        // »ñÈ¡ device token ÁĞ±í
         List<String> clientUUIDs = new ArrayList<>();
         List<PushMessage.UserIdAndClientUUID> userIdAndClientUUIDS = pushMessage.getClientUUIDs();
         userIdAndClientUUIDS.forEach(userIdAndClientUUID -> {
@@ -151,7 +151,7 @@ public class PushService {
     }
 
     private void pushMessageToAndroidNotification(PushMessage pushMessage, AndroidNotification androidNotification) {
-        // å‘é€æ¶ˆæ¯æè¿°
+        // ·¢ËÍÏûÏ¢ÃèÊö
         androidNotification.setDescription(pushMessage.getDescription());
 
         // payload
