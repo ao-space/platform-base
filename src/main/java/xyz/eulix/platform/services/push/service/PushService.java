@@ -96,8 +96,6 @@ public class PushService {
         registryService.hasBoxNotRegistered(pushMessage.getBoxUUID(), pushMessage.getBoxRegKey());
 
         switch (MessageTypeEnum.fromValue(pushMessage.getType())) {
-            case BROADCAST:
-                return messageBroadcast(pushMessage);
             case CLIENTCAST:
                 // 参数校验
                 List<PushMessage.UserIdAndClientUUID> clientUUIDS = pushMessage.getClientUUIDs();
@@ -106,7 +104,16 @@ public class PushService {
                 }
                 return messageClientcast(pushMessage);
             default:
-                throw new UnsupportedOperationException();
+                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.type");
+        }
+    }
+
+    public Boolean broadcastMessage(PushMessage pushMessage) {
+        switch (MessageTypeEnum.fromValue(pushMessage.getType())) {
+            case BROADCAST:
+                return messageBroadcast(pushMessage);
+            default:
+                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.type");
         }
     }
 
