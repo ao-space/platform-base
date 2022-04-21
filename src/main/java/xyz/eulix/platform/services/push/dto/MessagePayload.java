@@ -7,6 +7,7 @@ import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor(staticName = "of")
@@ -21,6 +22,6 @@ public class MessagePayload {
     @Schema(description = "消息体")
     private MessagePayloadBody body;
 
-    @Schema(description = "可选，JSON格式，用户自定义key-value")
-    private Object extra;
+    @Schema(description = "可选，Map格式，用户自定义key-value")
+    private Map<String, String> extra;
 }

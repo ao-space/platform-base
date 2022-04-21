@@ -9,7 +9,12 @@ import xyz.eulix.platform.services.push.dto.DeviceTokenReq;
 import xyz.eulix.platform.services.push.dto.DeviceTokenRes;
 import xyz.eulix.platform.services.push.dto.PushMessage;
 import xyz.eulix.platform.services.push.service.PushService;
+import xyz.eulix.platform.services.registry.service.RegistryService;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.serialization.OperationUtils;
+import xyz.eulix.platform.services.support.service.ServiceError;
+import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -27,6 +32,12 @@ public class PushResource {
     @Inject
     PushService pushService;
 
+    @Inject
+    RegistryService registryService;
+
+    @Inject
+    OperationUtils operationUtils;
+
     @Logged
     @POST
     @Path("/push/device")
@@ -35,6 +46,18 @@ public class PushResource {
     @Operation(description = "注册 device token")
     public DeviceTokenRes registryDeviceToken(@Valid @HeaderParam("Request-Id") @NotBlank String requestId,
                                               @Valid DeviceTokenReq deviceTokenReq) {
+        // 参数检验
+        if (CommonUtils.isNotNull(deviceTokenReq.getExtra())) {
+            try {
+                operationUtils.jsonToObject(deviceTokenReq.getExtra(), Object.class);
+            } catch (Exception e) {
+                LOG.debugv("json format error, extra:{0}", deviceTokenReq.getExtra());
+                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "deviceTokenReq.extra");
+            }
+        }
+        // 校验 Client 合法性
+        registryService.hasClientNotRegisted(deviceTokenReq.getBoxUUID(), deviceTokenReq.getUserId(), deviceTokenReq.getClientUUID(),
+                deviceTokenReq.getClientRegKey());
         DeviceTokenRes deviceTokenRes = pushService.registryDeviceToken(deviceTokenReq);
         return deviceTokenRes;
     }

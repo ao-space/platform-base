@@ -27,6 +27,6 @@ public class PushTokenEntityRepository implements PanacheRepository<PushTokenEnt
     }
 
     public List<PushTokenEntity> findByClientUUIDs(List<String> clientUUIDs) {
-        return this.find(FIND_BY_CLIENTUUID, clientUUIDs).list();
+        return this.find(FIND_BY_CLIENTUUIDS, clientUUIDs).list();
     }
 }

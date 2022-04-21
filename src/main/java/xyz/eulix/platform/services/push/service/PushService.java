@@ -16,8 +16,10 @@ import xyz.eulix.platform.services.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,25 +45,28 @@ public class PushService {
     @Inject
     OperationUtils operationUtils;
 
-    private String appKey = applicationProperties.getUPushAppKey();
+    private String appKey;
 
-    private String appSecret = applicationProperties.getUPushAppSecret();
+    private String appSecret;
 
+    @PostConstruct
+    void init() {
+        appKey = applicationProperties.getUPushAppKey();
+        appSecret = applicationProperties.getUPushAppSecret();
+    }
+
+    @Transactional
     public DeviceTokenRes registryDeviceToken(DeviceTokenReq deviceTokenReq) {
-        // 校验 Client 合法性
-        registryService.hasClientNotRegisted(deviceTokenReq.getBoxUUID(), deviceTokenReq.getUserId(), deviceTokenReq.getClientUUID(),
-                deviceTokenReq.getClientRegKey());
         // 查询问卷是否存在
         PushTokenEntity pushTokenEntity = deviceTokenReqToEntity(deviceTokenReq);
         Optional<PushTokenEntity> pushTokenEntityOp = pushTokenEntityRepository.findByClientUUID(deviceTokenReq.getClientUUID());
         if (pushTokenEntityOp.isEmpty()) {
             pushTokenEntityRepository.persist(pushTokenEntity);
-        } else {
-            String extraStr = null;
-            if (CommonUtils.isNotNull(deviceTokenReq.getExtra())) {
-                extraStr = operationUtils.objectToJson(deviceTokenReq.getExtra());
-            }
-            pushTokenEntityRepository.updateByClientUUID(deviceTokenReq.getClientUUID(), deviceTokenReq.getDeviceToken(), extraStr);
+        } else if (!pushTokenEntityOp.get().getDeviceToken().equals(deviceTokenReq.getDeviceToken())){
+            pushTokenEntityRepository.updateByClientUUID(deviceTokenReq.getClientUUID(), deviceTokenReq.getDeviceToken(), deviceTokenReq.getExtra());
+            pushTokenEntity = pushTokenEntityOp.get();
+            pushTokenEntity.setDeviceToken(deviceTokenReq.getDeviceToken());
+            pushTokenEntity.setExtra(deviceTokenReq.getExtra());
         }
         return pushTokenEntityToRes(deviceTokenReq.getBoxUUID(), deviceTokenReq.getUserId(), pushTokenEntity);
     }
@@ -71,23 +76,17 @@ public class PushService {
         pushTokenEntity.setClientUUID(deviceTokenReq.getClientUUID());
         pushTokenEntity.setDeviceToken(deviceTokenReq.getDeviceToken());
         pushTokenEntity.setDeviceType(deviceTokenReq.getDeviceType());
-        if (CommonUtils.isNotNull(deviceTokenReq.getExtra())) {
-            pushTokenEntity.setExtra(operationUtils.objectToJson(deviceTokenReq.getExtra()));
-        }
+        pushTokenEntity.setExtra(deviceTokenReq.getExtra());
         return pushTokenEntity;
     }
 
     private DeviceTokenRes pushTokenEntityToRes(String boxUUID, String userId, PushTokenEntity pushTokenEntity) {
-        Object extra = null;
-        if (!CommonUtils.isNullOrEmpty(pushTokenEntity.getExtra())) {
-            extra = operationUtils.jsonToObject(pushTokenEntity.getExtra(), Object.class);
-        }
         return DeviceTokenRes.of(boxUUID,
                 userId,
                 pushTokenEntity.getClientUUID(),
                 pushTokenEntity.getDeviceToken(),
                 pushTokenEntity.getDeviceType(),
-                extra,
+                pushTokenEntity.getExtra(),
                 pushTokenEntity.getCreatedAt(),
                 pushTokenEntity.getUpdatedAt());
     }
@@ -139,7 +138,7 @@ public class PushService {
             }
         });
         List<PushTokenEntity> pushTokenEntities = pushTokenEntityRepository.findByClientUUIDs(clientUUIDs);
-        String deviceTokens = pushTokenEntities.stream().map(PushTokenEntity::getClientUUID).collect(Collectors.joining(","));
+        String deviceTokens = pushTokenEntities.stream().map(PushTokenEntity::getDeviceToken).collect(Collectors.joining(","));
         listcast.setDeviceTokens(deviceTokens);
         pushMessageToAndroidNotification(pushMessage, listcast);
         return listcast;
@@ -194,13 +193,9 @@ public class PushService {
             default:
                 throw new UnsupportedOperationException();
         }
-
         // payload extra
-        String extraStr = null;
         if (CommonUtils.isNotNull(payload.getExtra())) {
-            extraStr = operationUtils.objectToJson(payload.getExtra());
-            HashMap<String, String> extraMap = operationUtils.jsonToObject(extraStr, HashMap.class);
-            extraMap.forEach(androidNotification::setExtraField);
+            payload.getExtra().forEach(androidNotification::setExtraField);
         }
 
         // prod mode
@@ -209,10 +204,16 @@ public class PushService {
 
         // policy
         MessagePolicy policy = pushMessage.getPolicy();
-        if (!CommonUtils.isNullOrEmpty(policy.getStartTime())) {
+        if (policy != null && !CommonUtils.isNullOrEmpty(policy.getStartTime())) {
+            if (!CommonUtils.isLocalDateTimeFormat(policy.getStartTime())) {
+                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.policy.startTime");
+            }
             androidNotification.setStartTime(policy.getStartTime());
         }
-        if (!CommonUtils.isNullOrEmpty(policy.getExpireTime())) {
+        if (policy != null && !CommonUtils.isNullOrEmpty(policy.getExpireTime())) {
+            if (!CommonUtils.isLocalDateTimeFormat(policy.getExpireTime())) {
+                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.policy.expireTime");
+            }
             androidNotification.setExpireTime(policy.getExpireTime());
         }
 
