@@ -37,5 +37,5 @@ public class DeviceTokenReq {
     private String deviceType;
 
     @Schema(description = "扩展信息,json格式")
-    private Object extra;
+    private String extra;
 }
