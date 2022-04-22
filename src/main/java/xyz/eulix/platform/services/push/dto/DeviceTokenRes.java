@@ -3,7 +3,6 @@ package xyz.eulix.platform.services.push.dto;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import javax.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
 
 @Data(staticConstructor = "of")
@@ -24,7 +23,7 @@ public class DeviceTokenRes {
     private final String deviceType;
 
     @Schema(description = "扩展信息,json格式")
-    private final Object extra;
+    private final String extra;
 
     @Schema(description = "创建时间")
     private final OffsetDateTime createAt;

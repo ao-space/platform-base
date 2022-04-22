@@ -347,6 +347,14 @@ public class RegistryService {
         }
     }
 
+    public void hasClientNotRegisted(String boxUUID, String userId, String clientUUID, String clientRegKey) {
+        final List<RegistryClientEntity> clientEntities = clientEntityRepository.findAllByClientUUIDAndClientRegKey(boxUUID, userId, clientUUID, clientRegKey);
+        if (clientEntities.isEmpty()) {
+            LOG.warnv("invalid registry client verify info, boxUuid:{0}, userId:{1}, clientUuid:{2}", boxUUID, userId, clientUUID);
+            throw new WebApplicationException("invalid registry client verify info", Response.Status.FORBIDDEN);
+        }
+    }
+
     /**
      * 分发全局唯一的 subdomain，超时时间 7天
      *
