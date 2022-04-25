@@ -14,6 +14,7 @@ public class ArticleReq {
     private String title;
 
     @Schema(description = "文章内容")
+    @Size(max = 20000)
     private String content;
 
     @Schema(description = "目录id")
