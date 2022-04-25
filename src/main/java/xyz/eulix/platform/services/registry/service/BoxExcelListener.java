@@ -48,7 +48,9 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
         while(iterator.hasNext()){
             Integer number = iterator.next();
             BoxExcelModel model = excelList.get(number);
-            if (CommonUtils.isNotNull(model.getCpuId()) && model.getCpuId().matches("[0-9a-fA-F]+")) {
+            if(model.isNUllOrEmpty()){
+                continue;
+            }else  if (CommonUtils.isNotNull(model.getCpuId()) && model.getCpuId().matches("[0-9a-fA-F]+")) {
                 String boxUUID = operationUtils.string2SHA256("eulixspace-productid-" + model.getCpuId());
                 String btid = operationUtils.string2SHA256("eulixspace-btid-" + model.getCpuId()).substring(0, 16);
                 model.setOther(model.getOther() == null ? "" : model.getOther());
@@ -59,7 +61,7 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
                 if(!boxInfoService.upsertBoxInfo(boxUUID, null, model, success, failure)) {
                     fail.add(BoxFailureInfo.of(String.valueOf(number), boxUUID));
                 }
-            } else{
+            }  else {
                 fail.add(BoxFailureInfo.of(String.valueOf(number), ""));
             }
         }
