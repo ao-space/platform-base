@@ -2,11 +2,6 @@ package xyz.eulix.platform.services.mgtboard.dto;
 
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.jboss.resteasy.annotations.providers.multipart.PartType;
-
-import javax.ws.rs.FormParam;
-import javax.ws.rs.core.MediaType;
-import java.io.InputStream;
 
 @Data(staticConstructor = "of")
 public class UploadFileRes {

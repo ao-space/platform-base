@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.mgtboard.service;
 
+import io.quarkus.panache.common.Sort;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.mgtboard.dto.CatalogueRes;
 import xyz.eulix.platform.services.mgtboard.entity.CatalogueEntity;
@@ -9,6 +10,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,8 @@ public class CatalogueService {
     @Inject
     ArticleService articleService;
 
+    private static final Long ROOT_ID = 1L;
+
     public CatalogueRes saveCatalogue(Long rootid, String name){
         if(catalogueEntityRespository.findById(rootid) == null){
             throw new ServiceOperationException(ServiceError.CATALOGUE_NOT_EXIST);
@@ -33,30 +37,44 @@ public class CatalogueService {
         catalogueEntity.setCataName(name);
         catalogueEntity.setParentId(rootid);
         catalogueEntityRespository.create(catalogueEntity);
-        return CatalogueRes.of(catalogueEntity.getId(), catalogueEntity.getCataName(),catalogueEntity.getParentId(),
-                catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt());
+        return CatalogueRes.of(catalogueEntity.getId(),
+                catalogueEntity.getCataName(),
+                catalogueEntity.getParentId(),
+                catalogueEntity.getCreatedAt(),
+                catalogueEntity.getUpdatedAt());
     }
 
-    public CatalogueRes updateCatalogue(Long rootid, String name) {
-        if(rootid.equals(1L) ){
+    public CatalogueRes updateCatalogue(Long catatId, String name) {
+        if(catatId.equals(ROOT_ID) ){
             throw new ServiceOperationException(ServiceError.CATALOGUE_IS_ROOT);
         }
-        catalogueEntityRespository.update(rootid, name);
-        CatalogueEntity catalogueEntity = catalogueEntityRespository.findById(rootid);
-        return CatalogueRes.of(catalogueEntity.getId(), catalogueEntity.getCataName(),catalogueEntity.getParentId(),
-                catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt());
+        var cataEntityList = catalogueEntityRespository.findByCataName(name);
+        CatalogueEntity catalogueEntity = catalogueEntityRespository.findById(catatId);
+        if(!cataEntityList.isEmpty() && !cataEntityList.contains(catalogueEntity)) {throw new ServiceOperationException(ServiceError.CATALOGUE_HAS_CREATE);}
+        catalogueEntityRespository.update(catatId, name);
+        catalogueEntity = catalogueEntityRespository.findById(catatId);
+        catalogueEntity.setCataName(name);
+        catalogueEntity.setUpdatedAt(OffsetDateTime.now());
+        return CatalogueRes.of(catalogueEntity.getId(),
+                catalogueEntity.getCataName(),
+                catalogueEntity.getParentId(),
+                catalogueEntity.getCreatedAt(),
+                catalogueEntity.getUpdatedAt());
     }
 
     public List<CatalogueRes> findByRootId(Long id){
         List<CatalogueRes> list =  new ArrayList<>();
-        catalogueEntityRespository.find("parent_id", id).list().forEach(catalogueEntity ->
-            list.add(CatalogueRes.of(catalogueEntity.getId(), catalogueEntity.getCataName(), catalogueEntity.getParentId(),
-                    catalogueEntity.getCreatedAt(), catalogueEntity.getUpdatedAt())));
+        catalogueEntityRespository.find("parent_id", Sort.by("updated_at").descending(), id).list().forEach(catalogueEntity ->
+            list.add(CatalogueRes.of(catalogueEntity.getId(),
+                    catalogueEntity.getCataName(),
+                    catalogueEntity.getParentId(),
+                    catalogueEntity.getCreatedAt(),
+                    catalogueEntity.getUpdatedAt())));
         return list;
     }
 
     public void deleteFromRootId(Long rootid){
-        if(rootid.equals(1L) ){
+        if(rootid.equals(ROOT_ID) ){
             throw new ServiceOperationException(ServiceError.CATALOGUE_IS_ROOT);
         }
         List<Long> childCatalogueIds = new ArrayList<>();

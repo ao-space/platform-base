@@ -92,7 +92,7 @@ public class BoxInfoService {
             currentPage = 1;
         }
         if (pageSize == null) {
-            pageSize = 1000;
+            pageSize = 2000;
         }
         // 1.查询列表
         List<BoxInfoEntity> boxInfoEntities = boxInfoEntityRepository.findAll().page(currentPage - 1, pageSize).list();
@@ -112,6 +112,37 @@ public class BoxInfoService {
         // 3.记录总数
         Long totalCount = boxInfoEntityRepository.count();
         return PageListResult.of(boxInfos, PageInfo.of(totalCount, currentPage, pageSize));
+    }
+    
+    public PageListResult<BoxInfo> listBoxInfo(Integer currentPage, Integer pageSize, Boolean isRegistry){
+        List<BoxInfo> boxInfos = new ArrayList<>();
+        // 判断，如果为空，则设置为1
+        if (currentPage == null || currentPage <= 0) {
+            currentPage = 1;
+        }
+        if (pageSize == null) {
+            pageSize = 2000;
+        }
+        List<BoxInfoEntity> boxInEntities= boxInfoEntityRepository.findWithBoxRegistries(isRegistry).page(currentPage - 1, pageSize).list();
+        boxInEntities.forEach(boxInfoEntity -> {
+            BoxInfo boxInfo = entityToBoxInfo(boxInfoEntity);
+            boxInfo.setRegistered(isRegistry.booleanValue());
+            boxInfos.add(boxInfo);
+        });
+        return PageListResult.of(boxInfos, PageInfo.of(boxInfoEntityRepository.getWithBoxRegistriesCount(isRegistry), currentPage, pageSize));
+    }
+    public PageListResult<BoxInfo> findBoxByBoxUUID(String boxUUID ){
+        Optional<BoxInfoEntity> boxInfoEntityOP = boxInfoEntityRepository.findByBoxUUID(boxUUID);
+        List<BoxInfo> boxInfos = new ArrayList<>();
+        if(boxInfoEntityOP.isEmpty()) {return PageListResult.of(boxInfos, PageInfo.of(0L, 1, 1));}
+        BoxInfo boxInfo = entityToBoxInfo(boxInfoEntityOP.get());
+        if (registryBoxEntityRepository.findByBoxUUID(boxUUID).isPresent()) {
+            boxInfo.setRegistered(true);
+        }else{
+            boxInfo.setRegistered(false);
+        }
+        boxInfos.add(boxInfo);
+        return PageListResult.of(boxInfos, PageInfo.of(1L, 1, 1));
     }
 
     private BoxInfo entityToBoxInfo(BoxInfoEntity boxInfoEntity) {
@@ -152,12 +183,13 @@ public class BoxInfoService {
         return BoxInfosRes.of(success, fail);
     }
 
-    public Response export(List<String> boxInfosReq){
+    public Response export(List<BoxInfo> boxInfosReq){
+        if(boxInfosReq.isEmpty()) {throw new ServiceOperationException(ServiceError.BOXUUIDS_IS_EMPTY);}
         var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + ".xlsx",
                 StandardCharsets.UTF_8).replaceAll("\\+", "%20");
         List<BoxExcelModel> lists = new ArrayList<>();
-        List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(boxInfosReq);
+        List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(this.boxInfosToBoxUUIDs(boxInfosReq));
         for (BoxInfoEntity boxInfoEntity : entities) {
             lists.add(operationUtils.jsonToObject(boxInfoEntity.getExtra(), BoxExcelModel.class));
         }
@@ -166,5 +198,11 @@ public class BoxInfoService {
         response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();
+    }
+
+    public List<String> boxInfosToBoxUUIDs(List<BoxInfo> boxInfos){
+        List<String> boxUUIDs = new ArrayList<>();
+        boxInfos.forEach(boxInfo -> boxUUIDs.add(boxInfo.getBoxUUID()));
+        return  boxUUIDs;
     }
 }

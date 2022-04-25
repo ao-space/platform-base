@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 
 /**
@@ -29,7 +30,7 @@ import java.time.OffsetDateTime;
  */
 @Getter @Setter @ToString
 @MappedSuperclass
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable{
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)

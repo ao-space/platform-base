@@ -4,6 +4,8 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import xyz.eulix.platform.services.support.CommonUtils;
+
 import javax.persistence.MappedSuperclass;
 
 @Getter
@@ -29,4 +31,16 @@ public class BoxExcelModel {
   private String btid;
   private String boxUuid;
   private String btidHash;
+
+  public boolean isNUllOrEmpty(){
+    if(CommonUtils.isNullOrEmpty(this.number) && CommonUtils.isNullOrEmpty(this.ip) && CommonUtils.isNullOrEmpty(this.version) &&
+       CommonUtils.isNullOrEmpty(this.mac) && CommonUtils.isNullOrEmpty(this.cpuCount) && CommonUtils.isNullOrEmpty(this.cpuId) &&
+       CommonUtils.isNullOrEmpty(this.memory) && CommonUtils.isNullOrEmpty(this.wifi) && CommonUtils.isNullOrEmpty(this.bluetooth) &&
+       CommonUtils.isNullOrEmpty(this.usb) && CommonUtils.isNullOrEmpty(this.operateUser) && CommonUtils.isNullOrEmpty(this.other) &&
+       CommonUtils.isNullOrEmpty(this.time)){
+      return true;
+    } else {
+      return false;
+    }
+  }
  }

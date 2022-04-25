@@ -57,7 +57,15 @@ public enum ServiceError {
   TIME_PARAMETER_ERROR(2029, "startTime {0} is after endTime {1}"),
   CATALOGUE_NOT_EXIST(2030, "catalogue path does not exist"),
   CATALOGUE_HAS_CREATE(2031, "could not create duplicate catalogue name"),
-  CATALOGUE_IS_ROOT(2032, "could not modify root catalogue")
+  CATALOGUE_IS_ROOT(2032, "could not modify root catalogue"),
+  ARTICLE_HAS_CREATE(2033, "could not create duplicate article name"),
+  ARTICLE_NOT_EXIST(2034, "article does not exist"),
+  DELETE_FILE_FAILED(2035, "delete file failed"),
+  BOXUUIDS_IS_EMPTY(2036, "boxuuid list is empty, please choose at least one box."),
+  RESERVED_DOMAIN_LENGTH_ERROR(2037, "regex length error. Please try others."),
+  NETWORK_SERVER_NOT_EXIST(2049, "network server does not exist"),
+  SUBDOMAIN_NOT_IN_USER(2050, "subdomain is not in use"),
+  SUBDOMAIN_IS_RESERVED(2051, "subdomain is reserved")
   ;
 
   /**

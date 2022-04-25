@@ -10,6 +10,7 @@ import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
 import xyz.eulix.platform.services.mgtboard.dto.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.service.BoxInfoService;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -58,7 +60,7 @@ public class BoxInfoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "删除盒子uuid，需管理员权限")
     public BaseResultRes delBoxInfos(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                     @Size(min = 1, max = 1000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
+                                     @Size(min = 1, max = 2000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
         boxInfoService.delBoxInfos(boxUUIDs);
         return BaseResultRes.of(true);
     }
@@ -72,7 +74,17 @@ public class BoxInfoResource {
     @Operation(description = "查询盒子uuid列表，需管理员权限。")
     public PageListResult<BoxInfo> boxInfoList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                               @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
+                                               @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize,
+                                               @Parameter(description = "是否注册") @QueryParam("isregistry") Boolean isRegistry,
+                                               @Parameter(description = "boxuuid") @QueryParam("boxuuid") String boxUUID,
+                                               @Parameter(description = "cpuid") @QueryParam("cpuid") String cpuId) {
+        if(CommonUtils.isNotNull(isRegistry)){
+            return boxInfoService.listBoxInfo(currentPage, pageSize, isRegistry);
+        }else if(CommonUtils.isNotNull(boxUUID)){
+            return boxInfoService.findBoxByBoxUUID(boxUUID);
+        }else if(CommonUtils.isNotNull(cpuId)){
+            return boxInfoService.findBoxByBoxUUID(utils.string2SHA256("eulixspace-productid-" + cpuId));
+        }
         return boxInfoService.listBoxInfo(currentPage, pageSize);
     }
 
@@ -128,12 +140,12 @@ public class BoxInfoResource {
     @Path("/boxinfo/export")
     @Operation(description = "设备信息导出接口")
     public Response export(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                           @Size(min = 1, max = 1000) @Valid @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
+                           @Valid @NotNull  BoxInfosReq boxInfosReq) {
         LOG.infov("[Invoke] method: export()");
         Stopwatch sw = Stopwatch.createStarted();
         Response response;
         try {
-            response = boxInfoService.export(boxUUIDs);
+            response = boxInfoService.export(boxInfosReq.getBoxInfos());
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: export(), exception");
             throw e;

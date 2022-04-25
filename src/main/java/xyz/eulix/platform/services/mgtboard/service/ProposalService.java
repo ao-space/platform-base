@@ -135,7 +135,7 @@ public class ProposalService {
             currentPage = 1;
         }
         if (pageSize == null) {
-            pageSize = 1000;
+            pageSize = 2000;
         }
         // 查询列表
         List<ProposalEntity> proposalEntities = proposalEntityRepository.findAll().page(currentPage - 1, pageSize).list();
@@ -173,12 +173,12 @@ public class ProposalService {
      * @param multipartBody 文件内容
      * @return 文件信息
      */
-    public UploadFileRes upload(MultipartBody multipartBody) {
+    public UploadFileRes upload(MultipartBody multipartBody, boolean isPublish) {
         if (multipartBody.file == null) {
             LOG.debug("input parameter file is null");
             throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "multipartBody.file");
         }
-        String folderPath = appendSlash(properties.getFileLocation()) + "/" + CommonUtils.getDayOrderFormat();
+        String folderPath = appendSlash(isPublish ?properties.getOSSPublicPath():properties.getFileLocation()) + "/" + CommonUtils.getDayOrderFormat();
         initDirectory(folderPath);
         String filePath = folderPath + "/" + fileRename(multipartBody.fileName);
         File file = new File(filePath);
@@ -196,13 +196,27 @@ public class ProposalService {
         }
         long fileSize = file.length();
         // 上传oss
-        ossClient.fileUpload(rmSlash(filePath), file);
+        if(isPublish)
+        {
+            ossClient.fileUploadPublic(rmSlash(filePath), file);
+        } else {
+            ossClient.fileUpload(rmSlash(filePath), file);
+        }
         // 删除本地文件
         boolean delOrNot = file.delete();
         if (!delOrNot) {
             LOG.warnv("delete local file:{0} failed", filePath);
         }
-        return UploadFileRes.of(null, multipartBody.fileName, fileSize, filePath.substring(appendSlash(properties.getFileLocation()).length()));
+        return UploadFileRes.of(null, multipartBody.fileName, fileSize,
+                isPublish?properties.getOSSPublicDomain()+appendSlash(filePath):filePath.substring(appendSlash(properties.getFileLocation()).length()));
+    }
+
+    public void delete(String filePath){
+        if(filePath.startsWith(properties.getOSSPublicDomain())){
+            ossClient.deleteObject(properties.getOSSBucketName(), filePath.substring(properties.getOSSPublicDomain().length()+1));
+        }else{
+            ossClient.deleteObject(properties.getOSSBucketName(), rmSlash(properties.getFileLocation()+filePath));
+        }
     }
 
     private void fileSizeCheck(File file) {

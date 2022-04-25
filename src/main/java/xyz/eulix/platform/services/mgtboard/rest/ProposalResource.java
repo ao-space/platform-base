@@ -6,8 +6,10 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.service.ProposalService;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.model.PageListResult;
 import xyz.eulix.platform.services.support.serialization.OperationUtils;
@@ -37,6 +39,9 @@ public class ProposalResource {
 
     @Inject
     OperationUtils utils;
+
+    @Inject
+    ApplicationProperties properties;
 
     @POST
     @Path("/proposal")
@@ -96,7 +101,7 @@ public class ProposalResource {
     @Operation(description = "获取意见反馈列表")
     public PageListResult<ProposalRes> proposalList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                     @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                                    @Parameter(required = true, description = "每页数量，最大1000") @Max(1000)
+                                                    @Parameter(required = true, description = "每页数量，最大2000") @Max(2000)
                                                         @QueryParam("page_size") Integer pageSize) {
         return proposalService.listProposal(currentPage, pageSize);
     }
@@ -113,7 +118,7 @@ public class ProposalResource {
         Stopwatch sw = Stopwatch.createStarted();
         UploadFileRes uploadFileRes;
         try {
-            uploadFileRes = proposalService.upload(multipartBody);
+            uploadFileRes = proposalService.upload(multipartBody, CommonUtils.isNull(isPublish)?false:isPublish);
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: upload(), exception");
             throw e;
@@ -145,6 +150,29 @@ public class ProposalResource {
         }
         LOG.infov("[Return] method: download(), result: ok, elapsed: {0}", sw);
         return response;
+    }
+
+    @RolesAllowed("admin")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/file/delete")
+    @Operation(description = "文件删除接口")
+    public BaseResultRes delete(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
+                                @NotNull @Valid FileReq fileReq) {
+        LOG.infov("[Invoke] method: delete(), fileName: {0}", fileReq.getFilePath().substring(fileReq.getFilePath().lastIndexOf("/")+1));
+        Stopwatch sw = Stopwatch.createStarted();
+        try {
+            proposalService.delete(fileReq.getFilePath());
+
+        } catch (Exception e) {
+            LOG.errorv(e,"[Throw] method: delete(), exception");
+            throw e;
+        } finally {
+            sw.stop();
+        }
+        LOG.infov("[Return] method: delete(), result: ok, elapsed: {0}", sw);
+        return BaseResultRes.of(true);
     }
 
     @GET

@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -67,22 +68,13 @@ public class RegistryResource {
         // 校验用户是否已注册
         registryService.hasUserRegistered(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId());
         SubdomainEntity subdomainEntity = null;
-        // subdomain复用盒子network client id，兼容network proxy缺失
-        if (RegistryTypeEnum.USER_ADMIN.getName().equals(userRegistryInfo.getUserType())) {
-            // 查询盒子clientId
-            String subdomain = boxEntity.getNetworkClientId();
-            // 校验subdomain是否不存在，或者已使用
-            subdomainEntity = registryService.isSubdomainNotExistOrUsed(subdomain);
-            userRegistryInfo.setSubdomain(subdomain);
+        if (CommonUtils.isNullOrEmpty(userRegistryInfo.getSubdomain())) {
+            // 申请subdomain
+            subdomainEntity = registryService.subdomainGen(userRegistryInfo.getBoxUUID());
+            userRegistryInfo.setSubdomain(subdomainEntity.getSubdomain());
         } else {
-            if (CommonUtils.isNullOrEmpty(userRegistryInfo.getSubdomain())) {
-                // 申请subdomain
-                subdomainEntity = registryService.subdomainGen(userRegistryInfo.getBoxUUID());
-                userRegistryInfo.setSubdomain(subdomainEntity.getSubdomain());
-            } else {
-                // 校验subdomain是否不存在，或者已使用
-                subdomainEntity = registryService.isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain());
-            }
+            // 校验subdomain是否不存在，或者已使用
+            subdomainEntity = registryService.isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain());
         }
         // 注册
         return registryService.registryUser(userRegistryInfo, subdomainEntity.getUserDomain());
@@ -245,6 +237,22 @@ public class RegistryResource {
         // 生成
         SubdomainEntity subdomainEntity = registryService.subdomainGen(boxUUID, effectiveTime);
         return SubdomainGenResult.of(boxUUID, subdomainEntity.getSubdomain());
+    }
+
+    @Logged
+    @PUT
+    @Path("/subdomain/update")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "更新subdomain。幂等设计，建议client失败重试3次。")
+    public SubdomainUpdateResult subdomainUpdate(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
+                                           @NotBlank @QueryParam("user_id") @Schema(description = "用户的 id。") String userId,
+                                           @NotBlank @QueryParam("user_reg_key") @Schema(description = "用户的注册 key。") String userRegKey,
+                                           @NotBlank @QueryParam("subdomain") @Size(max = 100) @Schema(description = "子域名，最长100字符") String subdomain) {
+        // 校验用户是否未注册
+        registryService.hasUserNotRegistered(boxUUID, userId, userRegKey);
+        // 更新域名
+        return registryService.subdomainUpdate(boxUUID, userId, subdomain);
     }
 
     @RolesAllowed("admin")

@@ -58,6 +58,12 @@ public interface ApplicationProperties {
     @ConfigProperty(name = "oss.endpoint")
     String getOSSEndpoint();
 
+    @ConfigProperty(name = "oss.public.domain")
+    String getOSSPublicDomain();
+
+    @ConfigProperty(name = "oss.public.path")
+    String getOSSPublicPath();
+
     @ConfigProperty(name = "ali.accesskey.id")
     String getAliAccessKeyId();
 
@@ -66,4 +72,7 @@ public interface ApplicationProperties {
 
     @ConfigProperty(name = "oss.bucket.name")
     String getOSSBucketName();
+
+    @ConfigProperty(name = "subdomain.effective-time", defaultValue = "30")
+    Integer getSubdomainEffectiveTime();
 }

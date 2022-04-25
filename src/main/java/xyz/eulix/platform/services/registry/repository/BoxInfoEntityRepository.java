@@ -1,11 +1,12 @@
 package xyz.eulix.platform.services.registry.repository;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
+import xyz.eulix.platform.services.support.CommonUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,5 +42,25 @@ public class BoxInfoEntityRepository implements PanacheRepository<BoxInfoEntity>
     @Transactional
     public void createBoxInfo(BoxInfoEntity boxInfoEntity) {
         this.persist(boxInfoEntity);
+    }
+
+    public PanacheQuery<BoxInfoEntity> findWithBoxRegistries(Boolean isregistry){
+        if(CommonUtils.isNull(isregistry)){
+            return find("select a from BoxInfoEntity a left join fetch a.registryBoxEntity");
+        }else if(Boolean.TRUE.equals(isregistry)){
+            return find("select a from BoxInfoEntity a inner join fetch a.registryBoxEntity");
+        } else{
+            return find("select a from BoxInfoEntity a left join fetch a.registryBoxEntity c where c.boxUUID=null");
+        }
+    }
+
+    public Long getWithBoxRegistriesCount(Boolean isregistry){
+        if(CommonUtils.isNull(isregistry)){
+            return this.count();
+        }else if(Boolean.TRUE.equals(isregistry)){
+            return this.count("from BoxInfoEntity a inner join a.registryBoxEntity");
+        } else{
+            return this.count("from BoxInfoEntity a left join a.registryBoxEntity c where c.boxUUID=null");
+        }
     }
 }

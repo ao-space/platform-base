@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 public class QuestionnaireResource {
     private static final Logger LOG = Logger.getLogger("app.log");
 
+
     @Inject
     QuestionnaireService questionnaireService;
 
@@ -89,7 +90,7 @@ public class QuestionnaireResource {
     public PageListResult<QuestionnaireRes> questionnaireList(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                       @Parameter(description = "用户域名") @QueryParam("user_domain") String userDomain,
                                       @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
-                                      @Parameter(required = true, description = "每页数量，最大1000") @Max(1000) @QueryParam("page_size") Integer pageSize) {
+                                      @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize) {
         return questionnaireService.listQuestionnaire(userDomain, currentPage, pageSize);
     }
 
