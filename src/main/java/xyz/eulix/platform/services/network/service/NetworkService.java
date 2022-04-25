@@ -23,8 +23,6 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,9 +142,8 @@ public class NetworkService {
     }
 
     private NetworkServerRes networkServerEntityToRes(NetworkServerEntity serverEntity) {
-        return NetworkServerRes.of(serverEntity.getProtocol() + "://" + serverEntity.getAddr() + ":"
-                + serverEntity.getPort(), getExtraInfo(serverEntity).getStunAddress());
-        return NetworkServerRes.of(getNetworkServerAddr(serverEntity.getProtocol(), serverEntity.getAddr(), serverEntity.getPort()));
+        return NetworkServerRes.of(getNetworkServerAddr(serverEntity.getProtocol(), serverEntity.getAddr(), serverEntity.getPort()),
+                getExtraInfo(serverEntity).getStunAddress());
     }
 
     private String getNetworkServerAddr(String protocal, String addr, Integer port) {
