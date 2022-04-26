@@ -18,6 +18,9 @@ public class QaFeedbackEntityRepository implements PanacheRepository<Questionnai
     // 根据user_domain、survey_id、answer_id查询资源
     private static final String FIND_BY_USERDOMAIN_SURVEY_ANSWER_ID = "user_domain=?1 AND payload_survey_id=?2 AND payload_answer_id=?3";
 
+    // 根据user_domain更新资源
+    private static final String UPDATE_BY_USER_DOMAIN = "user_domain=?1, updated_at=now() where user_domain=?2";
+
     public List<QuestionnaireFeedbackEntity> findByUserDomain(String userDomain) {
         return this.find(FIND_BY_USERDOMAIN, userDomain).list();
     }
@@ -28,5 +31,9 @@ public class QaFeedbackEntityRepository implements PanacheRepository<Questionnai
 
     public Optional<QuestionnaireFeedbackEntity> findByUserDomainAndSurveyAndAnswerId(String userDomain, Long payloadSurveyId, Long payloadAnswerId) {
         return this.find(FIND_BY_USERDOMAIN_SURVEY_ANSWER_ID, userDomain, payloadSurveyId, payloadAnswerId).singleResultOptional();
+    }
+
+    public void updateUserDomainByUserDomain(String userDomain, String userDomainOld) {
+        this.update(UPDATE_BY_USER_DOMAIN, userDomain, userDomainOld);
     }
 }
