@@ -80,10 +80,7 @@ public class RegistryService {
     SubdomainEntityRepository subdomainEntityRepository;
 
     @Inject
-    ProposalEntityRepository proposalEntityRepository;
-
-    @Inject
-    QaFeedbackEntityRepository feedbackEntityRepository;
+    SubdomainService subdomainService;
 
     @Inject
     NetworkService networkService;
@@ -509,7 +506,7 @@ public class RegistryService {
         LOG.infov("subdomain update begin, from:{0} to:{1}", subdomainOld, subdomain);
         // 更新域名
         String userDomain = subdomain + "." + properties.getRegistrySubdomain();
-        updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
+        subdomainService.updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
         // 添加用户面路由：用户域名 - network server 地址 & network client id
         networkService.cacheNSRoute(userDomain, boxUUID);
 
@@ -527,18 +524,6 @@ public class RegistryService {
         updateResult.setUserId(userId);
         updateResult.setSubdomain(subdomain);
         return updateResult;
-    }
-
-    @Transactional
-    public Boolean updateSubdomain(String boxUUID, String userId, String subdomain, String userDomain, String subdomainOld) {
-        String userDomainOld = subdomainOld + "." + properties.getRegistrySubdomain();
-        // subdomain
-        subdomainEntityRepository.updateSubdomainByBoxUUIDAndUserId(boxUUID, userId, subdomain, userDomain);
-        // proposal
-        proposalEntityRepository.updateUserDomainByUserDomain(userDomain, userDomainOld);
-        // questionnaire_feedback
-        feedbackEntityRepository.updateUserDomainByUserDomain(userDomain, userDomainOld);
-        return true;
     }
 
     /**
