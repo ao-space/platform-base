@@ -1,8 +1,12 @@
 package xyz.eulix.platform.services.registry.service;
 
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.services.auth.repository.PkeyAuthEntityRepository;
 import xyz.eulix.platform.services.config.ApplicationProperties;
+import xyz.eulix.platform.services.mgtboard.entity.QuestionnaireFeedbackEntity;
 import xyz.eulix.platform.services.mgtboard.entity.ReservedDomainEntity;
+import xyz.eulix.platform.services.mgtboard.repository.ProposalEntityRepository;
+import xyz.eulix.platform.services.mgtboard.repository.QaFeedbackEntityRepository;
 import xyz.eulix.platform.services.mgtboard.repository.ReservedDomainEntityRepository;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.registry.dto.registry.*;
@@ -74,6 +78,9 @@ public class RegistryService {
 
     @Inject
     SubdomainEntityRepository subdomainEntityRepository;
+
+    @Inject
+    SubdomainService subdomainService;
 
     @Inject
     NetworkService networkService;
@@ -499,7 +506,7 @@ public class RegistryService {
         LOG.infov("subdomain update begin, from:{0} to:{1}", subdomainOld, subdomain);
         // 更新域名
         String userDomain = subdomain + "." + properties.getRegistrySubdomain();
-        subdomainEntityRepository.updateSubdomainByBoxUUIDAndUserId(boxUUID, userId, subdomain, userDomain);
+        subdomainService.updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
         // 添加用户面路由：用户域名 - network server 地址 & network client id
         networkService.cacheNSRoute(userDomain, boxUUID);
 
