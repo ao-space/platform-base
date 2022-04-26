@@ -530,7 +530,7 @@ public class RegistryService {
     }
 
     @Transactional
-    public void updateSubdomain(String boxUUID, String userId, String subdomain, String userDomain, String subdomainOld) {
+    public Boolean updateSubdomain(String boxUUID, String userId, String subdomain, String userDomain, String subdomainOld) {
         String userDomainOld = subdomainOld + "." + properties.getRegistrySubdomain();
         // subdomain
         subdomainEntityRepository.updateSubdomainByBoxUUIDAndUserId(boxUUID, userId, subdomain, userDomain);
@@ -538,6 +538,7 @@ public class RegistryService {
         proposalEntityRepository.updateUserDomainByUserDomain(userDomain, userDomainOld);
         // questionnaire_feedback
         feedbackEntityRepository.updateUserDomainByUserDomain(userDomain, userDomainOld);
+        return true;
     }
 
     /**
