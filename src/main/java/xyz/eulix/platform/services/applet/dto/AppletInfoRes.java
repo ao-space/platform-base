@@ -28,6 +28,9 @@ public class AppletInfoRes {
 	@Schema(description = "iconurl")
 	private final String iconUrl;
 
+	@Schema(description = "小程序描述")
+	private final String updateDesc;
+
 	@Schema(description = "上一次更新时间")
 	private final OffsetDateTime updateAt;
 }
