@@ -32,7 +32,6 @@ public class PushTokenEntity extends BaseEntity {
     @Column(name = "device_type")
     private String deviceType;
 
-    @NotBlank
     @Column(name = "extra")
     private String extra;
 }
