@@ -31,6 +31,9 @@ public class AppletInfoRes {
 	@Schema(description = "小程序描述")
 	private final String updateDesc;
 
+	@Schema(description = "是否强制更新")
+	private final Boolean isForceUpdate;
+
 	@Schema(description = "上一次更新时间")
 	private final OffsetDateTime updateAt;
 }

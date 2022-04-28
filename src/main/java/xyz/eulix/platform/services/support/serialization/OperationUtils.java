@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -63,7 +64,7 @@ public class OperationUtils {
         try (InputStream inputStream =new URL(URLDecoder.decode(urlString, "utf-8")).openStream()){
             byte[] b = inputStream.readAllBytes();
             return Response.ok(b)
-                    .header("Content-Disposition", "attachment;filename=" + fileName[fileName.length -1])
+                    .header("Content-Disposition", "attachment;filename=" + fileName[fileName.length-1])
                     .header("Content-Length", b.length)
                     .build();
         } catch (IOException e) {

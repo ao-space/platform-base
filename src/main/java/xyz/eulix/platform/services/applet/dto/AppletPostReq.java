@@ -41,6 +41,9 @@ public class AppletPostReq {
 	@Schema(description = "md5")
 	private String md5;
 
+	@Schema(description = "是否强制更新")
+	private Boolean isForceUpdate;
+
 	@Schema(description = "兼容盒子最小版本")
 	private String minCompatibleBoxVersion;
 }
