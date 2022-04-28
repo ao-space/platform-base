@@ -10,6 +10,7 @@ import xyz.eulix.platform.services.applet.dto.AppletPostReq;
 import xyz.eulix.platform.services.applet.dto.AppletReq;
 import xyz.eulix.platform.services.applet.service.AppletService;
 import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
+import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 
 import javax.annotation.security.RolesAllowed;
@@ -37,8 +38,14 @@ public class AppletResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Operation(description = "获取所有小程序信息")
-	public List<AppletInfoRes> getAppletInfo(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId){
-		return appletService.getAppletInfo();
+	public List<AppletInfoRes> getAppletInfo(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+											 @Parameter(description = "applet_id") @QueryParam("applet_id") String appletId){
+		if(CommonUtils.isNotNull(appletId)){
+			return appletService.getAppletInfo(appletId);
+		}else{
+			return appletService.getAppletInfo();
+		}
+
 	}
 
 	//@RolesAllowed("admin")

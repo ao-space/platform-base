@@ -45,6 +45,18 @@ public class AppletService {
 		return resp;
 	}
 
+	public List<AppletInfoRes> getAppletInfo(String appletId){
+		AppletInfoEntity appletInfoEntity = appletInfoEntityRepository.findByAppleId(appletId);
+		List<AppletInfoRes> resp = new ArrayList<>();
+		resp.add(AppletInfoRes.of(appletInfoEntity.getName(),
+				appletInfoEntity.getNameEn() == null?"":appletInfoEntity.getNameEn(),
+				appletInfoEntity.getState(),
+				appletInfoEntity.getAppletId(), appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
+				appletInfoEntity.getIconUrl(), appletInfoEntity.getUpdateDesc(),
+				appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getUpdatedAt()));
+		return resp;
+	}
+
 	public AppletInfoRes saveApplet(AppletPostReq appletPostReq){
 		if(CommonUtils.isNotNull(appletInfoEntityRepository.findByAppleId(appletPostReq.getAppletId()))){
 			throw new ServiceOperationException(ServiceError.DUPPLICATE_APPLET);
