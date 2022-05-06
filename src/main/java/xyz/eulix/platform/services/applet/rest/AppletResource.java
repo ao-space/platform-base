@@ -12,6 +12,8 @@ import xyz.eulix.platform.services.applet.service.AppletService;
 import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.service.ServiceError;
+import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -95,7 +97,9 @@ public class AppletResource {
 	public Response downloadApplet(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
 								   @NotNull @Valid AppletReq appletReq){
 		//检查小程序新版本是否与盒子版本兼容，以及请求的小程序版本是否最新
-		appletService.compatiableCheck(appletReq);
+		if(!appletService.compatiableCheck(appletReq)){
+			throw new ServiceOperationException(ServiceError.BOX_VERSION_TOO_OLD);
+		}
 		//开始下载并检测下载时常
 		LOG.infov("[Invoke] method: appletDownload(), appletId: {0}", appletReq.getAppletId());
 		Stopwatch sw = Stopwatch.createStarted();

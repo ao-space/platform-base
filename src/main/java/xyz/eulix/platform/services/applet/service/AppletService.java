@@ -109,14 +109,15 @@ public class AppletService {
 		appletInfoEntity.setMinCompatibleBoxVersion(appletPostReq.getMinCompatibleBoxVersion()!=null?appletPostReq.getMinCompatibleBoxVersion() : appletInfoEntity.getMinCompatibleBoxVersion());
 	}
 
-	public void compatiableCheck(AppletReq appletReq){
+	public boolean compatiableCheck(AppletReq appletReq){
 		AppletInfoEntity appletInfoEntity = appletInfoEntityRepository.findByAppleId(appletReq.getAppletId());
 		if(CommonUtils.isNull(appletInfoEntity)) {
 			throw new ServiceOperationException(ServiceError.APPLET_NOT_EXIST);
 		}
 		if(Version.valueOf(appletReq.getCurBoxVersion()).lessThan(Version.valueOf(appletInfoEntity.getMinCompatibleBoxVersion()))){
-			throw new ServiceOperationException(ServiceError.BOX_VERSION_TOO_OLD);
+			return false;
 		}
+		return true;
 	}
 
 	public Response downAppletPackage(AppletReq appletReq){
