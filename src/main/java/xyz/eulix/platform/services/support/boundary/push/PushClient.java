@@ -21,12 +21,12 @@ public class PushClient {
     QuarkusProperties properties;
 
 	// The post path
-	protected static final String postPath = "/api/send";
+	protected static final String POST_PATH = "/api/send";
 
     public Boolean sendMessage(UmengNotification msg) {
         String timestamp = Integer.toString((int)(System.currentTimeMillis() / 1000));
         msg.setPredefinedKeyValue("timestamp", timestamp);
-        String url = properties.getUPushHost() + postPath;
+        String url = properties.getUPushHost() + POST_PATH;
         try {
             String sign = DigestUtils.md5Hex(("POST" + url + msg.getPostBody() + msg.getAppMasterSecret()).getBytes("utf8"));
             PushMsgRes pushMsgRes = uPushService.pushMessage(msg.getPostBody(), sign);

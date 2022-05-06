@@ -189,6 +189,7 @@ public class PushService {
                     case GO_CUSTOM:
                         isParamEmptyThrowEx(payloadBody.getCustom(), "pushMessage.payload.body.custom");
                         androidNotification.goCustomAfterOpen(payloadBody.getCustom());
+                        break;
                     default:
                         throw new UnsupportedOperationException();
                 }
