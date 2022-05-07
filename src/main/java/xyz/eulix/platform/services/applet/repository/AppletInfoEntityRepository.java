@@ -26,9 +26,9 @@ public class AppletInfoEntityRepository implements PanacheRepository<AppletInfoE
 	@Transactional
 	public void update(AppletInfoEntity appletInfoEntity, String appletId){
 		update("set applet_name=?1, applet_en_name=?11, state=?12, applet_id = ?2, applet_version=?3, applet_size=?4, update_desc=?5, icon_url=?6, down_url=?7," +
-				"md5=?8, min_compatible_box_version=?9, updated_at = now() where applet_id=?10", appletInfoEntity.getName(), appletInfoEntity.getAppletId(),
+				"md5=?8, min_compatible_box_version=?9, updated_at = now(), force_update=?13 where applet_id=?10", appletInfoEntity.getName(), appletInfoEntity.getAppletId(),
 				appletInfoEntity.getAppletVersion(), appletInfoEntity.getAppletSize(), appletInfoEntity.getUpdateDesc(), appletInfoEntity.getIconUrl(),
 				appletInfoEntity.getDownUrl(), appletInfoEntity.getMd5(), appletInfoEntity.getMinCompatibleBoxVersion(), appletId, appletInfoEntity.getNameEn(),
-				appletInfoEntity.getState());
+				appletInfoEntity.getState(), appletInfoEntity.getIsForceUpdate());
 	}
 }
