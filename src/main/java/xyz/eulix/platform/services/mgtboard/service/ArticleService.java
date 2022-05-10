@@ -32,7 +32,7 @@ public class ArticleService {
 		if (catalogueEntityRepository.findById(cataid) == null) {
 			throw new ServiceOperationException(ServiceError.CATALOGUE_NOT_EXIST);
 		}
-		if (!articleEntityRepository.findByTitle(title).isEmpty()) {
+		if (!articleEntityRepository.findByTitleAndCataId(title,cataid).isEmpty()) {
 			throw new ServiceOperationException(ServiceError.ARTICLE_HAS_CREATE);
 		}
 		articleEntity.setCataId(cataid);
@@ -55,7 +55,7 @@ public class ArticleService {
 		if (CommonUtils.isNull(articleEntity)) {
 			throw new ServiceOperationException(ServiceError.ARTICLE_NOT_EXIST);
 		}
-		var articleEntityTitleCheckList = articleEntityRepository.findByTitle(title);
+		var articleEntityTitleCheckList = articleEntityRepository.findByTitleAndCataId(title, cataId);
 		if (!articleEntityTitleCheckList.isEmpty() && !articleEntityTitleCheckList.contains(articleEntity)) {
 			throw new ServiceOperationException(ServiceError.ARTICLE_HAS_CREATE);
 		}
