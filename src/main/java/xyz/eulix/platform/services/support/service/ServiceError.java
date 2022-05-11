@@ -20,6 +20,9 @@ public enum ServiceError {
    * Indicates a unknown error that might be somehow undefined currently.
    */
   UNKNOWN(-1, "unknown error"),
+  DATABASE_ERROR(2027, "database error"),
+  EXTERNAL_SERVICE_ERROR(2038, "external service:{0} error"),
+
   PKEY_INVALID(2000, "pkey is invalid"),
   PKEY_EXPIRED(2001, "pkey has expired"),
 
@@ -51,7 +54,6 @@ public enum ServiceError {
   USER_NOT_REGISTERED(2024, "user id has not registered"),
   CLIENT_ALREADY_REGISTERED(2025, "client uuid has already registered"),
   CLIENT_NOT_REGISTERED(2026, "client uuid has not registered"),
-  DATABASE_ERROR(2027, "database error"),
 
   NETWORK_CLIENT_NOT_EXIST(2028, "network client does not exist"),
   TIME_PARAMETER_ERROR(2029, "startTime {0} is after endTime {1}"),
@@ -69,7 +71,9 @@ public enum ServiceError {
   DUPPLICATE_APPLET(2041, "applet already exist, cannot create the same applet"),
   NETWORK_SERVER_NOT_EXIST(2049, "network server does not exist"),
   SUBDOMAIN_NOT_IN_USER(2050, "subdomain is not in use"),
-  SUBDOMAIN_IS_RESERVED(2051, "subdomain is reserved")
+  SUBDOMAIN_IS_RESERVED(2051, "subdomain is reserved"),
+
+  PUSH_ERROR(2052, "push message failed"),
   ;
 
   /**
