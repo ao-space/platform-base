@@ -24,10 +24,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -65,7 +62,7 @@ public class PushService {
 
     @Transactional
     public DeviceTokenRes registryDeviceToken(DeviceTokenReq deviceTokenReq) {
-        // ²éÑ¯ÎÊ¾íÊÇ·ñ´æÔÚ
+        // æŸ¥è¯¢é—®å·æ˜¯å¦å­˜åœ¨
         PushTokenEntity pushTokenEntity = deviceTokenReqToEntity(deviceTokenReq);
         Optional<PushTokenEntity> pushTokenEntityOp = pushTokenEntityRepository.findByClientUUID(deviceTokenReq.getClientUUID());
         if (pushTokenEntityOp.isEmpty()) {
@@ -100,24 +97,24 @@ public class PushService {
     }
 
     public Boolean pushMessage(PushMessage pushMessage) {
-        // ²ÎÊıĞ£Ñé
+        // å‚æ•°æ ¡éªŒ
         if (CommonUtils.isNullOrEmpty(pushMessage.getBoxUUID())) {
             throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.boxUUID");
         }
         if (CommonUtils.isNullOrEmpty(pushMessage.getBoxRegKey())) {
             throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.boxRegKey");
         }
-        // Ğ£ÑéºĞ×ÓºÏ·¨ĞÔ
+        // æ ¡éªŒç›’å­åˆæ³•æ€§
         registryService.hasBoxNotRegistered(pushMessage.getBoxUUID(), pushMessage.getBoxRegKey());
 
         switch (MessageTypeEnum.fromValue(pushMessage.getType())) {
             case CLIENTCAST:
-                // ²ÎÊıĞ£Ñé
+                // å‚æ•°æ ¡éªŒ
                 List<PushMessage.UserIdAndClientUUID> clientUUIDS = pushMessage.getClientUUIDs();
                 if (CommonUtils.isNullOrEmpty(clientUUIDS)) {
                     throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.clientUUIDs");
                 }
-                // ÁĞ²¥ÏûÏ¢
+                // åˆ—æ’­æ¶ˆæ¯
                 return messageClientcast(pushMessage);
             default:
                 throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.type");
@@ -127,25 +124,29 @@ public class PushService {
     public Boolean broadcastMessage(PushMessage pushMessage) {
         switch (MessageTypeEnum.fromValue(pushMessage.getType())) {
             case BROADCAST:
-                // ¹ã²¥ÏûÏ¢
+                // å¹¿æ’­æ¶ˆæ¯
                 return messageBroadcast(pushMessage);
             default:
                 throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "pushMessage.type");
         }
     }
 
-    // ÁĞ²¥ÏûÏ¢£ºandroid & ios
+    // åˆ—æ’­æ¶ˆæ¯ï¼šandroid & ios
     private Boolean messageClientcast(PushMessage pushMessage) {
-        // »ñÈ¡ device token ÁĞ±í
-        List<String> clientUUIDs = new ArrayList<>();
+        // è·å– device token åˆ—è¡¨
+        Set<String> clientUUIDs = new HashSet<>();
         List<PushMessage.UserIdAndClientUUID> userIdAndClientUUIDS = pushMessage.getClientUUIDs();
         userIdAndClientUUIDS.forEach(userIdAndClientUUID -> {
             if (!clientUUIDs.contains(userIdAndClientUUID.getClientUUID())) {
                 clientUUIDs.add(userIdAndClientUUID.getClientUUID());
             }
         });
+        if (CommonUtils.isNullOrEmpty(clientUUIDs)) {
+            LOG.infov("ClientUUID is empty");
+            return true;
+        }
         List<PushTokenEntity> pushTokenEntities = pushTokenEntityRepository.findByClientUUIDs(clientUUIDs);
-        // ·ÖÀà android & ios µÄdevice token
+        // åˆ†ç±» android & ios çš„device token
         List<String> androidTokens = new ArrayList<>();
         List<String> iosTokens = new ArrayList<>();
         pushTokenEntities.stream().forEach(pushTokenEntity -> {
@@ -157,11 +158,11 @@ public class PushService {
         });
         Boolean succAndroid = true;
         Boolean succIOS = true;
-        // ÁĞ²¥ÏûÏ¢£ºandroid
+        // åˆ—æ’­æ¶ˆæ¯ï¼šandroid
         if (!CommonUtils.isNullOrEmpty(androidTokens)) {
             succAndroid = androidClientcast(pushMessage, androidTokens);
         }
-        // ÁĞ²¥ÏûÏ¢£ºios
+        // åˆ—æ’­æ¶ˆæ¯ï¼šios
         if (!CommonUtils.isNullOrEmpty(iosTokens)) {
             succIOS = iosClientcast(pushMessage, iosTokens);
         }
@@ -179,11 +180,11 @@ public class PushService {
         return pushClient.sendMessage(iosListcast);
     }
 
-    // ¹ã²¥ÏûÏ¢£ºandroid & ios
+    // å¹¿æ’­æ¶ˆæ¯ï¼šandroid & ios
     public Boolean messageBroadcast(PushMessage pushMessage) {
-        // ¹ã²¥ÏûÏ¢£ºandroid
+        // å¹¿æ’­æ¶ˆæ¯ï¼šandroid
         Boolean succAndroid = androidBroadcast(pushMessage);
-        // ¹ã²¥ÏûÏ¢£ºios
+        // å¹¿æ’­æ¶ˆæ¯ï¼šios
         Boolean succIOS = iosBroadcast(pushMessage);
         LOG.infov("Broadcast result, android:{0}, ios:{1}", succAndroid ? "success" : "fail", succIOS ? "success" : "fail");
         return succAndroid && succIOS;
@@ -232,7 +233,7 @@ public class PushService {
     }
 
     private void pushMessageToAndroidNotification(PushMessage pushMessage, AndroidNotification androidNotification) {
-        // ·¢ËÍÏûÏ¢ÃèÊö
+        // å‘é€æ¶ˆæ¯æè¿°
         androidNotification.setDescription(pushMessage.getDescription());
 
         // payload
@@ -305,7 +306,7 @@ public class PushService {
     }
 
     private void pushMessageToIOSNotification(PushMessage pushMessage, IOSNotification iosNotification) {
-        // ·¢ËÍÏûÏ¢ÃèÊö
+        // å‘é€æ¶ˆæ¯æè¿°
         iosNotification.setDescription(pushMessage.getDescription());
 
         // payload
@@ -341,14 +342,18 @@ public class PushService {
     }
 
     /**
-     * Í¨ÖªÈ«²¿µÄ¹ÜÀíÔ±µÄ°ó¶¨ÊÖ»ú
+     * é€šçŸ¥å…¨éƒ¨çš„ç®¡ç†å‘˜çš„ç»‘å®šæ‰‹æœº
      *
-     * @return ÊÇ·ñ³É¹¦
+     * @return æ˜¯å¦æˆåŠŸ
      */
     public Boolean adminFilecast(PushMessage pushMessage) {
-        // ²éÑ¯È«²¿µÄ¹ÜÀíÔ±µÄ°ó¶¨ÊÖ»ú
+        // æŸ¥è¯¢å…¨éƒ¨çš„ç®¡ç†å‘˜çš„ç»‘å®šæ‰‹æœº
         Set<String> clientUUIDs = registryService.getAdminBindClients();
-        // ·ÖÀà android & ios µÄdevice token
+        if (CommonUtils.isNullOrEmpty(clientUUIDs)) {
+            LOG.infov("ClientUUID is empty");
+            return true;
+        }
+        // åˆ†ç±» android & ios çš„device token
         List<String> androidTokens = new ArrayList<>();
         List<String> iosTokens = new ArrayList<>();
         pushTokenEntityRepository.findByClientUUIDs(clientUUIDs).stream().forEach(pushTokenEntity -> {
@@ -360,12 +365,12 @@ public class PushService {
         });
         Boolean succAndroid = true;
         Boolean succIOS = true;
-        // ÎÄ¼ş²¥ÏûÏ¢£ºandroid
+        // æ–‡ä»¶æ’­æ¶ˆæ¯ï¼šandroid
         if (!CommonUtils.isNullOrEmpty(androidTokens)) {
             AndroidFilecast androidFilecast = pushMessageToAndroidFilecast(pushMessage);
             succAndroid =  pushClient.batchSendMessage(appKeyAndroid, androidFilecast, androidTokens);
         }
-        // ÎÄ¼ş²¥ÏûÏ¢£ºios
+        // æ–‡ä»¶æ’­æ¶ˆæ¯ï¼šios
         if (!CommonUtils.isNullOrEmpty(iosTokens)) {
             IOSFilecast iosFilecast = pushMessageToIOSFilecast(pushMessage);
             succIOS = pushClient.batchSendMessageIOS(appKeyIOS, iosFilecast, androidTokens);
