@@ -9,7 +9,7 @@ public class IOSListcast extends IOSNotification {
         this.setPredefinedKeyValue("type", "listcast");
     }
 
-    public void setDeviceToken(String tokens) {
+    public void setDeviceTokens(String tokens) {
         setPredefinedKeyValue("device_tokens", tokens);
     }
 }

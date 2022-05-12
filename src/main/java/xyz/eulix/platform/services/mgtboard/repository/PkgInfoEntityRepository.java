@@ -2,6 +2,7 @@ package xyz.eulix.platform.services.mgtboard.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import javax.enterprise.context.ApplicationScoped;
+import javax.transaction.Transactional;
 
 import io.quarkus.panache.common.Sort;
 import xyz.eulix.platform.services.mgtboard.dto.SortKeyEnum;
@@ -55,5 +56,10 @@ public class PkgInfoEntityRepository implements PanacheRepository<PkgInfoEntity>
         } else {
             return this.findAll(Sort.by(sortKey, Sort.Direction.Descending)).page(currentPage, pageSize).list();
         }
+    }
+
+    @Transactional
+    public void savePkgInfo(PkgInfoEntity pkgInfoEntity) {
+        this.persist(pkgInfoEntity);
     }
 }

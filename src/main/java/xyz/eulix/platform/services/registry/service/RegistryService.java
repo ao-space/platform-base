@@ -1,12 +1,9 @@
 package xyz.eulix.platform.services.registry.service;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.auth.repository.PkeyAuthEntityRepository;
 import xyz.eulix.platform.services.config.ApplicationProperties;
-import xyz.eulix.platform.services.mgtboard.entity.QuestionnaireFeedbackEntity;
 import xyz.eulix.platform.services.mgtboard.entity.ReservedDomainEntity;
-import xyz.eulix.platform.services.mgtboard.repository.ProposalEntityRepository;
-import xyz.eulix.platform.services.mgtboard.repository.QaFeedbackEntityRepository;
 import xyz.eulix.platform.services.mgtboard.repository.ReservedDomainEntityRepository;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.registry.dto.registry.*;
@@ -31,11 +28,9 @@ import javax.ws.rs.core.Response;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Provides box and client registry service.
@@ -63,6 +58,12 @@ public class RegistryService {
     private static final Integer RECOMMEND_SUBDOMAIN_MAX_LENGTH = 20;
 
     private final static Random random = new java.security.SecureRandom();
+
+    // 批量查询开始编号
+    private static final Integer BEGIN_INDEX = 0;
+
+    // 批量查询数量限制
+    private static final Integer PAGE_SIZE = 2000;
 
     @Inject
     ApplicationProperties properties;
@@ -178,7 +179,7 @@ public class RegistryService {
         networkService.cacheNSRoute(userDomain, userRegistryInfo.getBoxUUID());
 
         // 注册client（用户的绑定设备）
-        RegistryClientEntity clientEntity = registryClient(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId(),userRegistryInfo.getClientUUID(),
+        RegistryClientEntity clientEntity = registryClient(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId(), userRegistryInfo.getClientUUID(),
                 RegistryTypeEnum.CLIENT_BIND);
 
         return UserRegistryResult.of(userDomain, userEntity.getUserRegKey(), clientEntity.getClientRegKey());
@@ -280,7 +281,7 @@ public class RegistryService {
     /**
      * 校验盒子是否未注册
      *
-     * @param boxUUID boxUUID
+     * @param boxUUID   boxUUID
      * @param boxRegKey 盒子的注册码
      */
     public RegistryBoxEntity hasBoxNotRegistered(String boxUUID, String boxRegKey) {
@@ -314,7 +315,7 @@ public class RegistryService {
      * 校验用户是否已注册
      *
      * @param boxUUID boxUUID
-     * @param userId userId
+     * @param userId  userId
      */
     public void hasUserRegistered(String boxUUID, String userId) {
         final List<RegistryUserEntity> userEntitys = userEntityRepository.findAllByUserId(boxUUID, userId);
@@ -327,8 +328,8 @@ public class RegistryService {
     /**
      * 校验用户是否未注册
      *
-     * @param boxUUID boxUUID
-     * @param userId userId
+     * @param boxUUID    boxUUID
+     * @param userId     userId
      * @param userRegKey 用户的注册码
      */
     public void hasUserNotRegistered(String boxUUID, String userId, String userRegKey) {
@@ -342,8 +343,8 @@ public class RegistryService {
     /**
      * 校验client是否已注册
      *
-     * @param boxUUID boxUUID
-     * @param userId userId
+     * @param boxUUID    boxUUID
+     * @param userId     userId
      * @param clientUUID clientUUID
      */
     public void hasClientRegistered(String boxUUID, String userId, String clientUUID) {
@@ -375,7 +376,7 @@ public class RegistryService {
     /**
      * 分发全局唯一的 subdomain
      *
-     * @param boxUUID boxUUID
+     * @param boxUUID       boxUUID
      * @param effectiveTime 有效期，单位秒
      * @return subdomainEntity
      */
@@ -410,7 +411,7 @@ public class RegistryService {
     }
 
     private boolean isReservedDomain(String subdomain, List<ReservedDomainEntity> allReservedDomainEntity) {
-        for (ReservedDomainEntity entity:allReservedDomainEntity) {
+        for (ReservedDomainEntity entity : allReservedDomainEntity) {
             if (Pattern.compile(entity.getRegex()).matcher(subdomain).matches()) {
                 return true;
             }
@@ -431,7 +432,7 @@ public class RegistryService {
             subdomainEntity.setState(SubdomainStateEnum.TEMPORARY.getState());
         }
         subdomainEntityRepository.persist(subdomainEntity);
-        return  subdomainEntity;
+        return subdomainEntity;
     }
 
     public void reachUpperLimit(String boxUUID) {
@@ -458,24 +459,24 @@ public class RegistryService {
         }
         var boxEntity = boxEntityOp.get();
         List<UserRegistryDetailInfo> userRegistryDetailInfos = new ArrayList<>();
-        for(RegistryUserEntity userEntity:userEntityRepository.findByBoxUUId(uuid)){
+        for (RegistryUserEntity userEntity : userEntityRepository.findByBoxUUId(uuid)) {
             List<ClientRegistryDetailInfo> clientRegistryDetailInfos = new ArrayList<>();
             List<RegistryClientEntity> clientEntities = clientEntityRepository.findByBoxUUIdAndUserId(uuid, userEntity.getUserId());
             clientEntities.forEach(clientEntitie -> clientRegistryDetailInfos.add(ClientRegistryDetailInfo.of(
                     clientEntitie.getRegistryType(), clientEntitie.getClientUUID(), clientEntitie.getCreatedAt())));
             SubdomainEntity subdomainEntity = subdomainEntityRepository.findByBoxUUIDAndUserId(uuid, userEntity.getUserId());
             userRegistryDetailInfos.add(UserRegistryDetailInfo.of(
-                    subdomainEntity == null? null:subdomainEntity.getUserDomain(),subdomainEntity == null? null:subdomainEntity.getSubdomain(), userEntity.getRegistryType(),
+                    subdomainEntity == null ? null : subdomainEntity.getUserDomain(), subdomainEntity == null ? null : subdomainEntity.getSubdomain(), userEntity.getRegistryType(),
                     userEntity.getUserId(), userEntity.getCreatedAt(), clientRegistryDetailInfos));
         }
-        return BoxRegistryDetailInfo.of(boxEntity.getNetworkClientId(), boxEntity.getCreatedAt(), boxEntity.getUpdatedAt(), userRegistryDetailInfos );
+        return BoxRegistryDetailInfo.of(boxEntity.getNetworkClientId(), boxEntity.getCreatedAt(), boxEntity.getUpdatedAt(), userRegistryDetailInfos);
     }
 
     /**
      * 更新域名
      *
-     * @param boxUUID boxUUID
-     * @param userId userId
+     * @param boxUUID   boxUUID
+     * @param userId    userId
      * @param subdomain subdomain
      * @return SubdomainEntity
      */
@@ -536,7 +537,7 @@ public class RegistryService {
 
     /**
      * 域名推荐规则：
-     *
+     * <p>
      * 1.补年份（如2022）、月份+日期（如0330）；
      * 2.补2~3位字母（从a ~ z），字母随机；
      * 3.从已输入的末位开始扣，直到扣到6位；
@@ -580,7 +581,7 @@ public class RegistryService {
         if (recommends.size() >= RECOMMEND_SUBDOMAIN_UPPER_LIMIT) {
             return;
         }
-        for (int i=0; i < RECOMMEND_SUBDOMAIN_RETRYS; i++) {
+        for (int i = 0; i < RECOMMEND_SUBDOMAIN_RETRYS; i++) {
             String recommend = recommendRandomNum(subdomain);
             if (!isSubdomainIllegal(recommend)) {
                 continue;
@@ -629,7 +630,7 @@ public class RegistryService {
     }
 
     private String recommendSquashNum(String subdomain) {
-        return subdomain.substring(0, subdomain.length()-1);
+        return subdomain.substring(0, subdomain.length() - 1);
     }
 
     private Boolean isSubdomainIllegal(String subdomain) {
@@ -647,5 +648,36 @@ public class RegistryService {
             return false;
         }
         return true;
+    }
+
+    public Set<String> getAdminBindClients() {
+        Set<String> clientUUIDs = new HashSet<>();
+        // 批量查询admin用户
+        PanacheQuery<RegistryUserEntity> userEntityPanacheQuery = userEntityRepository.findAllByType(RegistryTypeEnum.USER_ADMIN.getName(),
+                BEGIN_INDEX, PAGE_SIZE);
+        while (userEntityPanacheQuery.stream().count() > 0) {
+            List<Map<String, String>> userIds = new ArrayList<>();
+            Set<String> boxUUIDs = new HashSet<>();
+            userEntityPanacheQuery.stream().forEach(k -> {
+                Map<String, String> userId = new HashMap<>();
+                userId.put(k.getBoxUUID(), k.getUserId());
+                userIds.add(userId);
+                boxUUIDs.add(k.getBoxUUID());
+            });
+            // 批量查询bind客户端
+            List<RegistryClientEntity> clientEntities = clientEntityRepository.findByBoxUUIDsAndType(boxUUIDs, RegistryTypeEnum.CLIENT_BIND.getName());
+            List<String> bindUUIDs = clientEntities.stream()
+                    .filter(k -> {
+                        Map<String, String> userId = new HashMap<>();
+                        userId.put(k.getBoxUUID(), k.getUserId());
+                        return userIds.contains(userId);
+                    })
+                    .map(RegistryClientEntity::getClientUUID)
+                    .collect(Collectors.toList());
+            clientUUIDs.addAll(bindUUIDs);
+            userEntityPanacheQuery = userEntityPanacheQuery.nextPage();
+        }
+
+        return clientUUIDs;
     }
 }

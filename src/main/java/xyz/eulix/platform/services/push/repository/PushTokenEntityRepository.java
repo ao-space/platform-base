@@ -4,8 +4,10 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import xyz.eulix.platform.services.push.entity.PushTokenEntity;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ApplicationScoped
 public class PushTokenEntityRepository implements PanacheRepository<PushTokenEntity> {
@@ -26,7 +28,7 @@ public class PushTokenEntityRepository implements PanacheRepository<PushTokenEnt
         this.update(UPDATE_BY_ID, deviceToken, extra, clientUUID);
     }
 
-    public List<PushTokenEntity> findByClientUUIDs(List<String> clientUUIDs) {
+    public List<PushTokenEntity> findByClientUUIDs(Collection<String> clientUUIDs) {
         return this.find(FIND_BY_CLIENTUUIDS, clientUUIDs).list();
     }
 }

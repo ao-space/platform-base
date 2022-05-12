@@ -15,4 +15,8 @@ public interface UPushService {
     @POST
     @Path("/api/send")
     PushMsgRes pushMessage(String umengNotification, @QueryParam("sign") String sign);
+
+    @POST
+    @Path("/upload")
+    PushMsgRes uploadContents(UploadReq uploadReq, @QueryParam("sign") String sign);
 }

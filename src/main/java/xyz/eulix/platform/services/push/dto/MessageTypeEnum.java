@@ -10,6 +10,7 @@ import java.util.Arrays;
 public enum MessageTypeEnum {
     CLIENTCAST("clientcast", "推送目标设备"),
     BROADCAST("broadcast", "广播"),
+    FILECAST("filecast", "文件播"),
     ;
 
     @Setter @Getter
