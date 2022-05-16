@@ -57,8 +57,15 @@ public class PkgMgtService {
         pkgInfoEntityRepository.savePkgInfo(pkgInfoEntity);
 
         // 发送系统通知
+        if (applicationProperties.getPkgMgtNotify()) {
+            pkgMgtNotify(PkgTypeEnum.fromValue(pkgInfoEntity.getPkgType()));
+        }
+        return pkgInfoEntityToRes(pkgInfoEntity);
+    }
+
+    private void pkgMgtNotify(PkgTypeEnum pkgType) {
         PushMessage pushMessage = null;
-        switch (PkgTypeEnum.fromValue(pkgInfoEntity.getPkgType())) {
+        switch (pkgType) {
             // 应用升级推送
             case ANDROID:
                 pushMessage = buildAndroidOrIOSMsg();
@@ -76,7 +83,6 @@ public class PkgMgtService {
             default:
                 throw new UnsupportedOperationException();
         }
-        return pkgInfoEntityToRes(pkgInfoEntity);
     }
 
     // 管理员绑定手机

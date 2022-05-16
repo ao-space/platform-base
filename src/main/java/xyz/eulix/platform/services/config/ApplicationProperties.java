@@ -90,4 +90,7 @@ public interface ApplicationProperties {
 
     @ConfigProperty(name = "upush.appsecret.ios")
     String getUPushAppSecretIOS();
+
+    @ConfigProperty(name = "pkg-mgt.notify", defaultValue = "true")
+    Boolean getPkgMgtNotify();
 }
