@@ -75,4 +75,13 @@ public interface ApplicationProperties {
 
     @ConfigProperty(name = "subdomain.effective-time", defaultValue = "30")
     Integer getSubdomainEffectiveTime();
+
+    @ConfigProperty(name = "upush.appkey")
+    String getUPushAppKey();
+
+    @ConfigProperty(name = "upush.appsecret")
+    String getUPushAppSecret();
+
+    @ConfigProperty(name = "upush.prod-mode")
+    Boolean getUPushProdMode();
 }

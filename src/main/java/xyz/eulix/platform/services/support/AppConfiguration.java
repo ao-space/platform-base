@@ -35,11 +35,12 @@ public class AppConfiguration {
 
     @PostConstruct
     void init() {
+        LOG.infov("Application init begin...");
         /**
          * 历史盒子添加用户面路由
          * 适用版本：1.0.2
          */
-        LOG.infov("Application init begin...");
+        /*
         LOG.infov("Cache NSR route begin...");
         // 查询全部用户域名
         List<SubdomainEntity> allSubdomains = subdomainEntityRepository.listAll();
@@ -56,7 +57,7 @@ public class AppConfiguration {
             }
         });
         LOG.infov("Cache NSR route succeed! Total:{0}, success:{1}, fail:{2}", allSubdomains.size(), success.get() ,failure.get());
-
+        */
         /**
          * 创建默认目录
          */

@@ -46,6 +46,9 @@ public class ArticleEntityRepository  implements PanacheRepository<ArticleEntity
 
     public List<ArticleEntity> findByTitle(String title) {return find("title", title).list();}
 
+    public  List<ArticleEntity> findByTitleAndCataId(String title, Long cataid){
+        return find("title = ?1 and cata_id =?2", title, cataid).list();
+    }
     @Transactional
     public void deleteByCataId(Long id){
         delete(FIND_BY_CATA_ID, id);

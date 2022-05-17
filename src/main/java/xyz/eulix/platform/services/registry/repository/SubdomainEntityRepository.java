@@ -63,7 +63,6 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
         return getEntityManager().createNamedQuery("SubdomainEntity.findByRegexp").setParameter("regexp", regex).getResultList();
     }
 
-    @Transactional
     public void updateSubdomainByBoxUUIDAndUserId(String boxUUID, String userId, String subdomain, String userDomain) {
         this.update(UPDATE_BY_BOXUUID_USERID, subdomain, userDomain, boxUUID, userId);
     }
