@@ -27,6 +27,6 @@ public class BoxInfo {
     @Schema(description = "盒子是否已注册")
     private boolean isRegistered;
 
-    @Schema(name = "操作时间")
+    @Schema(description = "操作时间")
     private OffsetDateTime updatedAt;
 }
