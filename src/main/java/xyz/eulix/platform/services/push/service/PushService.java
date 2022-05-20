@@ -315,7 +315,7 @@ public class PushService {
         MessagePayloadBody payloadBody = payload.getBody();
         isParamEmptyThrowEx(payloadBody.getText(), "pushMessage.payload.body.text");
         isParamEmptyThrowEx(payloadBody.getTitle(), "pushMessage.payload.body.title");
-        iosNotification.setAlert(payloadBody.getTitle(), payloadBody.getTitle(), payloadBody.getText());
+        iosNotification.setAlert(payloadBody.getTitle(), null, payloadBody.getText());
         // payload extra
         if (CommonUtils.isNotNull(payload.getExtra())) {
             payload.getExtra().forEach(iosNotification::setCustomizedField);
