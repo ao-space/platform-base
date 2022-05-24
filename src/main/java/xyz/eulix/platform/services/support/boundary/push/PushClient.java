@@ -103,6 +103,7 @@ public class PushClient {
      * @return 是否成功
      */
     public Boolean batchSendMessage(String appKey, AndroidFilecast msg, List<String> deviceTokens) {
+        LOG.infov("Batch send android message, device tokens num :{0}.", deviceTokens.size());
         String fileId = this.uploadContents(appKey, msg.appMasterSecret, String.join("\n", deviceTokens));
         if (CommonUtils.isNotNull(fileId)) {
             msg.setFileId(fileId);
@@ -121,6 +122,7 @@ public class PushClient {
      * @return 是否成功
      */
     public Boolean batchSendMessageIOS(String appKeyIOS, IOSFilecast msg, List<String> deviceTokens) {
+        LOG.infov("Batch send ios message, device tokens num :{0}.", deviceTokens.size());
         String fileId = this.uploadContents(appKeyIOS, msg.appMasterSecret, String.join("\n", deviceTokens));
         if (CommonUtils.isNotNull(fileId)) {
             msg.setFileId(fileId);
