@@ -373,7 +373,7 @@ public class PushService {
         // 文件播消息：ios
         if (!CommonUtils.isNullOrEmpty(iosTokens)) {
             IOSFilecast iosFilecast = pushMessageToIOSFilecast(pushMessage);
-            succIOS = pushClient.batchSendMessageIOS(appKeyIOS, iosFilecast, androidTokens);
+            succIOS = pushClient.batchSendMessageIOS(appKeyIOS, iosFilecast, iosTokens);
         }
         LOG.infov("Filecast result, android:{0}, ios:{1}", succAndroid ? "success" : "fail", succIOS ? "success" : "fail");
         return succAndroid && succIOS;
