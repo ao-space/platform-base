@@ -11,6 +11,9 @@ public class PushMsgData {
     @JsonProperty("task_id")
     private String taskId;
 
+    @JsonProperty("file_id")
+    private String fileId;
+
     @JsonProperty("error_code")
     private String errorCode;
 

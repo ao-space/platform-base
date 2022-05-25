@@ -7,7 +7,6 @@ import xyz.eulix.platform.services.support.boundary.push.AfterOpenAction;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
 @Data
-@AllArgsConstructor(staticName = "of")
 public class MessagePayloadBody {
     @Schema(description = "通知标题，当displayType=notification时必填")
     private String text;

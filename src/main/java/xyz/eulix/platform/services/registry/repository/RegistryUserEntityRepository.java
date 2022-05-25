@@ -1,11 +1,11 @@
 package xyz.eulix.platform.services.registry.repository;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import xyz.eulix.platform.services.registry.entity.RegistryUserEntity;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * All Registry Entity related storage operations including standard CRUD and
@@ -21,6 +21,9 @@ public class RegistryUserEntityRepository implements PanacheRepository<RegistryU
 
     // 根据box_uuid查询资源
     private static final String FIND_BY_BOXUUID = "box_uuid=?1";
+
+    // 根据type查询资源
+    private static final String FIND_BY_TYPE = "type=?1";
 
     public List<RegistryUserEntity> findAllByUserId(String boxUUID, String userId) {
         return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).list();
@@ -40,5 +43,9 @@ public class RegistryUserEntityRepository implements PanacheRepository<RegistryU
 
     public List<RegistryUserEntity> findByBoxUUId(String uuid){
         return this.find(FIND_BY_BOXUUID, uuid).list();
+    }
+
+    public PanacheQuery<RegistryUserEntity> findAllByType(String type, Integer pageIndex, Integer pageSize) {
+        return this.find(FIND_BY_TYPE, type).page(pageIndex, pageSize);
     }
 }

@@ -5,6 +5,7 @@ import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
+import java.util.Set;
 
 /**
  * All Registry Entity related storage operations including standard CRUD and
@@ -23,6 +24,9 @@ public class RegistryClientEntityRepository implements PanacheRepository<Registr
 
     // 根据box_uuid查询资源
     private static final String FIND_BY_BOXUUID = "box_uuid=?1";
+
+    // 根据box_uuids、type查询资源
+    private static final String FIND_BY_BOXUUIDS_TYPE = "box_uuid in (?1) AND type=?2";
 
     public List<RegistryClientEntity> findAllByClientUUID(String boxUUID, String userId, String clientUUID) {
         return this.find(FIND_BY_CLIENTUUID, boxUUID, userId, clientUUID).list();
@@ -46,5 +50,9 @@ public class RegistryClientEntityRepository implements PanacheRepository<Registr
 
     public void deleteByBoxUUID(String boxUUID) {
         this.delete(FIND_BY_BOXUUID, boxUUID);
+    }
+
+    public List<RegistryClientEntity> findByBoxUUIDsAndType(Set<String> boxUUIDs, String type) {
+        return this.find(FIND_BY_BOXUUIDS_TYPE, boxUUIDs, type).list();
     }
 }
