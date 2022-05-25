@@ -8,6 +8,7 @@ import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.network.dto.BaseResultRes;
 import xyz.eulix.platform.services.network.dto.NetworkAuthReq;
 import xyz.eulix.platform.services.network.dto.NetworkServerRes;
+import xyz.eulix.platform.services.network.dto.StunServerRes;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.support.log.Logged;
 
@@ -35,7 +36,7 @@ public class NetworkResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "认证 network client 身份")
     public BaseResultRes networkClientAuth(@Valid NetworkAuthReq networkAuthReq,
-                                     @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
+                                           @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
         Boolean result = networkService.networkClientAuth(networkAuthReq);
         return BaseResultRes.of(result);
     }
@@ -49,5 +50,16 @@ public class NetworkResource {
     public NetworkServerRes networkServerDetail(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
                                                 @NotBlank @Parameter(required = true) @QueryParam("network_client_id") String networkClientId) {
         return networkService.networkServerDetail(networkClientId);
+    }
+
+    @Logged
+    @GET
+    @Path("/stun/server/detail")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "查询相应 stun server 信息")
+    public StunServerRes stunServerDetail(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                          @NotBlank @Parameter(required = true) @QueryParam("subdomain") String subdomain) {
+        return networkService.stunServerDetail(subdomain);
     }
 }
