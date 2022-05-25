@@ -51,6 +51,9 @@ public class PushService {
 
     private String appSecretIOS;
 
+    private final String SUCCESS = "success";
+
+    private final String FAIL = "fail";
 
     @PostConstruct
     void init() {
@@ -166,7 +169,7 @@ public class PushService {
         if (!CommonUtils.isNullOrEmpty(iosTokens)) {
             succIOS = iosClientcast(pushMessage, iosTokens);
         }
-        LOG.infov("Clientcast result, android:{0}, ios:{1}", succAndroid ? "success" : "fail", succIOS ? "success" : "fail");
+        LOG.infov("Clientcast result, android:{0}, ios:{1}", succAndroid ? SUCCESS : FAIL, succIOS ? SUCCESS : FAIL);
         return succAndroid && succIOS;
     }
 
@@ -186,7 +189,7 @@ public class PushService {
         Boolean succAndroid = androidBroadcast(pushMessage);
         // 广播消息：ios
         Boolean succIOS = iosBroadcast(pushMessage);
-        LOG.infov("Broadcast result, android:{0}, ios:{1}", succAndroid ? "success" : "fail", succIOS ? "success" : "fail");
+        LOG.infov("Broadcast result, android:{0}, ios:{1}", succAndroid ? SUCCESS : FAIL, succIOS ? SUCCESS : FAIL);
         return succAndroid && succIOS;
     }
 
@@ -375,7 +378,7 @@ public class PushService {
             IOSFilecast iosFilecast = pushMessageToIOSFilecast(pushMessage);
             succIOS = pushClient.batchSendMessageIOS(appKeyIOS, iosFilecast, iosTokens);
         }
-        LOG.infov("Filecast result, android:{0}, ios:{1}", succAndroid ? "success" : "fail", succIOS ? "success" : "fail");
+        LOG.infov("Filecast result, android:{0}, ios:{1}", succAndroid ? SUCCESS : FAIL, succIOS ? SUCCESS : FAIL);
         return succAndroid && succIOS;
     }
 
