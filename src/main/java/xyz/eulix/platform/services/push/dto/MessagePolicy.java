@@ -9,7 +9,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@AllArgsConstructor(staticName = "of")
 public class MessagePolicy {
     @Schema(description = "可选，定时发送时，若不填写表示立即发送。格式: YYYY-MM-DD hh:mm:ss")
     private String startTime;

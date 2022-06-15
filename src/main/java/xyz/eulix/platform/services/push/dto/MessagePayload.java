@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Data
-@AllArgsConstructor(staticName = "of")
 public class MessagePayload {
     @NotNull
     @ValueOfEnum(enumClass = DisplayTypeEnum.class, valueMethod = "getName")

@@ -40,4 +40,8 @@ public class NetworkServerEntity extends BaseEntity {
     @Column(name = "state")
     @ValueOfEnum(enumClass = NetworkServerStateEnum.class, valueMethod = "getState")
     private Integer state;
+
+    // 扩展信息，json结构
+    @Column(name = "extra")
+    private String extra;
 }

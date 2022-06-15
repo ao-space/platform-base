@@ -150,6 +150,7 @@ public class BoxInfoService {
         {
             boxInfo.setBoxUUID(boxInfoEntity.getBoxUUID());
             boxInfo.setDesc(boxInfoEntity.getDesc());
+            boxInfo.setUpdatedAt(boxInfoEntity.getUpdatedAt());
             if (!CommonUtils.isNullOrEmpty(boxInfoEntity.getExtra())) {
                 boxInfo.setExtra(operationUtils.jsonToObject(boxInfoEntity.getExtra(), Object.class));
             }

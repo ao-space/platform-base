@@ -11,18 +11,15 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@AllArgsConstructor(staticName = "of")
 public class PushMessage {
     @NotNull
     @ValueOfEnum(enumClass = MessageTypeEnum.class, valueMethod = "getName")
     @Schema(description = "消息发送类型,枚举值：clientcast-推送目标设备/broadcast-广播")
     private String type;
 
-    @NotBlank
     @Schema(description = "盒子的 UUID")
     private String boxUUID;
 
-    @NotBlank
     @Schema(description = "盒子的注册码")
     private String boxRegKey;
 
@@ -50,7 +47,6 @@ public class PushMessage {
     private ChannelProperties channelProperties;
 
     @Data
-    @AllArgsConstructor(staticName = "of")
     public static class UserIdAndClientUUID {
         @NotBlank
         @Schema(description = "用户的 ID")

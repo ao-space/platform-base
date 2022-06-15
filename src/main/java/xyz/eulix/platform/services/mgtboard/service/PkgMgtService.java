@@ -9,6 +9,8 @@ import xyz.eulix.platform.services.mgtboard.dto.*;
 import xyz.eulix.platform.services.mgtboard.entity.PkgInfoEntity;
 import xyz.eulix.platform.services.mgtboard.entity.ProposalEntity;
 import xyz.eulix.platform.services.mgtboard.repository.PkgInfoEntityRepository;
+import xyz.eulix.platform.services.push.dto.*;
+import xyz.eulix.platform.services.push.service.PushService;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.model.PageInfo;
 import xyz.eulix.platform.services.support.model.PageListResult;
@@ -19,10 +21,7 @@ import xyz.eulix.platform.services.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @ApplicationScoped
 public class PkgMgtService {
@@ -34,13 +33,15 @@ public class PkgMgtService {
     @Inject
     ApplicationProperties applicationProperties;
 
+    @Inject
+    PushService pushService;
+
     /**
      * 新增pkg版本
      *
      * @param packageReq pkg版本信息
      * @return pkg版本信息
      */
-    @Transactional
     public PackageRes savePkgInfo(PackageReq packageReq) {
         // 版本号校验
         isValidVersionThrowEx(packageReq);
@@ -52,10 +53,84 @@ public class PkgMgtService {
                     packageReq.getPkgType(), packageReq.getPkgVersion());
             throw new ServiceOperationException(ServiceError.PKG_VERSION_EXISTED);
         }
-        PkgInfoEntity PkgInfoEntity = pkgInfoReqToEntity(packageReq);
-        pkgInfoEntityRepository.persist(PkgInfoEntity);
+        PkgInfoEntity pkgInfoEntity = pkgInfoReqToEntity(packageReq);
+        pkgInfoEntityRepository.savePkgInfo(pkgInfoEntity);
 
-        return pkgInfoEntityToRes(PkgInfoEntity);
+        // 发送系统通知
+        if (applicationProperties.getPkgMgtNotify()) {
+            pkgMgtNotify(PkgTypeEnum.fromValue(pkgInfoEntity.getPkgType()));
+        }
+        return pkgInfoEntityToRes(pkgInfoEntity);
+    }
+
+    private void pkgMgtNotify(PkgTypeEnum pkgType) {
+        PushMessage pushMessage = null;
+        switch (pkgType) {
+            // 应用升级推送
+            case ANDROID:
+                pushMessage = buildAndroidOrIOSMsg();
+                pushService.androidBroadcast(pushMessage);
+                break;
+            case IOS:
+                pushMessage = buildAndroidOrIOSMsg();
+                pushService.iosBroadcast(pushMessage);
+                break;
+            // 系统升级推送
+            case BOX:
+                pushMessage = buildAdminMsg();
+                pushService.adminFilecast(pushMessage);
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    // 管理员绑定手机
+    private PushMessage buildAdminMsg() {
+        PushMessage pushMessage = new PushMessage();
+        pushMessage.setType(MessageTypeEnum.FILECAST.getName());
+        pushMessage.setDescription(NotificationEnum.BOX_UPGRADE.getDesc());
+
+        MessagePayload payload = new MessagePayload();
+        payload.setDisplayType(DisplayTypeEnum.NOTIFICATION.getName());
+        MessagePayloadBody body = new MessagePayloadBody();
+        body.setTitle(NotificationEnum.BOX_UPGRADE.getTitle());
+        body.setText(NotificationEnum.BOX_UPGRADE.getText());
+        body.setAfterOpen(NotificationEnum.BOX_UPGRADE.getAfterOpenAction().getName());
+        payload.setBody(body);
+        Map<String, String> extras = new HashMap<>();
+        extras.put("optType", NotificationEnum.BOX_UPGRADE.getType());
+        payload.setExtra(extras);
+        pushMessage.setPayload(payload);
+
+        ChannelProperties channelProperties = new ChannelProperties();
+        channelProperties.setChannelActivity("xyz.eulix.space.push.EulixMfrNotifyActivity");
+        pushMessage.setChannelProperties(channelProperties);
+        return pushMessage;
+    }
+
+    // 所有Android/IOS手机
+    private PushMessage buildAndroidOrIOSMsg() {
+        PushMessage pushMessage = new PushMessage();
+        pushMessage.setType(MessageTypeEnum.BROADCAST.getName());
+        pushMessage.setDescription(NotificationEnum.APP_UPGRADE.getDesc());
+
+        MessagePayload payload = new MessagePayload();
+        payload.setDisplayType(DisplayTypeEnum.NOTIFICATION.getName());
+        MessagePayloadBody body = new MessagePayloadBody();
+        body.setTitle(NotificationEnum.APP_UPGRADE.getTitle());
+        body.setText(NotificationEnum.APP_UPGRADE.getText());
+        body.setAfterOpen(NotificationEnum.APP_UPGRADE.getAfterOpenAction().getName());
+        payload.setBody(body);
+        Map<String, String> extras = new HashMap<>();
+        extras.put("optType", NotificationEnum.APP_UPGRADE.getType());
+        payload.setExtra(extras);
+        pushMessage.setPayload(payload);
+
+        ChannelProperties channelProperties = new ChannelProperties();
+        channelProperties.setChannelActivity("xyz.eulix.space.push.EulixMfrNotifyActivity");
+        pushMessage.setChannelProperties(channelProperties);
+        return pushMessage;
     }
 
     public void isValidVersionThrowEx(PackageReq packageReq) {

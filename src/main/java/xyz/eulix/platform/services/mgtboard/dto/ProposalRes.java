@@ -33,6 +33,6 @@ public class ProposalRes {
     @Schema(description = "图片地址")
     private final List<String> imageUrls;
 
-    @Schema(name = "反馈时间")
+    @Schema(description = "反馈时间")
     private final OffsetDateTime feedbackAt;
 }
