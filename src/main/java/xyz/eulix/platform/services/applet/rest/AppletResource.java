@@ -5,10 +5,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.applet.dto.AppletInfoRes;
-import xyz.eulix.platform.services.applet.dto.AppletPostReq;
-import xyz.eulix.platform.services.applet.dto.AppletReq;
-import xyz.eulix.platform.services.applet.dto.CheckAppletResult;
+import xyz.eulix.platform.services.applet.dto.*;
 import xyz.eulix.platform.services.applet.service.AppletService;
 import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
 import xyz.eulix.platform.services.support.CommonUtils;
@@ -56,9 +53,9 @@ public class AppletResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Operation(description = "增加小程序信息")
-	public AppletInfoRes createApplet(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-									  @NotNull @Valid AppletPostReq appletPostReq){
-		return appletService.saveApplet(appletPostReq);
+	public AppletRegistryRes registryApplet(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+									  @NotNull @Valid AppletRegistryInfo appletRegistryInfo){
+		return appletService.saveApplet(appletRegistryInfo);
 	}
 
 	//@RolesAllowed("admin")
@@ -114,7 +111,6 @@ public class AppletResource {
 		LOG.infov("[Return] method: appletDownload(), result: ok, elapsed: {0}", sw);
 		return response;
 	}
-
 
 	@Logged
 	@GET

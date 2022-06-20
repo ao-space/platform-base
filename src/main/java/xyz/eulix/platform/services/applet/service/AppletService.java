@@ -1,10 +1,7 @@
 package xyz.eulix.platform.services.applet.service;
 
 import com.github.zafarkhaja.semver.Version;
-import xyz.eulix.platform.services.applet.dto.AppletInfoRes;
-import xyz.eulix.platform.services.applet.dto.AppletPostReq;
-import xyz.eulix.platform.services.applet.dto.AppletReq;
-import xyz.eulix.platform.services.applet.dto.CheckAppletResult;
+import xyz.eulix.platform.services.applet.dto.*;
 import xyz.eulix.platform.services.applet.entity.AppletInfoEntity;
 import xyz.eulix.platform.services.applet.repository.AppletInfoEntityRepository;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
@@ -39,7 +36,7 @@ public class AppletService {
 			resp.add(AppletInfoRes.of(appletInfoEntity.getName(),
 					appletInfoEntity.getNameEn() == null?"":appletInfoEntity.getNameEn(),
 					appletInfoEntity.getState(),
-					appletInfoEntity.getAppletId(), appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
+					appletInfoEntity.getAppletId(),  appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
 					appletInfoEntity.getIconUrl(), appletInfoEntity.getUpdateDesc(),
 					appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getUpdatedAt()));
 		}
@@ -53,37 +50,42 @@ public class AppletService {
 			resp.add(AppletInfoRes.of(appletInfoEntity.getName(),
 					appletInfoEntity.getNameEn() == null?"":appletInfoEntity.getNameEn(),
 					appletInfoEntity.getState(),
-					appletInfoEntity.getAppletId(), appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
+					appletInfoEntity.getAppletId(),  appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
 					appletInfoEntity.getIconUrl(), appletInfoEntity.getUpdateDesc(),
 					appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getUpdatedAt()));
 		}
 		return resp;
 	}
 
-	public AppletInfoRes saveApplet(AppletPostReq appletPostReq){
-		if(CommonUtils.isNotNull(appletInfoEntityRepository.findByAppleId(appletPostReq.getAppletId()))){
-			throw new ServiceOperationException(ServiceError.DUPPLICATE_APPLET);
+	public AppletRegistryRes saveApplet(AppletRegistryInfo appletRegistryInfo){
+        String appletId = CommonUtils.unifiedRandomHexCharters(16);
+        int num = 10; // 自主生成唯一性appletId，可重复尝试10次
+        while(appletInfoEntityRepository.findByAppleId(appletId) != null && num > 1) {
+			appletId = CommonUtils.createUnifiedRandomCharacters(16);
+			num = num -1;
 		}
-		appletPostReq.setIsForceUpdate(appletPostReq.getIsForceUpdate() == null?false : appletPostReq.getIsForceUpdate());
+        String appletSecret = CommonUtils.createUnifiedRandomCharacters(64);
 		var appletInfoEntity = new AppletInfoEntity();
-		appletInfoEntity.setState(appletPostReq.getState()==null?0: appletPostReq.getState());
-		appletPostReqToEntity(appletPostReq, appletInfoEntity);
+		appletInfoEntity.setAppletId(appletId);
+		appletInfoEntity.setAppletSecret(appletSecret);
+		appletInfoEntity.setState(appletRegistryInfo.getState()==null?1: appletRegistryInfo.getState());
+		appletInfoEntity.setIsForceUpdate(appletRegistryInfo.getIsForceUpdate() == null?false : appletRegistryInfo.getIsForceUpdate());
+		appletInfoEntity.setCategories(appletRegistryInfo.getCategories());
+		appletInfoEntity.setName(appletRegistryInfo.getAppletName());
+		appletInfoEntity.setNameEn(appletRegistryInfo.getAppletNameEn());
+		appletInfoEntity.setAppletVersion(appletRegistryInfo.getAppletVersion());
+		appletInfoEntity.setMinCompatibleBoxVersion(appletRegistryInfo.getMinCompatibleBoxVersion());
+		appletInfoEntity.setUpdateDesc(appletRegistryInfo.getUpdateDesc());
+		appletInfoEntity.setIconUrl(appletRegistryInfo.getIconUrl() !=null?appletRegistryInfo.getIconUrl():"");
+		appletInfoEntity.setDownUrl(appletRegistryInfo.getDownUrl() != null?appletRegistryInfo.getDownUrl():"");
 		appletInfoEntityRepository.create(appletInfoEntity);
-		return AppletInfoRes.of(appletInfoEntity.getName(),
-				                appletInfoEntity.getNameEn() == null? "":appletInfoEntity.getNameEn(),
-				                appletInfoEntity.getState(),
-				                appletInfoEntity.getAppletId(), appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
-				                appletInfoEntity.getIconUrl(),  appletInfoEntity.getUpdateDesc(),
-				                appletInfoEntity.getIsForceUpdate(), appletInfoEntity.getUpdatedAt());
+		return AppletRegistryRes.of(appletId,appletSecret);
 	}
 
 	public AppletInfoRes updateApplet(String appletId, AppletPostReq appletPostReq){
 		var appletInfoEntity = appletInfoEntityRepository.findByAppleId(appletId);
 		if(CommonUtils.isNull(appletInfoEntity)) {
 			throw new ServiceOperationException(ServiceError.APPLET_NOT_EXIST);
-		}
-		if(!appletPostReq.getAppletId().equals(appletId) && CommonUtils.isNotNull(appletInfoEntityRepository.findByAppleId(appletPostReq.getAppletId())) ){
-			throw new ServiceOperationException(ServiceError.DUPPLICATE_APPLET);
 		}
 		appletPostReq.setIsForceUpdate(appletPostReq.getIsForceUpdate() == null?false : appletPostReq.getIsForceUpdate());
 		appletPostReqToEntity(appletPostReq, appletInfoEntity);
@@ -103,8 +105,6 @@ public class AppletService {
 		appletInfoEntity.setState(appletPostReq.getState() != null?appletPostReq.getState():appletInfoEntity.getState());
 		appletInfoEntity.setAppletSize(appletPostReq.getAppletSize());
 		appletInfoEntity.setAppletVersion(appletPostReq.getAppletVersion());
-		appletInfoEntity.setAppletSecret(appletPostReq.getAppletSecret()!=null?appletPostReq.getAppletSecret():appletInfoEntity.getAppletSecret());
-		appletInfoEntity.setAppletId(appletPostReq.getAppletId());
 		appletInfoEntity.setDownUrl(appletPostReq.getDownUrl()!=null? appletPostReq.getDownUrl() : appletInfoEntity.getDownUrl());
 		appletInfoEntity.setIconUrl(appletPostReq.getIconUrl()!= null ? appletPostReq.getIconUrl() : appletInfoEntity.getIconUrl());
 		appletInfoEntity.setCategories(appletPostReq.getCategories()!= null ? appletPostReq.getCategories() : appletInfoEntity.getCategories());
@@ -130,6 +130,9 @@ public class AppletService {
 		if(CommonUtils.isNull(appletInfoEntity)) {
 			throw new ServiceOperationException(ServiceError.APPLET_NOT_EXIST);
 		}
+		if(CommonUtils.isNullOrEmpty(appletInfoEntity.getDownUrl())) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
 		return utils.downLoadFile(appletInfoEntity.getDownUrl());
 	}
 
@@ -140,7 +143,6 @@ public class AppletService {
 		}
 		appletInfoEntityRepository.delByAppletId(appletId);
 	}
-
 	public CheckAppletResult checkApplet(String boxRegKey, String id, String secret) {
 		Optional<RegistryBoxEntity> boxEntityOp = registryBoxEntityRepository.find("box_reg_key=?1", boxRegKey).firstResultOptional();
 		if(boxEntityOp.isEmpty()) {
