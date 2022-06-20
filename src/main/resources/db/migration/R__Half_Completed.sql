@@ -18,4 +18,11 @@ CREATE TABLE IF NOT EXISTS applet_info (
     version INT DEFAULT 0,
     PRIMARY KEY (id),
     KEY uk_appletid (applet_id)
+<<<<<<< HEAD
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
+=======
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE applet_info  ADD COLUMN applet_secret VARCHAR(128);
+ALTER TABLE applet_info  ADD COLUMN categories VARCHAR(256);
+>>>>>>> 6da8662514e75c3a1658170067ebf625ddd269f0

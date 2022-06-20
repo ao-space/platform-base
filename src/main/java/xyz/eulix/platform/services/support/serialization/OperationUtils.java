@@ -5,6 +5,9 @@ import io.quarkus.logging.Log;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
 import org.jboss.logging.Logger;
+import org.testcontainers.shaded.okhttp3.HttpUrl;
+import org.testcontainers.shaded.okhttp3.OkHttpClient;
+import org.testcontainers.shaded.okhttp3.Request;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
@@ -12,12 +15,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -61,12 +59,14 @@ public class OperationUtils {
 
     public Response downLoadFile(String urlString){
         String[] fileName = urlString.split("/");
-        try (InputStream inputStream =new URL(URLDecoder.decode(urlString, "utf-8")).openStream()){
-            byte[] b = inputStream.readAllBytes();
-            return Response.ok(b)
-                    .header("Content-Disposition", "attachment;filename=" + fileName[fileName.length-1])
-                    .header("Content-Length", b.length)
-                    .build();
+        try {
+            OkHttpClient httpClient = new OkHttpClient();
+            var requestBuilder = new Request.Builder()
+                    .url(HttpUrl.parse(urlString).newBuilder().build());
+            var response = httpClient.newCall(requestBuilder.build()).execute();
+            byte b[] = response.body().source().inputStream().readAllBytes();
+            return Response.ok(b).header("Content-Disposition", response.header("Content-Disposition", "attachment;filename=" + fileName[fileName.length-1]))
+                    .header("Content-Length", b.length).build();
         } catch (IOException e) {
             LOG.error("download template failed, exception is:", e);
             throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);

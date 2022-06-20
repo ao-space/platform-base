@@ -8,14 +8,13 @@ import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.applet.dto.AppletInfoRes;
 import xyz.eulix.platform.services.applet.dto.AppletPostReq;
 import xyz.eulix.platform.services.applet.dto.AppletReq;
+import xyz.eulix.platform.services.applet.dto.CheckAppletResult;
 import xyz.eulix.platform.services.applet.service.AppletService;
 import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
 import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
-
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -114,5 +113,17 @@ public class AppletResource {
 		}
 		LOG.infov("[Return] method: appletDownload(), result: ok, elapsed: {0}", sw);
 		return response;
+	}
+
+
+	@Logged
+	@GET
+	@Path("/applet/check-secret")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(description = "校验小程序密钥")
+	public CheckAppletResult checkAppletResult(@Valid @NotBlank @QueryParam("box_reg_key") String boxRegKey,
+											   @Valid @NotBlank @QueryParam("applet_id") String appletId,
+											   @Valid @NotBlank @QueryParam("applet_secret") String appletSecret){
+		return appletService.checkApplet(boxRegKey,appletId,appletSecret);
 	}
 }

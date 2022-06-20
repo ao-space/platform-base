@@ -2,7 +2,7 @@ package xyz.eulix.platform.services.applet.entity;
 
 import lombok.Data;
 import xyz.eulix.platform.services.applet.service.AppletStatus;
-import xyz.eulix.platform.services.mgtboard.dto.ArticleStateEnum;
+
 import xyz.eulix.platform.services.support.model.BaseEntity;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
@@ -10,7 +10,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import java.net.URL;
 
 @Data
 @Entity
@@ -33,6 +32,9 @@ public class AppletInfoEntity extends BaseEntity{
 	@Column(name="applet_version")
 	private String appletVersion;
 
+	@Column(name="applet_secret")
+	private String appletSecret;
+
 	// 版本文件大小(字节)，最大10GB
 	@Column(name = "applet_size")
 	private Long appletSize;
@@ -52,6 +54,10 @@ public class AppletInfoEntity extends BaseEntity{
 	//程序下载url
 	@Column(name = "down_url")
 	private String downUrl;
+
+	//小程序所求权限
+	@Column(name = "categories")
+	private String categories;
 
 	// md5
 	@Column(name = "md5")

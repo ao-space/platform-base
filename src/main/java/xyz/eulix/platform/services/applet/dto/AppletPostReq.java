@@ -25,6 +25,10 @@ public class AppletPostReq {
 	private String appletVersion;
 
 	@NotNull
+	@Schema(description = "applet_secret")
+	private String appletSecret;
+
+	@NotNull
 	@Schema(description = "applet_size")
 	private Long appletSize;
 
@@ -36,6 +40,9 @@ public class AppletPostReq {
 
 	@Schema(description = "down_url")
 	private String downUrl;
+
+	@Schema(description = "categories,小程序所需求的权限，以逗号分割")
+	private String categories;
 
 	@NotNull
 	@Schema(description = "md5")
