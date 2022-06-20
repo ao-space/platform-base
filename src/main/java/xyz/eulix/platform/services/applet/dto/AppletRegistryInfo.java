@@ -6,7 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class AppletPostReq {
+public class AppletRegistryInfo {
 	@Schema(description = "小程序名字")
 	private String appletName;
 
@@ -20,29 +20,17 @@ public class AppletPostReq {
 	@Schema(description = "小程序version")
 	private String appletVersion;
 
-	@NotNull
-	@Schema(description = "applet_secret")
-	private String appletSecret;
-
-	@NotNull
-	@Schema(description = "applet_size")
-	private Long appletSize;
-
 	@Schema(description = "update_desc")
 	private String updateDesc;
+
+	@Schema(description = "categories,小程序所需求的权限，以逗号分割")
+	private String categories;
 
 	@Schema(description = "icon_url")
 	private String iconUrl;
 
 	@Schema(description = "down_url")
 	private String downUrl;
-
-	@Schema(description = "categories,小程序所需求的权限，以逗号分割")
-	private String categories;
-
-	@NotNull
-	@Schema(description = "md5")
-	private String md5;
 
 	@Schema(description = "是否强制更新")
 	private Boolean isForceUpdate;

@@ -2,7 +2,6 @@ package xyz.eulix.platform.services.applet.entity;
 
 import lombok.Data;
 import xyz.eulix.platform.services.applet.service.AppletStatus;
-
 import xyz.eulix.platform.services.support.model.BaseEntity;
 import xyz.eulix.platform.services.support.validator.ValueOfEnum;
 
