@@ -16,15 +16,9 @@ public class AppletPostReq {
 	@Schema(description = "小程序发布状态", enumeration = {"0", "1"})
 	private Integer state;
 
-	@NotNull
 	@Schema(description = "小程序version")
 	private String appletVersion;
 
-	@NotNull
-	@Schema(description = "applet_secret")
-	private String appletSecret;
-
-	@NotNull
 	@Schema(description = "applet_size")
 	private Long appletSize;
 
