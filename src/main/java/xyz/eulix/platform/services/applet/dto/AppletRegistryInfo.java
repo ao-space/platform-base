@@ -20,6 +20,7 @@ public class AppletRegistryInfo {
 	@Schema(description = "小程序version")
 	private String appletVersion;
 
+
 	@Schema(description = "update_desc")
 	private String updateDesc;
 
