@@ -118,8 +118,9 @@ public class AppletResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Operation(description = "校验小程序密钥")
 	public CheckAppletResult checkAppletResult(@Valid @NotBlank @QueryParam("box_reg_key") String boxRegKey,
+																						 @Valid @NotBlank @QueryParam("box_uuid") String boxUUID,
 											   @Valid @NotBlank @QueryParam("applet_id") String appletId,
 											   @Valid @NotBlank @QueryParam("applet_secret") String appletSecret){
-		return appletService.checkApplet(boxRegKey,appletId,appletSecret);
+		return appletService.checkApplet(boxUUID, boxRegKey,appletId,appletSecret);
 	}
 }

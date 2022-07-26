@@ -144,8 +144,8 @@ public class AppletService {
 		}
 		appletInfoEntityRepository.delByAppletId(appletId);
 	}
-	public CheckAppletResult checkApplet(String boxRegKey, String id, String secret) {
-		Optional<RegistryBoxEntity> boxEntityOp = registryBoxEntityRepository.find("box_reg_key=?1", boxRegKey).firstResultOptional();
+	public CheckAppletResult checkApplet(String boxUUID, String boxRegKey, String id, String secret) {
+		Optional<RegistryBoxEntity> boxEntityOp = registryBoxEntityRepository.findByBoxUUIDAndBoxRegKey(boxUUID, boxRegKey);
 		if(boxEntityOp.isEmpty()) {
 			return CheckAppletResult.of(false, null,null);
 		}
