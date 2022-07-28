@@ -12,6 +12,8 @@ import xyz.eulix.platform.services.support.CommonUtils;
 import xyz.eulix.platform.services.support.log.Logged;
 import xyz.eulix.platform.services.support.service.ServiceError;
 import xyz.eulix.platform.services.support.service.ServiceOperationException;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -46,7 +48,7 @@ public class AppletResource {
 
 	}
 
-	//@RolesAllowed("admin")
+	@RolesAllowed("admin")
 	@Logged
 	@POST
 	@Path("/applet")
@@ -58,7 +60,7 @@ public class AppletResource {
 		return appletService.saveApplet(appletRegistryInfo);
 	}
 
-	//@RolesAllowed("admin")
+	@RolesAllowed("admin")
 	@Logged
 	@PUT
 	@Path("/applet/{applet_id}")
@@ -71,7 +73,7 @@ public class AppletResource {
 		return  appletService.updateApplet(appletId, appletReq);
 	}
 
-	//@RolesAllowed("admin")
+	@RolesAllowed("admin")
 	@Logged
 	@DELETE
 	@Path("/applet/{applet_id}")
