@@ -36,6 +36,7 @@ qodana:
     paths:
       - qodana/report/
     expose_as: 'Qodana Report'
+    expire_in: 1 mos
   allow_failure: true
 
 sonarqube-check-push:
