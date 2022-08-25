@@ -13,31 +13,12 @@ cache:
   paths:
     - .m2/repository
     - .sonar/cache
-    - .qodana/cache
 
 test:
   stage: validate
   image: busybox
   script:
     - echo "Do a test here"
-
-qodana:
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
-  stage: validate
-  variables: 
-    _JAVA_OPTIONS: -Xmx6g
-  image:
-    name: jetbrains/qodana-jvm:2022.2-eap
-    entrypoint: ['']
-  script:
-    - /opt/idea/bin/entrypoint --results-dir=$CI_PROJECT_DIR/qodana --save-report --report-dir=$CI_PROJECT_DIR/qodana/report --cache-dir=$CI_PROJECT_DIR/.qodana/cache
-  artifacts:
-    paths:
-      - qodana/report/
-    expose_as: 'Qodana Report'
-    expire_in: 1 mos
-  allow_failure: true
 
 sonarqube-check-push:
   rules:
