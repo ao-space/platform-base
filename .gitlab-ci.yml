@@ -3,6 +3,7 @@ image: registry.eulix.xyz/collab/infra/public-service/maven:3.6.3-openjdk-11
 stages:
   - validate
   - docker
+  - sign
 
 variables:
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
@@ -104,3 +105,28 @@ docker:jvm:
     - docker push $DOCKER_LATEST_IMAGE
     - docker push $DOCKER_BUILD_IMAGE_GITLAB
     - docker push $DOCKER_LATEST_IMAGE_GITLAB
+
+artifacts-sign:
+  stage: sign
+  only:
+    variables: 
+      - $CI_COMMIT_BRANCH
+  except:
+    variables: 
+      - $CI_MERGE_REQUEST_ID
+  image:
+    name: registry.eulix.xyz/collab/infra/infrastructure/sigstore/cosign:v1.10.1
+    entrypoint: [''] 
+  before_script:
+    - cosign login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
+    - cosign login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
+    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
+    - echo $COSIGN_KEY | base64 -d > /tmp/cosign.key
+  script:
+    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE
+    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE
+    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE_GITLAB
+    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE_GITLAB
