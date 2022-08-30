@@ -26,7 +26,7 @@ class RegistryResourceTest {
                 .header("Request-Id", "uuid")
                 .body(info)
                 .contentType(ContentType.JSON)
-                .when().post("/v1/api/registry/box")
+                .when().post("/platform/v1/api/registry/box")
                 .body()
                 .as(BoxRegistryResult.class);
     }
@@ -42,7 +42,7 @@ class RegistryResourceTest {
                 .header("Request-Id", "uuid")
                 .body(info)
                 .contentType(ContentType.JSON)
-                .when().post("/v1/api/registry/box")
+                .when().post("/platform/v1/api/registry/box")
                 .body()
                 .as(BoxRegistryResult.class);
 
@@ -50,7 +50,7 @@ class RegistryResourceTest {
                 .header("Request-Id", "uuid")
                 .body(info)
                 .contentType(ContentType.JSON)
-                .when().post("/v1/api/registry/box")
+                .when().post("/platform/v1/api/registry/box")
                 .then()
                 .statusCode(406);
     }
@@ -66,7 +66,7 @@ class RegistryResourceTest {
                 .header("Request-Id", "uuid")
                 .body(info)
                 .contentType(ContentType.JSON)
-                .when().post("/v1/api/registry/box")
+                .when().post("/platform/v1/api/registry/box")
                 .body()
                 .as(BoxRegistryResult.class);
 
@@ -80,7 +80,7 @@ class RegistryResourceTest {
                 .header("Request-Id", "uuid")
                 .body(reset)
                 .contentType(ContentType.JSON)
-                .when().post("/v1/api/registry/reset/box")
+                .when().post("/platform/v1/api/registry/reset/box")
                 .then()
                 .statusCode(200)
                 .body(containsString(bid));
@@ -97,7 +97,7 @@ class RegistryResourceTest {
                 .header("Request-Id", "uuid")
                 .body(info)
                 .contentType(ContentType.JSON)
-                .when().post("/v1/api/registry/box")
+                .when().post("/platform/v1/api/registry/box")
                 .body()
                 .as(BoxRegistryResult.class);
 
@@ -105,7 +105,7 @@ class RegistryResourceTest {
                 .header("Request-Id", "uuid")
                 .queryParam("box_uuid", bid)
                 .queryParam("box_reg_key", result.getBoxRegKey())
-                .when().get("/v1/api/registry/verify/box")
+                .when().get("/platform/v1/api/registry/verify/box")
                 .then()
                 .statusCode(200);
     }

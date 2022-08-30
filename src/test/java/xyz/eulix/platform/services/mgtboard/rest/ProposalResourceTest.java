@@ -31,7 +31,7 @@ class ProposalResourceTest {
         .header("Request-Id", "uuid")
         .contentType(ContentType.JSON)
         .when()
-        .get("/v1/api/proposals/export")
+        .get("/platform/v1/api/proposals/export")
         .then()
         .statusCode(200);
 
@@ -43,7 +43,7 @@ class ProposalResourceTest {
         .contentType(ContentType.JSON)
         .body(ProposalReq.of())
         .when()
-        .post("/v1/api/proposal")
+        .post("/platform/v1/api/proposal")
         .then()
         .statusCode(400)
         .body(containsString("\"error\""));
