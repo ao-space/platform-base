@@ -13,13 +13,6 @@ import java.util.List;
  */
 @Data
 public class BoxMigrationInfo {
-    @NotBlank
-    @Schema(description = "盒子的 UUID")
-    private String boxUUID;
-
-    @Schema(description = "盒子的注册码；传参为空时将由平台生成")
-    private String boxRegKey;
-
     @Schema(description = "network client id；传参为空时将由平台重新生成")
     private String networkClientId;
 

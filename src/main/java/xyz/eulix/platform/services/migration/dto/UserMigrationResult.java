@@ -11,17 +11,14 @@ import java.util.List;
 @Data(staticConstructor = "of")
 public class UserMigrationResult {
     @Schema(description = "用户的 ID")
-    private final String userId;
-
-    @Schema(description = "用户的注册码，用于后续平台对于用户访问合法性的验证")
-    private final String userRegKey;
+    private String userId;
 
     @Schema(description = "用户被指定的子域名字段")
-    private final String subdomain;
+    private String subdomain;
 
     @Schema(description = "用户类型（管理员、普通成员），取值：user_admin、user_member")
-    private final String userType;
+    private String userType;
 
     @Schema(description = "Client列表")
-    private final List<ClientMigrationResult> clientResults;
+    private List<ClientMigrationResult> clientResults;
 }

@@ -17,40 +17,34 @@ import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 
 @RequestScoped
-@Path("/v1/api")
-@Tag(name = "Platform Migration Service", description = "Migration related APIs.")
+@Path("/v2/platform")
+@Tag(name = "Platform Migration Service", description = "割接APIv2.")
 public class MigrationResource {
     private static final Logger LOG = Logger.getLogger("app.log");
 
     @Logged
     @POST
-    @Path("migration")
+    @Path("boxes/{box_uuid}/migration")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "平台割接接口，幂等设计")
+    @Operation(description = "空间平台割接")
     public BoxMigrationResult migration(@Valid BoxMigrationInfo boxMigrationInfo,
-                                        @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        ClientMigrationResult clientMigrationResult = ClientMigrationResult.of("client_uuid",
-                "client_reg_key");
-        UserMigrationResult userMigrationResult = UserMigrationResult.of("user_id",
-                "user_reg_key",
-                "subdomain",
-                RegistryTypeEnum.USER_ADMIN.getName(),
-                Collections.singletonList(clientMigrationResult));
-        return BoxMigrationResult.of("box_uuid",
-                "box_reg_key",
-                NetworkClient.of("network_client_id", "network_client_secret"),
-                Collections.singletonList(userMigrationResult));
+                                        @HeaderParam("Request-Id") @NotBlank String reqId,
+                                        @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                        @PathParam("box_uuid") @NotBlank String boxUUID) {
+        return BoxMigrationResult.of();
     }
 
     @Logged
     @POST
-    @Path("/migration/route")
+    @Path("boxes/{box_uuid}/route")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "域名重定向接口，幂等设计")
-    public BaseResultRes migrationRoute(@Valid MigrationRouteInfo migrationRouteInfo,
-                                        @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        return BaseResultRes.of(true);
+    @Operation(description = "域名重定向")
+    public MigrationRouteResult migrationRoute(@Valid MigrationRouteInfo migrationRouteInfo,
+                                               @HeaderParam("Request-Id") @NotBlank String reqId,
+                                               @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                               @PathParam("box_uuid") @NotBlank String boxUUID) {
+        return MigrationRouteResult.of();
     }
 }

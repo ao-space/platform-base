@@ -6,9 +6,10 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.mgtboard.dto.ArticleReq;
 import xyz.eulix.platform.services.mgtboard.dto.ArticleRes;
-import xyz.eulix.platform.services.mgtboard.service.ArticleService;
 import xyz.eulix.platform.services.mgtboard.dto.BaseResultRes;
+import xyz.eulix.platform.services.mgtboard.service.ArticleService;
 import xyz.eulix.platform.services.support.log.Logged;
+import xyz.eulix.platform.services.support.model.BatchDeleteResult;
 import xyz.eulix.platform.services.support.model.PageListResult;
 
 import javax.annotation.security.RolesAllowed;
@@ -24,9 +25,9 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @RequestScoped
-@Path("/platform/v1/api")
-@Tag(name = "Article Service", description = "Provides article preset related APIs.")
-public class ArticleResource {
+@Path("/v2/service")
+@Tag(name = "Article Service", description = "文章管理APIv2")
+public class ArticleResourceV2 {
     private static final Logger LOG = Logger.getLogger("app.log");
 
     @Inject
@@ -35,7 +36,7 @@ public class ArticleResource {
     @RolesAllowed("admin")
     @Logged
     @POST
-    @Path("/article")
+    @Path("/articles")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "创建文章")
@@ -46,7 +47,7 @@ public class ArticleResource {
 
     @Logged
     @GET
-    @Path("/article/list")
+    @Path("/articles")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "获取文章列表")
@@ -57,53 +58,40 @@ public class ArticleResource {
         return articleService.getArticleList(cataId, currentPage, pageSize);
     }
 
+    @RolesAllowed("admin")
+    @Logged
+    @DELETE
+    @Path("/articles")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "批量删除文章")
+    public BatchDeleteResult deleteArticles(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+                                            @Size(min = 1, max = 2000) @QueryParam("article_ids") List<@NotNull Long> articleIds) {
+        articleService.deleteArticle(articleIds);
+        return BatchDeleteResult.of();
+    }
+
     @Logged
     @GET
-    @Path("/article/{articleid}")
+    @Path("/articles/{article_id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "获取文章详细信息")
     public ArticleRes getArticleDetail(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                       @NotNull @Parameter(required = true) @PathParam("articleid") Long articleId) {
+                                       @NotNull @Parameter(required = true) @PathParam("article_id") Long articleId) {
         return articleService.findByArticleId(articleId);
     }
 
     @RolesAllowed("admin")
     @Logged
-    @DELETE
-    @Path("/article/{articleid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "删除文章")
-    public BaseResultRes deleteArticle(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                       @NotNull @Parameter(required = true) @PathParam("articleid") Long articleId) {
-        articleService.deleteArticle(articleId);
-        return BaseResultRes.of(true);
-    }
-
-    @RolesAllowed("admin")
-    @Logged
-    @DELETE
-    @Path("/article/batch")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "删除文章列表")
-    public BaseResultRes deleteArticles(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                        @Size(min = 1, max = 2000) @QueryParam("article_ids") List<@NotNull Long> articleIds) {
-        articleService.deleteArticle(articleIds);
-        return BaseResultRes.of(true);
-    }
-
-    @RolesAllowed("admin")
-    @Logged
     @PUT
-    @Path("/article/{articleid}")
+    @Path("/articles/{article_id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "修改文章")
     public ArticleRes updateArticle(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
-                                    @NotNull @Parameter(required = true) @PathParam("articleid") Long articleId,
+                                    @NotNull @Parameter(required = true) @PathParam("article_id") Long articleId,
                                     @Valid ArticleReq articleReq) {
-        return articleService.updateArticle(articleId, articleReq.getCataId(),articleReq.getTitle(), articleReq.getContent(), articleReq.getIsPublish());
+        return articleService.updateArticle(articleId, articleReq.getCataId(), articleReq.getTitle(), articleReq.getContent(), articleReq.getIsPublish());
     }
 }

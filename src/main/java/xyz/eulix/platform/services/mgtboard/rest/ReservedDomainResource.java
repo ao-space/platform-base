@@ -20,7 +20,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @ApplicationScoped
-@Path("/v1/api")
+@Path("/platform/v1/api")
 @Tag(name = "Platform Reserved Domain Service", description = "提供域名管理接口.")
 public class ReservedDomainResource {
     @Inject

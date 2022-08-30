@@ -11,25 +11,47 @@ import xyz.eulix.platform.services.support.model.StatusResult;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @RequestScoped
-@Path("/platform")
-@Tag(name = "Platform Basic Service", description = "Basic APIs.")
-public class BasicResource {
+@Path("/v2/platform")
+@Tag(name = "Platform Basic Service", description = "基础APIv2.")
+public class BasicResourceV2 {
 
     @Inject
     ApplicationProperties properties;
+
+    @Logged
+    @GET
+    @Path("/ability")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "查询空间平台能力")
+    public PlatformApiResults ability() {
+        List<PlatformApi> platformApis = new ArrayList<>();
+        PlatformApi platformApi = PlatformApi.of("POST",
+                "/platform/v*/api/registry/box",
+                "/registry/box",
+                Collections.singletonList(1),
+                PlatformApiTypeEnum.BASIC_API.getName(),
+                "注册盒子，成功后返回盒子的注册码，以及network client信息");
+        platformApis.add(platformApi);
+        return PlatformApiResults.of(platformApis);
+    }
+
     @Logged
     @GET
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Try to fetch the current status of server.")
+    @Operation(description = "查询空间平台状态")
     public StatusResult status() {
         return StatusResult.of("ok", properties.getVersion());
     }
