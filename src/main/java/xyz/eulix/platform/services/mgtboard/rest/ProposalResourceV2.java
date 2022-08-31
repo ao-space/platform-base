@@ -2,6 +2,7 @@ package xyz.eulix.platform.services.mgtboard.rest;
 
 import com.google.common.base.Stopwatch;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
@@ -151,25 +152,13 @@ public class ProposalResourceV2 {
     }
 
     @RolesAllowed("admin")
-    @POST
+    @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/files/download")
     @Operation(description = "文件下载接口")
     public Response download(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                             @Valid DownloadFileReq downloadFileReq) {
-        LOG.infov("[Invoke] method: download(), fileName: {0}", utils.objectToJson(downloadFileReq));
-        Stopwatch sw = Stopwatch.createStarted();
-        Response response;
-        try {
-            response = proposalService.download(downloadFileReq);
-        } catch (Exception e) {
-            LOG.errorv(e, "[Throw] method: download(), exception");
-            throw e;
-        } finally {
-            sw.stop();
-        }
-        LOG.infov("[Return] method: download(), result: ok, elapsed: {0}", sw);
-        return response;
+                             @NotBlank @Parameter(required = true, description = "文件地址") @QueryParam("file_url") String fileUrl) {
+        return null;
     }
 }

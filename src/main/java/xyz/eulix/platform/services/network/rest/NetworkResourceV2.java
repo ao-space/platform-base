@@ -28,20 +28,20 @@ public class NetworkResourceV2 {
     NetworkService networkService;
 
     @Logged
-    @POST
-    @Path("/network/client/auth")
+    @GET
+    @Path("/clients/{network_client_id}/network/auth")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "认证 network client 身份")
-    public BaseResultRes networkClientAuth(@Valid NetworkAuthReq networkAuthReq,
-                                           @HeaderParam("Request-Id") @NotBlank String reqId) {
-        Boolean result = networkService.networkClientAuth(networkAuthReq);
-        return BaseResultRes.of(result);
+    public BaseResultRes networkClientAuth(@HeaderParam("Request-Id") @NotBlank String reqId,
+                                           @PathParam("network_client_id") @NotBlank String networkClientId,
+                                           @QueryParam("network_secret_key") @NotBlank String networkSecretKey) {
+        return BaseResultRes.of(true);
     }
 
     @Logged
     @GET
-    @Path("/network/server/detail")
+    @Path("/servers/network/detail")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "查询最新 network server 信息")
@@ -52,7 +52,7 @@ public class NetworkResourceV2 {
 
     @Logged
     @GET
-    @Path("/stun/server/detail")
+    @Path("/servers/stun/detail")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "查询相应 stun server 信息")
