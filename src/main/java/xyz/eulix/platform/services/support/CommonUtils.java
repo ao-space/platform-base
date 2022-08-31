@@ -68,6 +68,16 @@ public final class CommonUtils {
                 .toString();
     }
 
+    public static String unifiedRandomHexCharters(int length) {
+        int startChar = '0';
+        int endChar = 'f';
+        return random.ints(startChar, endChar + 1)
+                .filter(i -> (i <= 57 || i >97) )
+                .limit(length)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+    }
+
     /**
      * 获得一个UUID
      *

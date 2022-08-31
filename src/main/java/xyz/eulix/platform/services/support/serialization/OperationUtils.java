@@ -4,15 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
+import org.jboss.logging.Logger;
+import org.testcontainers.shaded.okhttp3.HttpUrl;
+import org.testcontainers.shaded.okhttp3.OkHttpClient;
+import org.testcontainers.shaded.okhttp3.Request;
+import xyz.eulix.platform.services.support.service.ServiceError;
+import xyz.eulix.platform.services.support.service.ServiceOperationException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 @Singleton
 public class OperationUtils {
+    private static final Logger LOG = Logger.getLogger("app.log");
 
     @Inject
     ObjectMapper objectMapper;
@@ -45,5 +54,21 @@ public class OperationUtils {
             Log.error("string2SHA256 throw error, exception:", e);
         }
         return encodeStr;
+    }
+
+    public Response downLoadFile(String urlString){
+        String[] fileName = urlString.split("/");
+        try {
+            OkHttpClient httpClient = new OkHttpClient();
+            var requestBuilder = new Request.Builder()
+                    .url(HttpUrl.parse(urlString).newBuilder().build());
+            var response = httpClient.newCall(requestBuilder.build()).execute();
+            byte b[] = response.body().source().inputStream().readAllBytes();
+            return Response.ok(b).header("Content-Disposition", response.header("Content-Disposition", "attachment;filename=" + fileName[fileName.length-1]))
+                    .header("Content-Length", b.length).build();
+        } catch (IOException e) {
+            LOG.error("download template failed, exception is:", e);
+            throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
+        }
     }
 }

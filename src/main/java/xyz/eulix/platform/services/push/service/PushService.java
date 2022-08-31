@@ -163,10 +163,12 @@ public class PushService {
         Boolean succIOS = true;
         // 列播消息：android
         if (!CommonUtils.isNullOrEmpty(androidTokens)) {
+            LOG.infov("Send android message, device tokens num :{0}.", androidTokens.size());
             succAndroid = androidClientcast(pushMessage, androidTokens);
         }
         // 列播消息：ios
         if (!CommonUtils.isNullOrEmpty(iosTokens)) {
+            LOG.infov("Send ios message, device tokens num :{0}.", iosTokens.size());
             succIOS = iosClientcast(pushMessage, iosTokens);
         }
         LOG.infov("Clientcast result, android:{0}, ios:{1}", succAndroid ? SUCCESS : FAIL, succIOS ? SUCCESS : FAIL);

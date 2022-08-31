@@ -184,7 +184,7 @@ public abstract class AndroidNotification extends UmengNotification {
 
     // 点击"通知"的后续行为，默认为打开app。原始接口
     public void setAfterOpenAction(AfterOpenAction action) {
-        setPredefinedKeyValue("after_open", action.toString());
+        setPredefinedKeyValue("after_open", action.getName());
     }
 
     public void setUrl(String url) {
