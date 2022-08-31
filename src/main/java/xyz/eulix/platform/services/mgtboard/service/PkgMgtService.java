@@ -97,6 +97,7 @@ public class PkgMgtService {
         body.setTitle(NotificationEnum.BOX_UPGRADE.getTitle());
         body.setText(NotificationEnum.BOX_UPGRADE.getText());
         body.setAfterOpen(NotificationEnum.BOX_UPGRADE.getAfterOpenAction().getName());
+        body.setActivity(NotificationEnum.BOX_UPGRADE.getActivity());
         payload.setBody(body);
         Map<String, String> extras = new HashMap<>();
         extras.put("optType", NotificationEnum.BOX_UPGRADE.getType());
@@ -121,6 +122,7 @@ public class PkgMgtService {
         body.setTitle(NotificationEnum.APP_UPGRADE.getTitle());
         body.setText(NotificationEnum.APP_UPGRADE.getText());
         body.setAfterOpen(NotificationEnum.APP_UPGRADE.getAfterOpenAction().getName());
+        body.setActivity(NotificationEnum.APP_UPGRADE.getActivity());
         payload.setBody(body);
         Map<String, String> extras = new HashMap<>();
         extras.put("optType", NotificationEnum.APP_UPGRADE.getType());
