@@ -35,6 +35,17 @@ public class RegistryResourceV2 {
 
     @Logged
     @POST
+    @Path("/auth/box_reg_keys")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "获取box_reg_key")
+    public TokenResults createToken(@Valid TokenInfo tokenInfo,
+                                    @HeaderParam("Request-Id") @NotBlank String reqId) {
+        return TokenResults.of();
+    }
+
+    @Logged
+    @POST
     @Path("/boxes")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
