@@ -23,7 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Path("/v1/api")
+@Path("/platform/v1/api")
 @Tag(name = "Applet Service", description = "Provides applet preset related APIs.")
 public class AppletResource {
 	private static final Logger LOG = Logger.getLogger("app.log");

@@ -76,7 +76,7 @@ public class PackageResourceTest {
         .queryParam("cur_app_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
-        .get("/v1/api/package/check");
+        .get("/platform/v1/api/package/check");
     PackageCheckRes res = resp.body().as(PackageCheckRes.class);
 
     assertEquals(res.getNewVersionExist(), true);
@@ -93,7 +93,7 @@ public class PackageResourceTest {
         .body(app_1_0)
         .contentType(ContentType.JSON)
         .when()
-        .put("/v1/api/package")
+        .put("/platform/v1/api/package")
         .then()
         .body(containsString(url));
   }
@@ -114,7 +114,7 @@ public class PackageResourceTest {
         .queryParam("cur_app_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
-        .get("/v1/api/package/check");
+        .get("/platform/v1/api/package/check");
     PackageCheckRes res = resp.body().as(PackageCheckRes.class);
 
     assertEquals(res.getNewVersionExist(), true);
@@ -136,7 +136,7 @@ public class PackageResourceTest {
         .queryParam("cur_app_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
-        .get("/v1/api/package/check");
+        .get("/platform/v1/api/package/check");
     PackageCheckRes res = resp.body().as(PackageCheckRes.class);
     assertEquals(res.getNewVersionExist(), true);
   }
@@ -156,7 +156,7 @@ public class PackageResourceTest {
         .queryParam("pkg_version","1.0.0")
         .contentType(ContentType.JSON)
         .when()
-        .delete("/v1/api/package")
+        .delete("/platform/v1/api/package")
         .then()
         .statusCode(OK.getStatusCode())
         .body(containsString("true"));
@@ -172,7 +172,7 @@ public class PackageResourceTest {
         .queryParam("box_pkg_type","box")
         .contentType(ContentType.JSON)
         .when()
-        .get("/v1/api/package/box")
+        .get("/platform/v1/api/package/box")
         .then()
         .statusCode(OK.getStatusCode())
         .body(containsString("true"));
@@ -184,7 +184,7 @@ public class PackageResourceTest {
         .header("Request-Id", "uuid")
         .body(req)
         .contentType(ContentType.JSON)
-        .when().post("/v1/api/package");
+        .when().post("/platform/v1/api/package");
 
      return resp.body().as(PackageRes.class);
   }

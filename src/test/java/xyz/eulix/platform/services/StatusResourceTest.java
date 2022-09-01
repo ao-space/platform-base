@@ -19,7 +19,7 @@ class StatusResourceTest {
   void testStatusEndpoint() {
     given()
         .when()
-        .get("/status")
+        .get("/platform/status")
         .then()
         .statusCode(200)
         .body("status", is("ok"))

@@ -25,7 +25,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @RequestScoped
-@Path("/v1/api")
+@Path("/platform/v1/api")
 @Tag(name = "Platform Push Service", description = "Provides message push related APIs.")
 public class PushResource {
     private static final Logger LOG = Logger.getLogger("app.log");

@@ -26,7 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RequestScoped
-@Path("/v1/api")
+@Path("/platform/v1/api")
 @Tag(name = "Platform Registry Service", description = "Provides related APIs.")
 public class RegistryResource {
     private static final Logger LOG = Logger.getLogger("app.log");
