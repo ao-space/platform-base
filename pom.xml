@@ -6,7 +6,7 @@
     <groupId>xyz.eulix.platform.services</groupId>
     <artifactId>eulixplatform-services</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.13</version>
 
     <modules>
         <module>eulixplatform-common</module>
