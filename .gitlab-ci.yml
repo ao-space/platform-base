@@ -75,7 +75,7 @@ validate:package:
     - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-opstage/target/eulixplatform-opstage-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-services/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
   artifacts:
     paths:
-      - target/
+      - eulixplatform-opstage/target/
 
 docker:jvm:
   stage: docker
@@ -97,7 +97,8 @@ docker:jvm:
     - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
     - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
   script:
-    - docker build --build-arg CI_PIPELINE_ID=$CI_PIPELINE_ID --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA -f eulixplatform-opstage/src/main/docker/Dockerfile.jvm -t $DOCKER_BUILD_IMAGE .
+    - cd eulixplatform-opstage
+    - docker build --build-arg CI_PIPELINE_ID=$CI_PIPELINE_ID --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA -f src/main/docker/Dockerfile.jvm -t $DOCKER_BUILD_IMAGE .
     - docker tag $DOCKER_BUILD_IMAGE $DOCKER_LATEST_IMAGE
     - docker tag $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE_GITLAB
     - docker tag $DOCKER_BUILD_IMAGE $DOCKER_LATEST_IMAGE_GITLAB
