@@ -36,9 +36,10 @@ public class AppletService {
 			resp.add(AppletInfoRes.of(appletInfoEntity.getName(),
 					appletInfoEntity.getNameEn() == null?"":appletInfoEntity.getNameEn(),
 					appletInfoEntity.getState(),
-					appletInfoEntity.getAppletId(),  appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
+					appletInfoEntity.getAppletId(),  appletInfoEntity.getMd5(),appletInfoEntity.getWebMd5(),
+							appletInfoEntity.getAppletVersion(),
 					appletInfoEntity.getIconUrl(), appletInfoEntity.getUpdateDesc(),
-					appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getUpdatedAt()));
+					appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getMemPermission(), appletInfoEntity.getUpdatedAt()));
 		}
 		return resp;
 	}
@@ -50,9 +51,9 @@ public class AppletService {
 			resp.add(AppletInfoRes.of(appletInfoEntity.getName(),
 					appletInfoEntity.getNameEn() == null?"":appletInfoEntity.getNameEn(),
 					appletInfoEntity.getState(),
-					appletInfoEntity.getAppletId(),  appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
+					appletInfoEntity.getAppletId(),  appletInfoEntity.getMd5(), appletInfoEntity.getWebMd5(), appletInfoEntity.getAppletVersion(),
 					appletInfoEntity.getIconUrl(), appletInfoEntity.getUpdateDesc(),
-					appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getUpdatedAt()));
+					appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getMemPermission(),appletInfoEntity.getUpdatedAt()));
 		}
 		return resp;
 	}
@@ -70,6 +71,7 @@ public class AppletService {
 		appletInfoEntity.setAppletSecret(appletSecret);
 		appletInfoEntity.setState(appletRegistryInfo.getState()==null?1: appletRegistryInfo.getState());
 		appletInfoEntity.setIsForceUpdate(appletRegistryInfo.getIsForceUpdate() == null?false : appletRegistryInfo.getIsForceUpdate());
+		appletInfoEntity.setMemPermission(appletRegistryInfo.getMemPermission() == null?true: appletRegistryInfo.getMemPermission());
 		appletInfoEntity.setCategories(appletRegistryInfo.getCategories());
 		appletInfoEntity.setName(appletRegistryInfo.getAppletName());
 		appletInfoEntity.setNameEn(appletRegistryInfo.getAppletNameEn());
@@ -79,6 +81,7 @@ public class AppletService {
 		appletInfoEntity.setUpdateDesc(appletRegistryInfo.getUpdateDesc());
 		appletInfoEntity.setIconUrl(appletRegistryInfo.getIconUrl() !=null?appletRegistryInfo.getIconUrl():"");
 		appletInfoEntity.setDownUrl(appletRegistryInfo.getDownUrl() != null?appletRegistryInfo.getDownUrl():"");
+		appletInfoEntity.setWebDownUrl(appletRegistryInfo.getWebDownUrl());
 		appletInfoEntityRepository.create(appletInfoEntity);
 		return AppletRegistryRes.of(appletId,appletSecret);
 	}
@@ -89,15 +92,16 @@ public class AppletService {
 			throw new ServiceOperationException(ServiceError.APPLET_NOT_EXIST);
 		}
 		appletPostReq.setIsForceUpdate(appletPostReq.getIsForceUpdate() == null?appletInfoEntity.getIsForceUpdate() : appletPostReq.getIsForceUpdate());
+		appletPostReq.setMemPermission(appletPostReq.getMemPermission() == null? appletInfoEntity.getMemPermission(): appletPostReq.getMemPermission());
 		appletPostReqToEntity(appletPostReq, appletInfoEntity);
 		appletInfoEntity.setUpdatedAt(OffsetDateTime.now());
 		appletInfoEntityRepository.update(appletInfoEntity, appletId);
 		return  AppletInfoRes.of(appletInfoEntity.getName(),
 				appletInfoEntity.getNameEn() == null?"":appletInfoEntity.getNameEn(),
 				appletInfoEntity.getState(),
-				appletInfoEntity.getAppletId(), appletInfoEntity.getMd5(),appletInfoEntity.getAppletVersion(),
+				appletInfoEntity.getAppletId(), appletInfoEntity.getMd5(),appletInfoEntity.getWebMd5(), appletInfoEntity.getAppletVersion(),
 				appletInfoEntity.getIconUrl(),  appletInfoEntity.getUpdateDesc(),
-				appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getUpdatedAt());
+				appletInfoEntity.getIsForceUpdate(),appletInfoEntity.getMemPermission(),appletInfoEntity.getUpdatedAt());
 	}
 
 	public void appletPostReqToEntity(AppletPostReq appletPostReq, AppletInfoEntity appletInfoEntity){
@@ -109,9 +113,12 @@ public class AppletService {
 		appletInfoEntity.setDownUrl(appletPostReq.getDownUrl()!=null? appletPostReq.getDownUrl() : appletInfoEntity.getDownUrl());
 		appletInfoEntity.setIconUrl(appletPostReq.getIconUrl()!= null ? appletPostReq.getIconUrl() : appletInfoEntity.getIconUrl());
 		appletInfoEntity.setCategories(appletPostReq.getCategories()!= null ? appletPostReq.getCategories() : appletInfoEntity.getCategories());
-		appletInfoEntity.setMd5(appletPostReq.getMd5());
+		appletInfoEntity.setMd5(appletPostReq.getMd5() == null ? appletInfoEntity.getMd5(): appletPostReq.getMd5());
+		appletInfoEntity.setWebMd5(appletPostReq.getWebMd5());
+		appletInfoEntity.setWebDownUrl(appletPostReq.getWebDownUrl()!=null? appletPostReq.getWebDownUrl() : appletInfoEntity.getWebDownUrl());
 		appletInfoEntity.setUpdateDesc(appletPostReq.getUpdateDesc()!= null? appletPostReq.getUpdateDesc() : appletInfoEntity.getUpdateDesc());
 		appletInfoEntity.setIsForceUpdate(appletPostReq.getIsForceUpdate()!=null?appletPostReq.getIsForceUpdate() : appletInfoEntity.getIsForceUpdate());
+		appletInfoEntity.setMemPermission(appletPostReq.getMemPermission()!=null?appletPostReq.getMemPermission(): appletInfoEntity.getMemPermission());
 		appletInfoEntity.setMinCompatibleBoxVersion(appletPostReq.getMinCompatibleBoxVersion()!=null?appletPostReq.getMinCompatibleBoxVersion() : appletInfoEntity.getMinCompatibleBoxVersion());
 	}
 
@@ -135,6 +142,17 @@ public class AppletService {
 			return Response.status(Response.Status.FORBIDDEN).build();
 		}
 		return utils.downLoadFile(appletInfoEntity.getDownUrl());
+	}
+
+	public Response downWebAppletPackage(AppletReq appletReq){
+		var appletInfoEntity = appletInfoEntityRepository.findByAppleId(appletReq.getAppletId());
+		if(CommonUtils.isNull(appletInfoEntity)) {
+			throw new ServiceOperationException(ServiceError.APPLET_NOT_EXIST);
+		}
+		if(CommonUtils.isNullOrEmpty(appletInfoEntity.getWebDownUrl())) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
+		return utils.downLoadFile(appletInfoEntity.getWebDownUrl());
 	}
 
 	public void appletDelete(String appletId){

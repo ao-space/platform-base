@@ -54,6 +54,10 @@ public class AppletInfoEntity extends BaseEntity{
 	@Column(name = "down_url")
 	private String downUrl;
 
+	//web和app端分开下载
+	@Column(name = "web_down_url")
+	private String webDownUrl;
+
 	//小程序所求权限
 	@Column(name = "categories")
 	private String categories;
@@ -61,6 +65,13 @@ public class AppletInfoEntity extends BaseEntity{
 	// md5
 	@Column(name = "md5")
 	private String md5;
+
+	// md5
+	@Column(name = "web_md5")
+	private String webMd5;
+
+	@Column(name = "member_permission")
+	private Boolean memPermission;
 
 	// 最小 box 兼容版本
 	@Column(name = "min_compatible_box_version")

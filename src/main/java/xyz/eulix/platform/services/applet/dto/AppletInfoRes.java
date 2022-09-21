@@ -22,6 +22,9 @@ public class AppletInfoRes {
 	@Schema(description = "md5")
 	private final String md5;
 
+	@Schema(description = "webmd5")
+	private final String webMd5;
+
 	@Schema(description = "小程序版本")
 	private final String appletVersion;
 
@@ -33,6 +36,9 @@ public class AppletInfoRes {
 
 	@Schema(description = "是否强制更新")
 	private final Boolean isForceUpdate;
+
+	@Schema(description = "成员默认权限")
+	private final Boolean memPermission;
 
 	@Schema(description = "上一次更新时间")
 	private final OffsetDateTime updateAt;

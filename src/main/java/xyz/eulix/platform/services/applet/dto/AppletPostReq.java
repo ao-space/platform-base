@@ -31,15 +31,23 @@ public class AppletPostReq {
 	@Schema(description = "down_url")
 	private String downUrl;
 
+	@Schema(description = "web_down_url")
+	private String webDownUrl;
+
 	@Schema(description = "categories,小程序所需求的权限，以逗号分割")
 	private String categories;
 
-	@NotNull
 	@Schema(description = "md5")
 	private String md5;
 
+	@Schema(description = "webmd5")
+	private String webMd5;
+
 	@Schema(description = "是否强制更新")
 	private Boolean isForceUpdate;
+
+	@Schema(description = "对成员的默认权限")
+	private Boolean memPermission;
 
 	@Schema(description = "兼容盒子最小版本")
 	private String minCompatibleBoxVersion;

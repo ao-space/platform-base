@@ -91,7 +91,7 @@ public class AppletResource {
 	@Path("/applet/download")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Operation(description = "下载小程序")
+	@Operation(description = "下载小程序app")
 	public Response downloadApplet(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
 								   @NotNull @Valid AppletReq appletReq){
 		//检查小程序新版本是否与盒子版本兼容，以及请求的小程序版本是否最新
@@ -104,6 +104,34 @@ public class AppletResource {
 		Response response;
 		try {
 			response = appletService.downAppletPackage(appletReq);
+		} catch (Exception e) {
+			LOG.errorv(e,"[Throw] method: download(), exception");
+			throw e;
+		} finally {
+			sw.stop();
+		}
+		LOG.infov("[Return] method: appletDownload(), result: ok, elapsed: {0}", sw);
+		return response;
+	}
+
+	@Logged
+	@POST
+	@Path("/applet/web/download")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(description = "下载小程序app")
+	public Response downloadWebApplet(@NotBlank @Parameter(required = true) @HeaderParam("Request-Id") String requestId,
+																 @NotNull @Valid AppletReq appletReq){
+		//检查小程序新版本是否与盒子版本兼容，以及请求的小程序版本是否最新
+		if(!appletService.compatiableCheck(appletReq)){
+			throw new ServiceOperationException(ServiceError.BOX_VERSION_TOO_OLD);
+		}
+		//开始下载并检测下载时常
+		LOG.infov("[Invoke] method: appletDownload(), appletId: {0}", appletReq.getAppletId());
+		Stopwatch sw = Stopwatch.createStarted();
+		Response response;
+		try {
+			response = appletService.downWebAppletPackage(appletReq);
 		} catch (Exception e) {
 			LOG.errorv(e,"[Throw] method: download(), exception");
 			throw e;

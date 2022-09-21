@@ -20,7 +20,6 @@ public class AppletRegistryInfo {
 	@Schema(description = "小程序version")
 	private String appletVersion;
 
-
 	@Schema(description = "update_desc")
 	private String updateDesc;
 
@@ -33,8 +32,14 @@ public class AppletRegistryInfo {
 	@Schema(description = "down_url")
 	private String downUrl;
 
+	@Schema(description = "web_down_url")
+	private String webDownUrl;
+
 	@Schema(description = "是否强制更新")
 	private Boolean isForceUpdate;
+
+	@Schema(description = "对成员的默认权限")
+	private Boolean memPermission;
 
 	@Schema(description = "兼容盒子最小版本")
 	private String minCompatibleBoxVersion;
