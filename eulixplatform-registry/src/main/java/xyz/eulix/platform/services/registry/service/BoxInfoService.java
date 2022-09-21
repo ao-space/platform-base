@@ -1,6 +1,8 @@
 package xyz.eulix.platform.services.registry.service;
 
 import com.alibaba.excel.EasyExcel;
+import java.time.OffsetDateTime;
+import java.util.Objects;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
@@ -8,10 +10,16 @@ import xyz.eulix.platform.services.registry.dto.registry.BoxInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfosReq;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfosRes;
 import xyz.eulix.platform.common.support.CommonUtils;
+import xyz.eulix.platform.services.registry.dto.registry.v2.AuthTypeEnum;
+import xyz.eulix.platform.services.registry.dto.registry.v2.ServiceEnum;
+import xyz.eulix.platform.services.registry.dto.registry.v2.TokenInfo;
+import xyz.eulix.platform.services.registry.dto.registry.v2.TokenResult;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
+import xyz.eulix.platform.services.registry.entity.BoxTokenEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.repository.BoxInfoEntityRepository;
+import xyz.eulix.platform.services.registry.repository.BoxTokenEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryBoxEntityRepository;
 import xyz.eulix.platform.common.support.model.PageInfo;
 import xyz.eulix.platform.common.support.model.PageListResult;
@@ -49,6 +57,9 @@ public class BoxInfoService {
     RegistryBoxEntityRepository registryBoxEntityRepository;
 
     @Inject
+    BoxTokenEntityRepository boxTokenEntityRepository;
+
+    @Inject
     OperationUtils operationUtils;
 
     public BoxInfosRes saveBoxInfos(BoxInfosReq boxInfosReq) {
@@ -56,6 +67,15 @@ public class BoxInfoService {
         List<String> failures = new ArrayList<>();
         boxInfosReq.getBoxInfos().forEach(boxInfo -> {
             upsertBoxInfo(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxUUIDs, failures);
+        });
+        return BoxInfosRes.of(boxUUIDs, failures);
+    }
+
+    public BoxInfosRes<String> saveBoxInfosV2(BoxInfosReq boxInfosReq) {
+        List<String> boxUUIDs = new ArrayList<>();
+        List<String> failures = new ArrayList<>();
+        boxInfosReq.getBoxInfos().forEach(boxInfo -> {
+            upsertBoxInfoV2(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxInfo.getBoxPubKey(), boxInfo.getAuthType(), boxUUIDs, failures);
         });
         return BoxInfosRes.of(boxUUIDs, failures);
     }
@@ -68,12 +88,40 @@ public class BoxInfoService {
                 extraStr = operationUtils.objectToJson(extra);
             }
             if (boxInfoEntityRepository.findByBoxUUID(boxUUID).isPresent()) {
-                boxInfoEntityRepository.updateByBoxUUID(extraStr, boxUUID);
+                boxInfoEntityRepository.updateByBoxUUID(extraStr, AuthTypeEnum.BOX_UUID.getName(), null, boxUUID);
             } else {
                 BoxInfoEntity boxInfoEntity = new BoxInfoEntity();
                 boxInfoEntity.setBoxUUID(boxUUID);
                 boxInfoEntity.setDesc(desc);
                 boxInfoEntity.setExtra(extraStr);
+                boxInfoEntity.setAuthType(AuthTypeEnum.BOX_UUID.getName());
+                boxInfoEntityRepository.createBoxInfo(boxInfoEntity);
+            }
+            boxUUIDs.add(boxUUID);
+            return true;
+        } catch (Exception e) {
+            LOG.errorv(e, "box info save failed");
+            failures.add(boxUUID);
+            return false;
+        }
+    }
+
+    @Transactional
+    public <T> boolean upsertBoxInfoV2(String boxUUID, String desc, T extra, String boxPubKey, String authType,List<String> boxUUIDs, List<String> failures) {
+        try {
+            String extraStr = null;
+            if (CommonUtils.isNotNull(extra)) {
+                extraStr = operationUtils.objectToJson(extra);
+            }
+            if (boxInfoEntityRepository.findByBoxUUID(boxUUID).isPresent()) {
+                boxInfoEntityRepository.updateByBoxUUID(extraStr, authType, boxPubKey, boxUUID);
+            } else {
+                BoxInfoEntity boxInfoEntity = new BoxInfoEntity();
+                boxInfoEntity.setBoxUUID(boxUUID);
+                boxInfoEntity.setDesc(desc);
+                boxInfoEntity.setExtra(extraStr);
+                boxInfoEntity.setBoxPubKey(boxPubKey);
+                boxInfoEntity.setAuthType(authType);
                 boxInfoEntityRepository.createBoxInfo(boxInfoEntity);
             }
             boxUUIDs.add(boxUUID);
@@ -217,4 +265,33 @@ public class BoxInfoService {
         boxInfos.forEach(boxInfo -> boxUUIDs.add(boxInfo.getBoxUUID()));
         return boxUUIDs;
     }
+
+    @Transactional
+    public ArrayList<TokenResult> createBoxToken(TokenInfo tokenInfo, BoxInfoEntity boxInfoEntity){
+        var result = new ArrayList<TokenResult>();
+
+        tokenInfo.getServiceIds().forEach(serviceId -> {
+            // 生成 token
+            BoxTokenEntity boxTokenEntity = new BoxTokenEntity();
+            {
+                boxTokenEntity.setBoxUUID(tokenInfo.getBoxUUID());
+                boxTokenEntity.setServiceId(serviceId);
+                boxTokenEntity.setServiceName(ServiceEnum.fromValue(serviceId).name());
+                boxTokenEntity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
+                boxTokenEntity.setExpiresAt(OffsetDateTime.now().plusHours(24));
+            }
+            boxTokenEntityRepository.persist(boxTokenEntity);
+            if(Objects.isNull(boxInfoEntity)){
+                result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(),
+                    boxTokenEntity.getExpiresAt()));
+            } else {
+                result.add(TokenResult.of(boxTokenEntity.getServiceId(),
+                    operationUtils.encryptUsingPublicKey(boxTokenEntity.getBoxRegKey(), boxInfoEntity.getBoxPubKey()),
+                    boxTokenEntity.getExpiresAt()));
+            }
+
+        });
+        return result;
+    }
+
 }

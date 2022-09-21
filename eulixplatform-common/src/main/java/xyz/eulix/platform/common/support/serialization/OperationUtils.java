@@ -2,6 +2,14 @@ package xyz.eulix.platform.common.support.serialization;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import javax.crypto.Cipher;
 import lombok.SneakyThrows;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -71,5 +79,66 @@ public class OperationUtils {
             LOG.error("download template failed, exception is:", e);
             throw new ServiceOperationException(ServiceError.DOWNLOAD_FILE_FAILED);
         }
+    }
+
+    @SneakyThrows
+    public String encryptUsingPublicKey(String body, String publicKey) {
+        final Cipher dc = Cipher.getInstance("RSA");
+        dc.init(Cipher.ENCRYPT_MODE, getRSAPublicKey(publicKey));
+        final byte[] encrypted = dc.doFinal(body.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(encrypted);
+    }
+
+    @SneakyThrows
+    public String encryptUsingPrivateKey(String body, String privateKey) {
+        final Cipher dc = Cipher.getInstance("RSA");
+        dc.init(Cipher.ENCRYPT_MODE, getRSAPrivateKey(privateKey));
+        final byte[] encrypted = dc.doFinal(body.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(encrypted);
+    }
+
+    @SneakyThrows
+    public String decryptUsingPrivateKey(String body, String privateKey) {
+        final Cipher dc = Cipher.getInstance("RSA");
+        dc.init(Cipher.DECRYPT_MODE, getRSAPrivateKey(privateKey));
+        final byte[] decrypted = dc.doFinal(Base64.getDecoder().decode(body));
+        return new String(decrypted, StandardCharsets.UTF_8);
+    }
+
+    @SneakyThrows
+    public String decryptUsingPublicKey(String body, String publicKey) {
+        final Cipher dc = Cipher.getInstance("RSA");
+        dc.init(Cipher.DECRYPT_MODE, getRSAPublicKey(publicKey));
+        final byte[] decrypted = dc.doFinal(Base64.getDecoder().decode(body));
+        return new String(decrypted, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Read from pem text reader and returns a RSA private key based on PKCS#8 standard format.
+     */
+    public RSAPrivateKey getRSAPrivateKey(String privateKey)
+        throws GeneralSecurityException {
+
+        final String pem = privateKey.replaceAll("[\\n\\r]", "")
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "");
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(pem));
+        return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+    }
+
+    /**
+     * Read from a pem text reader and returns a RSA public key based on X.509 standard format.
+     */
+    public RSAPublicKey getRSAPublicKey(String  publicKey) throws GeneralSecurityException {
+
+        final String pem = publicKey.replaceAll("[\\n\\r]", "")
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "");
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(pem));
+        return (RSAPublicKey) keyFactory.generatePublic(keySpec);
     }
 }

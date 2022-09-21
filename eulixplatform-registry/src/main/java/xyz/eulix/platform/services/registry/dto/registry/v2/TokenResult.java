@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.registry.dto.registry.v2;
 
+import java.time.OffsetDateTime;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -10,8 +11,11 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Data(staticConstructor = "of")
 public class TokenResult {
     @Schema(description = "平台id")
-    private String serviceId;
+    private final String serviceId;
 
     @Schema(description = "盒子在当前平台的注册码")
-    private String boxRegKey;
+    private final String boxRegKey;
+
+    @Schema(description = "注册码 token 有效时间, OffsetDateTime 类型")
+    private final OffsetDateTime expiresAt;
 }

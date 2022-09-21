@@ -48,9 +48,9 @@ public class BoxInfoResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "预置盒子出厂信息，需管理员权限")
-    public BoxInfosRes saveBoxInfos(@Valid BoxInfosReq boxInfosReq,
+    public BoxInfosRes<String> saveBoxInfos(@Valid BoxInfosReq boxInfosReq,
                                     @HeaderParam("Request-Id") @NotBlank String reqId) {
-        return boxInfoService.saveBoxInfos(boxInfosReq);
+        return boxInfoService.saveBoxInfosV2(boxInfosReq);
     }
 
     @RolesAllowed("admin")

@@ -2,15 +2,23 @@ package xyz.eulix.platform.services.registry.service;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.common.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.provider.ProviderFactory;
 import xyz.eulix.platform.services.provider.inf.RegistryProvider;
 import xyz.eulix.platform.services.registry.dto.registry.*;
+import xyz.eulix.platform.services.registry.dto.registry.v2.AuthTypeEnum;
+import xyz.eulix.platform.services.registry.dto.registry.v2.TokenInfo;
+import xyz.eulix.platform.services.registry.dto.registry.v2.TokenVerifySignInfo;
+import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
+import xyz.eulix.platform.services.registry.entity.BoxTokenEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryUserEntity;
 import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
+import xyz.eulix.platform.services.registry.repository.BoxInfoEntityRepository;
+import xyz.eulix.platform.services.registry.repository.BoxTokenEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryBoxEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryClientEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryUserEntityRepository;
@@ -29,7 +37,6 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -73,12 +80,16 @@ public class RegistryService {
 
     @Inject
     RegistryUserEntityRepository userEntityRepository;
-
+    @Inject
+    BoxInfoEntityRepository boxInfoEntityRepository;
     @Inject
     RegistryClientEntityRepository clientEntityRepository;
 
     @Inject
     SubdomainEntityRepository subdomainEntityRepository;
+
+    @Inject
+    BoxTokenEntityRepository boxTokenEntityRepository;
 
     @Inject
     SubdomainService subdomainService;
@@ -88,6 +99,10 @@ public class RegistryService {
 
     @Inject
     ProviderFactory providerFactory;
+
+    @Inject
+    OperationUtils utils;
+
 
     public boolean isValidBoxUUID(String boxUUID) {
         RegistryProvider registryProvider = providerFactory.getRegistryProvider();
@@ -159,6 +174,21 @@ public class RegistryService {
     }
 
     @Transactional
+    public xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResult registryBoxV2(BoxTokenEntity boxToken) {
+        var registryBoxEntity = boxEntityRepository.findByBoxUUID(boxToken.getBoxUUID());
+        if(registryBoxEntity.isPresent()){
+            return xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResult.of(
+                registryBoxEntity.get().getBoxRegKey(),
+                NetworkClient.of(registryBoxEntity.get().getNetworkClientId(), registryBoxEntity.get().getNetworkSecretKey()));
+        }
+        // 注册box
+        RegistryBoxEntity boxEntity = registryBox(boxToken.getBoxUUID(), boxToken.getBoxRegKey());
+        // 计算路由
+        networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
+        return xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResult.of(boxEntity.getBoxRegKey(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
+    }
+
+    @Transactional
     public UserRegistryResult registryUser(UserRegistryInfo userRegistryInfo, String userDomain) {
         // 注册用户
         RegistryUserEntity userEntity = registryUser(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId(),
@@ -185,6 +215,21 @@ public class RegistryService {
         {
             boxEntity.setBoxUUID(boxUUID);
             boxEntity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
+            // network client
+            boxEntity.setNetworkClientId(CommonUtils.getUUID());
+            boxEntity.setNetworkSecretKey("nrk_" + CommonUtils.createUnifiedRandomCharacters(10));
+        }
+        boxEntityRepository.persist(boxEntity);
+        return boxEntity;
+    }
+
+    @Transactional
+    public RegistryBoxEntity registryBox(String boxUUID, String boxRegKey) {
+        // 注册box
+        RegistryBoxEntity boxEntity = new RegistryBoxEntity();
+        {
+            boxEntity.setBoxUUID(boxUUID);
+            boxEntity.setBoxRegKey(boxRegKey);
             // network client
             boxEntity.setNetworkClientId(CommonUtils.getUUID());
             boxEntity.setNetworkSecretKey("nrk_" + CommonUtils.createUnifiedRandomCharacters(10));
@@ -420,7 +465,7 @@ public class RegistryService {
     }
 
     public void reachUpperLimit(String boxUUID) {
-        Long count = subdomainEntityRepository.count("box_uuid", boxUUID);
+        long count = subdomainEntityRepository.count("box_uuid", boxUUID);
         if (count > SUBDOMAIN_UPPER_LIMIT) {
             LOG.warnv("reach subdomain upper limit, boxUUID:{0}", boxUUID);
             throw new ServiceOperationException(ServiceError.SUBDOMAIN_UPPER_LIMIT);
@@ -605,11 +650,11 @@ public class RegistryService {
 
     private String recommendRandomNum(String subdomain) {
         if (random.nextBoolean()) {
-            String ramdomAB = CommonUtils.randomLetters(2);
-            return subdomain + ramdomAB;
+            String randomAB = CommonUtils.randomLetters(2);
+            return subdomain + randomAB;
         } else {
-            String ramdomABC = CommonUtils.randomLetters(3);
-            return subdomain + ramdomABC;
+            String randomABC = CommonUtils.randomLetters(3);
+            return subdomain + randomABC;
         }
     }
 
@@ -635,7 +680,7 @@ public class RegistryService {
         // 批量查询admin用户
         PanacheQuery<RegistryUserEntity> userEntityPanacheQuery = userEntityRepository.findAllByType(RegistryTypeEnum.USER_ADMIN.getName(),
                 BEGIN_INDEX, PAGE_SIZE);
-        while (userEntityPanacheQuery.stream().count() > 0) {
+        while (userEntityPanacheQuery.stream().findAny().isPresent()) {
             List<Map<String, String>> userIds = new ArrayList<>();
             Set<String> boxUUIDs = new HashSet<>();
             userEntityPanacheQuery.stream().forEach(k -> {
@@ -659,5 +704,37 @@ public class RegistryService {
         }
 
         return clientUUIDs;
+    }
+
+    public BoxInfoEntity verifySign(TokenInfo tokenInfo){
+        var boxInfoEntity = boxInfoEntityRepository.findByBoxUUID(tokenInfo.getBoxUUID());
+        if(boxInfoEntity.isPresent()){
+            if(!boxInfoEntity.get().getAuthType().equals(AuthTypeEnum.BOX_PUB_KEY.getName())){
+                return null;
+            }
+            var verifySignInfoJson = utils.decryptUsingPublicKey(tokenInfo.getSign(), boxInfoEntity.get().getBoxPubKey());
+            TokenVerifySignInfo verifySignInfo = utils.jsonToObject(verifySignInfoJson, TokenVerifySignInfo.class);
+            if(Objects.equals(verifySignInfo,
+                TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds()))){
+             return boxInfoEntity.get();
+            } else {
+                throw new WebApplicationException("failed to verify signature", Response.Status.FORBIDDEN);
+            }
+        }
+        throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
+    }
+
+    public BoxTokenEntity verifyBoxRegKey(String boxUUID, String boxRegKey){
+        var boxTokenEntity = boxTokenEntityRepository.findByBoxRegKey(boxRegKey);
+        if(boxTokenEntity.isEmpty()){
+            throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
+        }
+        if(!boxTokenEntity.get().getBoxUUID().equals(boxUUID)){
+            throw new WebApplicationException("boxRegKey error", Response.Status.UNAUTHORIZED);
+        }
+        if(boxTokenEntity.get().getExpiresAt().isAfter(OffsetDateTime.now())){
+            throw new WebApplicationException("boxRegKey expired", Response.Status.UNAUTHORIZED);
+        }
+        return boxTokenEntity.get();
     }
 }

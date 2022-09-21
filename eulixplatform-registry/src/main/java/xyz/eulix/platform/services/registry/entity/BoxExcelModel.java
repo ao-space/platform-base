@@ -31,6 +31,8 @@ public class BoxExcelModel {
   private String btid;
   private String boxUuid;
   private String btidHash;
+  private String boxPubKey;
+  private String authType;
 
   public boolean isNUllOrEmpty(){
     if(CommonUtils.isNullOrEmpty(this.number) && CommonUtils.isNullOrEmpty(this.ip) && CommonUtils.isNullOrEmpty(this.version) &&
