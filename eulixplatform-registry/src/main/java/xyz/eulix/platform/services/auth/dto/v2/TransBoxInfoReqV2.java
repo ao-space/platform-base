@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Data
-public class TransBoxInfoReq {
+public class TransBoxInfoReqV2 {
     // 登录box端的key
     @NotBlank
     @Size(max = 128)

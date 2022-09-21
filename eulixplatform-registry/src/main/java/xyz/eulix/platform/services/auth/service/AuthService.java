@@ -3,6 +3,7 @@ package xyz.eulix.platform.services.auth.service;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.auth.dto.PollPkeyRsp;
 import xyz.eulix.platform.services.auth.dto.TransBoxInfoReq;
+import xyz.eulix.platform.services.auth.dto.v2.TransBoxInfoReqV2;
 import xyz.eulix.platform.services.auth.entity.PkeyAuthEntity;
 import xyz.eulix.platform.services.auth.repository.PkeyAuthEntityRepository;
 import xyz.eulix.platform.common.support.service.ServiceError;
@@ -26,24 +27,34 @@ public class AuthService {
 
     /**
      * 将PkeyAuth存入中间件
+     *
      * @param boxInfoReq box info
      */
-    @Transactional
     public void savePkeyAuth(TransBoxInfoReq boxInfoReq) {
+        savePkeyAuth(boxInfoReq.getPkey(), boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
+    }
+
+    public PollPkeyRsp savePkeyAuth(String pkey, TransBoxInfoReqV2 boxInfoReq) {
+        savePkeyAuth(pkey, boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
+        return PollPkeyRsp.of(pkey, boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
+    }
+
+    @Transactional
+    public void savePkeyAuth(String pkey, String bkey, String userDomain, String boxPubKey) {
         // 检验pkey有效性
-        PkeyAuthEntity pkeyAuthEntity = getPkeyAuth(boxInfoReq.getPkey());
+        PkeyAuthEntity pkeyAuthEntity = getPkeyAuth(pkey);
         if (pkeyAuthEntity == null) {
-            LOG.warnv("pkey is invalid, pkey:{0}", boxInfoReq.getPkey());
+            LOG.warnv("pkey is invalid, pkey:{0}", pkey);
             throw new ServiceOperationException(ServiceError.PKEY_INVALID);
         }
         OffsetDateTime now = OffsetDateTime.now();
         if (now.isAfter(pkeyAuthEntity.getExpiresAt())) {
-            LOG.infov("pkey is expired, pkey:{0}", boxInfoReq.getPkey());
+            LOG.infov("pkey is expired, pkey:{0}", pkey);
             throw new ServiceOperationException(ServiceError.PKEY_EXPIRED);
         }
         // 保存box info
         pkeyAuthEntityRepository.update("bkey=?1, user_domain=?2, box_pub_key=?3 WHERE pkey=?4",
-                boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey(), boxInfoReq.getPkey());
+                bkey, userDomain, boxPubKey, pkey);
     }
 
     public PkeyAuthEntity getPkeyAuth(String pkey) {
@@ -52,6 +63,7 @@ public class AuthService {
 
     /**
      * 从中间件获取PkeyAuth
+     *
      * @param pkey pkey
      * @return PollPkeyRsp
      */
@@ -66,6 +78,7 @@ public class AuthService {
 
     /**
      * 生成、保存pkey
+     *
      * @return PkeyAuthEntity
      */
     @Transactional
@@ -81,7 +94,7 @@ public class AuthService {
         return pkeyAuthEntity;
     }
 
-    public PollPkeyRsp pkeyAuthEntityToPollPkeyRsp(PkeyAuthEntity pkeyAuthEntity){
+    public PollPkeyRsp pkeyAuthEntityToPollPkeyRsp(PkeyAuthEntity pkeyAuthEntity) {
         return PollPkeyRsp.of(pkeyAuthEntity.getPkey(), pkeyAuthEntity.getBkey(), pkeyAuthEntity.getUserDomain(),
                 pkeyAuthEntity.getBoxPubKey());
     }
