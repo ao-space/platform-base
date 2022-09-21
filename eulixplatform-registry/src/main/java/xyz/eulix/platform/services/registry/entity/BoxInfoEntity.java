@@ -7,6 +7,8 @@ import xyz.eulix.platform.common.support.model.BaseEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import xyz.eulix.platform.common.support.validator.ValueOfEnum;
+import xyz.eulix.platform.services.registry.dto.registry.v2.AuthTypeEnum;
 
 @Getter @Setter @ToString(callSuper = true)
 @Entity @Table(name = "box_info")
@@ -22,7 +24,15 @@ public class BoxInfoEntity extends BaseEntity {
   @Column(name = "extra")
   private String extra;
 
+  @Column(name = "box_pub_key")
+  private String boxPubKey;
+
+  @Column(name = "auth_type")
+  @ValueOfEnum(enumClass = AuthTypeEnum.class, valueMethod = "getName")
+  private String authType;
+
   @OneToOne(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
   @JoinColumn(name ="box_uuid",referencedColumnName="box_uuid",insertable=false,updatable=false)
   private RegistryBoxEntity registryBoxEntity;
+
 }

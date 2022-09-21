@@ -5,10 +5,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryDetailInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryInfo;
-import xyz.eulix.platform.services.registry.dto.registry.NetworkClient;
 import xyz.eulix.platform.services.registry.dto.registry.SubdomainUpdateResult;
 import xyz.eulix.platform.services.registry.dto.registry.v2.*;
-import xyz.eulix.platform.services.registry.service.RegistryService;
 import xyz.eulix.platform.common.support.log.Logged;
 
 import javax.annotation.security.RolesAllowed;
@@ -18,6 +16,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import xyz.eulix.platform.services.registry.service.BoxInfoService;
+import xyz.eulix.platform.services.registry.service.RegistryService;
 
 @RequestScoped
 @Path("/v2/platform")
@@ -28,6 +28,9 @@ public class RegistryResourceV2 {
     @Inject
     RegistryService registryService;
 
+    @Inject
+    BoxInfoService boxInfoService;
+
     @Logged
     @POST
     @Path("/auth/box_reg_keys")
@@ -36,7 +39,10 @@ public class RegistryResourceV2 {
     @Operation(description = "获取box_reg_key")
     public TokenResults createToken(@Valid TokenInfo tokenInfo,
                                     @HeaderParam("Request-Id") @NotBlank String reqId) {
-        return TokenResults.of();
+        // 验证签名
+        var boxInfoEntity = registryService.verifySign(tokenInfo);
+        var tokenResults = boxInfoService.createBoxToken(tokenInfo, boxInfoEntity);
+        return TokenResults.of(tokenInfo.getBoxUUID(), tokenResults);
     }
 
     @Logged
@@ -48,7 +54,9 @@ public class RegistryResourceV2 {
     public BoxRegistryResult registryBox(@Valid BoxRegistryInfo boxRegistryInfo,
                                          @HeaderParam("Request-Id") @NotBlank String reqId,
                                          @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey) {
-        return BoxRegistryResult.of("boxUUID", NetworkClient.of("clientId", "clientSecretKey"));
+        // 验证 box reg key 有效期
+        var boxTokenEntity = registryService.verifyBoxRegKey(boxRegistryInfo.getBoxUUID(), boxRegKey);
+        return registryService.registryBoxV2(boxTokenEntity);
     }
 
     @Logged
@@ -60,6 +68,8 @@ public class RegistryResourceV2 {
     public void resetBox(@HeaderParam("Request-Id") @NotBlank String reqId,
                          @HeaderParam("Box-Reg-Key") String boxRegKey,
                          @PathParam("box_uuid") @NotBlank String boxUUID) {
+        // 验证 box reg key 有效期
+        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
         registryService.resetBox(boxUUID);
     }
 
@@ -78,6 +88,8 @@ public class RegistryResourceV2 {
                                            @HeaderParam("Request-Id") @NotBlank String reqId,
                                            @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                            @PathParam("box_uuid") @NotBlank String boxUUID) {
+        // 验证 box reg key 有效期
+        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
         return UserRegistryResult.of("boxUUID", "userId", "userDomain", "userType", "clientUUID");
     }
 
@@ -91,6 +103,8 @@ public class RegistryResourceV2 {
                           @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                           @PathParam("box_uuid") @NotBlank String boxUUID,
                           @PathParam("user_id") @NotBlank String userId) {
+        // 验证 box reg key 有效期
+        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
     }
 
     @Logged
@@ -104,6 +118,8 @@ public class RegistryResourceV2 {
                                                @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                                @PathParam("box_uuid") @NotBlank String boxUUID,
                                                @PathParam("user_id") @NotBlank String userId) {
+        // 验证 box reg key 有效期
+        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
         return ClientRegistryResult.of();
     }
 
@@ -118,6 +134,8 @@ public class RegistryResourceV2 {
                             @PathParam("box_uuid") @NotBlank String boxUUID,
                             @PathParam("user_id") @NotBlank String userId,
                             @PathParam("client_uuid") @NotBlank String clientUUID) {
+        // 验证 box reg key 有效期
+        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
     }
 
     @Logged
@@ -130,6 +148,8 @@ public class RegistryResourceV2 {
                                            @HeaderParam("Request-Id") @NotBlank String reqId,
                                            @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                            @PathParam("box_uuid") @NotBlank String boxUUID) {
+        // 验证 box reg key 有效期
+        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
         return SubdomainGenResult.of();
     }
 
@@ -144,6 +164,8 @@ public class RegistryResourceV2 {
                                                  @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                                  @PathParam("box_uuid") @NotBlank String boxUUID,
                                                  @PathParam("user_id") @NotBlank String userId) {
+        // 验证 box reg key 有效期
+        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
         return new SubdomainUpdateResult();
     }
 
