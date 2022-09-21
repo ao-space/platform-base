@@ -33,7 +33,8 @@ public class NetworkResourceV2 {
     public BaseResultRes networkClientAuth(@HeaderParam("Request-Id") @NotBlank String reqId,
                                            @PathParam("network_client_id") @NotBlank String networkClientId,
                                            @QueryParam("network_secret_key") @NotBlank String networkSecretKey) {
-        return BaseResultRes.of(true);
+        Boolean result = networkService.networkClientAuth(networkClientId, networkSecretKey);
+        return BaseResultRes.of(result);
     }
 
     @Logged

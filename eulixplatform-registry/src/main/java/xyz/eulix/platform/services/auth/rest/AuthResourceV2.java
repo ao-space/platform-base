@@ -6,7 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.auth.dto.GenPkeyRsp;
 import xyz.eulix.platform.services.auth.dto.PollPkeyRsp;
-import xyz.eulix.platform.services.auth.dto.v2.TransBoxInfoReq;
+import xyz.eulix.platform.services.auth.dto.v2.TransBoxInfoReqV2;
 import xyz.eulix.platform.services.auth.entity.PkeyAuthEntity;
 import xyz.eulix.platform.services.auth.service.AuthService;
 import xyz.eulix.platform.common.support.log.Logged;
@@ -49,8 +49,8 @@ public class AuthResourceV2 {
     public PollPkeyRsp boxinfoTrans(@NotBlank @HeaderParam("Request-Id") String requestId,
                                     @PathParam("pkey") @NotBlank @Pattern(regexp = "[a-zA-Z0-9-]{36}")
                                     @Parameter(description = "二维码pkey值。[a-zA-Z0-9-]{36}") String pkey,
-                                    @Valid TransBoxInfoReq boxInfoReq) {
-        return PollPkeyRsp.of("pkey", "bkey", "userDomain", "boxPubkey");
+                                    @Valid TransBoxInfoReqV2 boxInfoReq) {
+        return authService.savePkeyAuth(pkey, boxInfoReq);
     }
 
     @GET

@@ -106,7 +106,11 @@ public class NetworkService {
      * @return 是否通过
      */
     public Boolean networkClientAuth(NetworkAuthReq networkAuthReq) {
-        return registryService.networkClientAuth(networkAuthReq.getClientId(), networkAuthReq.getSecretKey());
+        return networkClientAuth(networkAuthReq.getClientId(), networkAuthReq.getSecretKey());
+    }
+
+    public Boolean networkClientAuth(String clientId, String secretKey) {
+        return registryService.networkClientAuth(clientId, secretKey);
     }
 
     /**
