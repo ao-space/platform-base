@@ -1,9 +1,9 @@
-package xyz.eulix.platform.services.registry.repository;
+package xyz.eulix.platform.services.token.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
-import xyz.eulix.platform.services.registry.entity.BoxTokenEntity;
+import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
 
 @ApplicationScoped
 

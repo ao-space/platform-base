@@ -8,7 +8,7 @@ import xyz.eulix.platform.common.support.model.BaseEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import xyz.eulix.platform.common.support.validator.ValueOfEnum;
-import xyz.eulix.platform.services.registry.dto.registry.v2.AuthTypeEnum;
+import xyz.eulix.platform.services.token.dto.AuthTypeEnum;
 
 @Getter @Setter @ToString(callSuper = true)
 @Entity @Table(name = "box_info")

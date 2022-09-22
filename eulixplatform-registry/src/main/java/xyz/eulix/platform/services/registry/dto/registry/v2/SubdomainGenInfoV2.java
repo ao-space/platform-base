@@ -10,7 +10,7 @@ import javax.validation.constraints.Max;
  * of activation result.
  */
 @Data(staticConstructor = "of")
-public class SubdomainGenInfo {
+public class SubdomainGenInfoV2 {
     @Schema(description = "有效期，单位秒，最长7天")
     @Max(604800)
     private Integer effectiveTime;

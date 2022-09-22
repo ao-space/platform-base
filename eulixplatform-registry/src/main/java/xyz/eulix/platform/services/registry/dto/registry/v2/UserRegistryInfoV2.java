@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
  * of registry information.
  */
 @Data
-public class UserRegistryInfo {
+public class UserRegistryInfoV2 {
     @NotBlank
     @Schema(description = "用户的 ID")
     private String userId;

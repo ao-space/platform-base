@@ -2,23 +2,17 @@ package xyz.eulix.platform.services.registry.service;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.common.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.provider.ProviderFactory;
 import xyz.eulix.platform.services.provider.inf.RegistryProvider;
 import xyz.eulix.platform.services.registry.dto.registry.*;
-import xyz.eulix.platform.services.registry.dto.registry.v2.AuthTypeEnum;
-import xyz.eulix.platform.services.registry.dto.registry.v2.TokenInfo;
-import xyz.eulix.platform.services.registry.dto.registry.v2.TokenVerifySignInfo;
-import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
-import xyz.eulix.platform.services.registry.entity.BoxTokenEntity;
+import xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResultV2;
+import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryUserEntity;
 import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
-import xyz.eulix.platform.services.registry.repository.BoxInfoEntityRepository;
-import xyz.eulix.platform.services.registry.repository.BoxTokenEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryBoxEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryClientEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryUserEntityRepository;
@@ -80,16 +74,12 @@ public class RegistryService {
 
     @Inject
     RegistryUserEntityRepository userEntityRepository;
-    @Inject
-    BoxInfoEntityRepository boxInfoEntityRepository;
+
     @Inject
     RegistryClientEntityRepository clientEntityRepository;
 
     @Inject
     SubdomainEntityRepository subdomainEntityRepository;
-
-    @Inject
-    BoxTokenEntityRepository boxTokenEntityRepository;
 
     @Inject
     SubdomainService subdomainService;
@@ -99,10 +89,6 @@ public class RegistryService {
 
     @Inject
     ProviderFactory providerFactory;
-
-    @Inject
-    OperationUtils utils;
-
 
     public boolean isValidBoxUUID(String boxUUID) {
         RegistryProvider registryProvider = providerFactory.getRegistryProvider();
@@ -174,18 +160,18 @@ public class RegistryService {
     }
 
     @Transactional
-    public xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResult registryBoxV2(BoxTokenEntity boxToken) {
+    public BoxRegistryResultV2 registryBoxV2(BoxTokenEntity boxToken) {
         var registryBoxEntity = boxEntityRepository.findByBoxUUID(boxToken.getBoxUUID());
-        if(registryBoxEntity.isPresent()){
-            return xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResult.of(
-                registryBoxEntity.get().getBoxRegKey(),
-                NetworkClient.of(registryBoxEntity.get().getNetworkClientId(), registryBoxEntity.get().getNetworkSecretKey()));
+        if (registryBoxEntity.isPresent()) {
+            return BoxRegistryResultV2.of(
+                    registryBoxEntity.get().getBoxRegKey(),
+                    NetworkClient.of(registryBoxEntity.get().getNetworkClientId(), registryBoxEntity.get().getNetworkSecretKey()));
         }
         // 注册box
         RegistryBoxEntity boxEntity = registryBox(boxToken.getBoxUUID(), boxToken.getBoxRegKey());
         // 计算路由
         networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
-        return xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResult.of(boxEntity.getBoxRegKey(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
+        return BoxRegistryResultV2.of(boxEntity.getBoxRegKey(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
     }
 
     @Transactional
@@ -706,35 +692,4 @@ public class RegistryService {
         return clientUUIDs;
     }
 
-    public BoxInfoEntity verifySign(TokenInfo tokenInfo){
-        var boxInfoEntity = boxInfoEntityRepository.findByBoxUUID(tokenInfo.getBoxUUID());
-        if(boxInfoEntity.isPresent()){
-            if(!boxInfoEntity.get().getAuthType().equals(AuthTypeEnum.BOX_PUB_KEY.getName())){
-                return null;
-            }
-            var verifySignInfoJson = utils.decryptUsingPublicKey(tokenInfo.getSign(), boxInfoEntity.get().getBoxPubKey());
-            TokenVerifySignInfo verifySignInfo = utils.jsonToObject(verifySignInfoJson, TokenVerifySignInfo.class);
-            if(Objects.equals(verifySignInfo,
-                TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds()))){
-             return boxInfoEntity.get();
-            } else {
-                throw new WebApplicationException("failed to verify signature", Response.Status.FORBIDDEN);
-            }
-        }
-        throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
-    }
-
-    public BoxTokenEntity verifyBoxRegKey(String boxUUID, String boxRegKey){
-        var boxTokenEntity = boxTokenEntityRepository.findByBoxRegKey(boxRegKey);
-        if(boxTokenEntity.isEmpty()){
-            throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
-        }
-        if(!boxTokenEntity.get().getBoxUUID().equals(boxUUID)){
-            throw new WebApplicationException("boxRegKey error", Response.Status.UNAUTHORIZED);
-        }
-        if(boxTokenEntity.get().getExpiresAt().isAfter(OffsetDateTime.now())){
-            throw new WebApplicationException("boxRegKey expired", Response.Status.UNAUTHORIZED);
-        }
-        return boxTokenEntity.get();
-    }
 }

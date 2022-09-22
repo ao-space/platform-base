@@ -1,4 +1,4 @@
-package xyz.eulix.platform.services.registry.entity;
+package xyz.eulix.platform.services.token.entity;
 
 import java.time.OffsetDateTime;
 import javax.persistence.Column;

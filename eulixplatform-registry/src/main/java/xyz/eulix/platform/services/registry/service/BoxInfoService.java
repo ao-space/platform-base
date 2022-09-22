@@ -1,8 +1,6 @@
 package xyz.eulix.platform.services.registry.service;
 
 import com.alibaba.excel.EasyExcel;
-import java.time.OffsetDateTime;
-import java.util.Objects;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
@@ -10,16 +8,11 @@ import xyz.eulix.platform.services.registry.dto.registry.BoxInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfosReq;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfosRes;
 import xyz.eulix.platform.common.support.CommonUtils;
-import xyz.eulix.platform.services.registry.dto.registry.v2.AuthTypeEnum;
-import xyz.eulix.platform.services.registry.dto.registry.v2.ServiceEnum;
-import xyz.eulix.platform.services.registry.dto.registry.v2.TokenInfo;
-import xyz.eulix.platform.services.registry.dto.registry.v2.TokenResult;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
-import xyz.eulix.platform.services.registry.entity.BoxTokenEntity;
+import xyz.eulix.platform.services.token.dto.AuthTypeEnum;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.repository.BoxInfoEntityRepository;
-import xyz.eulix.platform.services.registry.repository.BoxTokenEntityRepository;
 import xyz.eulix.platform.services.registry.repository.RegistryBoxEntityRepository;
 import xyz.eulix.platform.common.support.model.PageInfo;
 import xyz.eulix.platform.common.support.model.PageListResult;
@@ -55,9 +48,6 @@ public class BoxInfoService {
 
     @Inject
     RegistryBoxEntityRepository registryBoxEntityRepository;
-
-    @Inject
-    BoxTokenEntityRepository boxTokenEntityRepository;
 
     @Inject
     OperationUtils operationUtils;
@@ -264,34 +254,6 @@ public class BoxInfoService {
         List<String> boxUUIDs = new ArrayList<>();
         boxInfos.forEach(boxInfo -> boxUUIDs.add(boxInfo.getBoxUUID()));
         return boxUUIDs;
-    }
-
-    @Transactional
-    public ArrayList<TokenResult> createBoxToken(TokenInfo tokenInfo, BoxInfoEntity boxInfoEntity){
-        var result = new ArrayList<TokenResult>();
-
-        tokenInfo.getServiceIds().forEach(serviceId -> {
-            // 生成 token
-            BoxTokenEntity boxTokenEntity = new BoxTokenEntity();
-            {
-                boxTokenEntity.setBoxUUID(tokenInfo.getBoxUUID());
-                boxTokenEntity.setServiceId(serviceId);
-                boxTokenEntity.setServiceName(ServiceEnum.fromValue(serviceId).name());
-                boxTokenEntity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
-                boxTokenEntity.setExpiresAt(OffsetDateTime.now().plusHours(24));
-            }
-            boxTokenEntityRepository.persist(boxTokenEntity);
-            if(Objects.isNull(boxInfoEntity)){
-                result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(),
-                    boxTokenEntity.getExpiresAt()));
-            } else {
-                result.add(TokenResult.of(boxTokenEntity.getServiceId(),
-                    operationUtils.encryptUsingPublicKey(boxTokenEntity.getBoxRegKey(), boxInfoEntity.getBoxPubKey()),
-                    boxTokenEntity.getExpiresAt()));
-            }
-
-        });
-        return result;
     }
 
 }

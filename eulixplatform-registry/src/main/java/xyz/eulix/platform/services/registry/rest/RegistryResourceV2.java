@@ -16,8 +16,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import xyz.eulix.platform.services.registry.service.BoxInfoService;
 import xyz.eulix.platform.services.registry.service.RegistryService;
+import xyz.eulix.platform.services.token.service.TokenService;
 
 @RequestScoped
 @Path("/v2/platform")
@@ -29,21 +29,7 @@ public class RegistryResourceV2 {
     RegistryService registryService;
 
     @Inject
-    BoxInfoService boxInfoService;
-
-    @Logged
-    @POST
-    @Path("/auth/box_reg_keys")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "获取box_reg_key")
-    public TokenResults createToken(@Valid TokenInfo tokenInfo,
-                                    @HeaderParam("Request-Id") @NotBlank String reqId) {
-        // 验证签名
-        var boxInfoEntity = registryService.verifySign(tokenInfo);
-        var tokenResults = boxInfoService.createBoxToken(tokenInfo, boxInfoEntity);
-        return TokenResults.of(tokenInfo.getBoxUUID(), tokenResults);
-    }
+    TokenService tokenService;
 
     @Logged
     @POST
@@ -51,11 +37,11 @@ public class RegistryResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "注册盒子，成功后返回network client等信息")
-    public BoxRegistryResult registryBox(@Valid BoxRegistryInfo boxRegistryInfo,
-                                         @HeaderParam("Request-Id") @NotBlank String reqId,
-                                         @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey) {
+    public BoxRegistryResultV2 registryBox(@Valid BoxRegistryInfo boxRegistryInfo,
+                                           @HeaderParam("Request-Id") @NotBlank String reqId,
+                                           @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey) {
         // 验证 box reg key 有效期
-        var boxTokenEntity = registryService.verifyBoxRegKey(boxRegistryInfo.getBoxUUID(), boxRegKey);
+        var boxTokenEntity = tokenService.verifyBoxRegKey(boxRegistryInfo.getBoxUUID(), boxRegKey);
         return registryService.registryBoxV2(boxTokenEntity);
     }
 
@@ -69,7 +55,7 @@ public class RegistryResourceV2 {
                          @HeaderParam("Box-Reg-Key") String boxRegKey,
                          @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
-        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
         registryService.resetBox(boxUUID);
     }
 
@@ -84,13 +70,13 @@ public class RegistryResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "注册用户，同步注册绑定客户端")
-    public UserRegistryResult registryUser(@Valid UserRegistryInfo userRegistryInfo,
-                                           @HeaderParam("Request-Id") @NotBlank String reqId,
-                                           @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
-                                           @PathParam("box_uuid") @NotBlank String boxUUID) {
+    public UserRegistryResultV2 registryUser(@Valid UserRegistryInfoV2 userRegistryInfo,
+                                             @HeaderParam("Request-Id") @NotBlank String reqId,
+                                             @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                             @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
-        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
-        return UserRegistryResult.of("boxUUID", "userId", "userDomain", "userType", "clientUUID");
+        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        return UserRegistryResultV2.of("boxUUID", "userId", "userDomain", "userType", "clientUUID");
     }
 
     @Logged
@@ -104,7 +90,7 @@ public class RegistryResourceV2 {
                           @PathParam("box_uuid") @NotBlank String boxUUID,
                           @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
-        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
     }
 
     @Logged
@@ -113,14 +99,14 @@ public class RegistryResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "注册客户端")
-    public ClientRegistryResult registryClient(@Valid ClientRegistryInfo clientInfo,
-                                               @HeaderParam("Request-Id") @NotBlank String reqId,
-                                               @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
-                                               @PathParam("box_uuid") @NotBlank String boxUUID,
-                                               @PathParam("user_id") @NotBlank String userId) {
+    public ClientRegistryResultV2 registryClient(@Valid ClientRegistryInfoV2 clientInfo,
+                                                 @HeaderParam("Request-Id") @NotBlank String reqId,
+                                                 @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                                 @PathParam("box_uuid") @NotBlank String boxUUID,
+                                                 @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
-        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
-        return ClientRegistryResult.of();
+        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        return ClientRegistryResultV2.of();
     }
 
     @Logged
@@ -135,7 +121,7 @@ public class RegistryResourceV2 {
                             @PathParam("user_id") @NotBlank String userId,
                             @PathParam("client_uuid") @NotBlank String clientUUID) {
         // 验证 box reg key 有效期
-        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
     }
 
     @Logged
@@ -144,13 +130,13 @@ public class RegistryResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "申请subdomain，平台保证全局唯一性")
-    public SubdomainGenResult subdomainGen(@Valid SubdomainGenInfo subdomainGenInfo,
-                                           @HeaderParam("Request-Id") @NotBlank String reqId,
-                                           @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
-                                           @PathParam("box_uuid") @NotBlank String boxUUID) {
+    public SubdomainGenResultV2 subdomainGen(@Valid SubdomainGenInfoV2 subdomainGenInfo,
+                                             @HeaderParam("Request-Id") @NotBlank String reqId,
+                                             @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                             @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
-        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
-        return SubdomainGenResult.of();
+        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        return SubdomainGenResultV2.of();
     }
 
     @Logged
@@ -159,13 +145,13 @@ public class RegistryResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "更新用户subdomain。幂等设计，建议client失败重试3次")
-    public SubdomainUpdateResult subdomainUpdate(@Valid SubdomainUpdateInfo subdomainUpdateInfo,
+    public SubdomainUpdateResult subdomainUpdate(@Valid SubdomainUpdateInfoV2 subdomainUpdateInfo,
                                                  @HeaderParam("Request-Id") @NotBlank String reqId,
                                                  @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                                  @PathParam("box_uuid") @NotBlank String boxUUID,
                                                  @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
-        registryService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
         return new SubdomainUpdateResult();
     }
 

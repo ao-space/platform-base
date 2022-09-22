@@ -7,7 +7,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
 import xyz.eulix.platform.common.support.validator.ValueOfEnum;
-import xyz.eulix.platform.services.registry.dto.registry.v2.AuthTypeEnum;
+import xyz.eulix.platform.services.token.dto.AuthTypeEnum;
 
 /**
  * Used to define a data transfer object as REST request for holding related parameters
