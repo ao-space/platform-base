@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
  * of registry information.
  */
 @Data
-public class ClientRegistryInfo {
+public class ClientRegistryInfoV2 {
     @NotBlank
     @Schema(description = "客户端的 UUID")
     private String clientUUID;

@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
  * of activation result.
  */
 @Data
-public class SubdomainUpdateInfo {
+public class SubdomainUpdateInfoV2 {
     @Schema(description = "子域名，最长100字符")
     @Size(max = 100)
     @NotBlank

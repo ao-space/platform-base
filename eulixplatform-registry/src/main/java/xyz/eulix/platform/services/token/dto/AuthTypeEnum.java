@@ -1,9 +1,8 @@
-package xyz.eulix.platform.services.registry.dto.registry.v2;
+package xyz.eulix.platform.services.token.dto;
 
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @AllArgsConstructor
 public enum AuthTypeEnum {

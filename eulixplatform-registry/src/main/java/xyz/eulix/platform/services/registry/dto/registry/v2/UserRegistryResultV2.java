@@ -8,7 +8,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
  * of activation result.
  */
 @Data(staticConstructor = "of")
-public class UserRegistryResult {
+public class UserRegistryResultV2 {
     @Schema(description = "盒子的 UUID")
     private final String boxUUID;
 
