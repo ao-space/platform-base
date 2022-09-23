@@ -30,11 +30,11 @@ public class TokenResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "获取box_reg_key")
-    public TokenResults createToken(@Valid TokenInfo tokenInfo,
+    public TokenResults createTokens(@Valid TokenInfo tokenInfo,
                                     @HeaderParam("Request-Id") @NotBlank String reqId) {
         // 验证签名
         var boxInfoEntity = tokenService.verifySign(tokenInfo);
-        var tokenResults = tokenService.createBoxToken(tokenInfo, boxInfoEntity);
+        var tokenResults = tokenService.createBoxTokens(tokenInfo, boxInfoEntity);
         return TokenResults.of(tokenInfo.getBoxUUID(), tokenResults);
     }
 

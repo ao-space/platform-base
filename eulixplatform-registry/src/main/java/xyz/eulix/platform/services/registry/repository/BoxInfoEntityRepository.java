@@ -40,6 +40,11 @@ public class BoxInfoEntityRepository implements PanacheRepository<BoxInfoEntity>
     }
 
     @Transactional
+    public int updateAuthTypeByBoxUUID(String authType, String boxUUID){
+        return update("set auth_type=?1 where box_uuid=?2", authType, boxUUID);
+    }
+
+    @Transactional
     public void createBoxInfo(BoxInfoEntity boxInfoEntity) {
         this.persist(boxInfoEntity);
     }
