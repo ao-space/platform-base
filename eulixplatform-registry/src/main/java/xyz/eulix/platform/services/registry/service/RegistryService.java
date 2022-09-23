@@ -8,6 +8,7 @@ import xyz.eulix.platform.services.provider.ProviderFactory;
 import xyz.eulix.platform.services.provider.inf.RegistryProvider;
 import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResultV2;
+import xyz.eulix.platform.services.token.dto.ServiceEnum;
 import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
@@ -20,6 +21,8 @@ import xyz.eulix.platform.services.registry.repository.SubdomainEntityRepository
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.service.ServiceError;
 import xyz.eulix.platform.common.support.service.ServiceOperationException;
+import xyz.eulix.platform.services.token.repository.BoxTokenEntityRepository;
+import xyz.eulix.platform.services.token.service.TokenService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -90,6 +93,12 @@ public class RegistryService {
     @Inject
     ProviderFactory providerFactory;
 
+    @Inject
+    TokenService tokenService;
+
+    @Inject
+    BoxTokenEntityRepository boxTokenEntityRepository;
+
     public boolean isValidBoxUUID(String boxUUID) {
         RegistryProvider registryProvider = providerFactory.getRegistryProvider();
         return registryProvider.isBoxIllegal(boxUUID);
@@ -103,11 +112,6 @@ public class RegistryService {
     public boolean verifyUser(String userRegKey, String boxUUID, String userId) {
         List<RegistryUserEntity> userEntities = userEntityRepository.findAllByUserIDAndUserRegKey(boxUUID, userId, userRegKey);
         return !userEntities.isEmpty();
-    }
-
-    public boolean verifyBox(String boxRegKey, String boxUUID) {
-        Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUIDAndBoxRegKey(boxUUID, boxRegKey);
-        return boxEntityOp.isPresent();
     }
 
     @Transactional
@@ -156,6 +160,8 @@ public class RegistryService {
         RegistryBoxEntity boxEntity = registryBox(info.getBoxUUID());
         // 计算路由
         networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
+        // 同步写入写入box_info表，有效期24h
+        tokenService.createBoxToken(info.getBoxUUID(), ServiceEnum.REGISTRY, boxEntity.getBoxRegKey());
         return BoxRegistryResult.of(boxEntity.getBoxRegKey(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
     }
 
@@ -308,13 +314,18 @@ public class RegistryService {
      * @param boxUUID   boxUUID
      * @param boxRegKey 盒子的注册码
      */
-    public RegistryBoxEntity hasBoxNotRegistered(String boxUUID, String boxRegKey) {
+    public RegistryBoxEntity hasBoxNotRegisteredThrow(String boxUUID, String boxRegKey) {
         final Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUIDAndBoxRegKey(boxUUID, boxRegKey);
         if (boxEntityOp.isEmpty()) {
             LOG.warnv("invalid box registry info, boxUuid:{0}", boxUUID);
             throw new WebApplicationException("invalid box registry info.", Response.Status.FORBIDDEN);
         }
         return boxEntityOp.get();
+    }
+
+    public Boolean hasBoxNotRegistered(String boxUUID, String boxRegKey) {
+        Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUIDAndBoxRegKey(boxUUID, boxRegKey);
+        return boxEntityOp.isEmpty();
     }
 
     /**

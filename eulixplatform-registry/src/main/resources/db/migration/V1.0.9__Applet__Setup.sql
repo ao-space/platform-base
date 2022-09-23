@@ -1,4 +1,4 @@
--- 正式版本发布前临时脚本
+
 CREATE TABLE IF NOT EXISTS applet_info (
     id BIGINT NOT NULL AUTO_INCREMENT,
     applet_name VARCHAR(32)  COMMENT '小程序名字',

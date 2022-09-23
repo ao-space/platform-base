@@ -17,7 +17,7 @@ public class BoxInfoEntity extends BaseEntity {
   @Column(name = "box_uuid")
   private String boxUUID;
 
-  @Column(name = "`desc`")
+  @Column(name = "description")
   private String desc;
 
   // 扩展信息，json结构

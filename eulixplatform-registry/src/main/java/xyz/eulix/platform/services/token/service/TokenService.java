@@ -52,20 +52,12 @@ public class TokenService {
     }
 
     @Transactional
-    public ArrayList<TokenResult> createBoxToken(TokenInfo tokenInfo, BoxInfoEntity boxInfoEntity){
+    public ArrayList<TokenResult> createBoxTokens(TokenInfo tokenInfo, BoxInfoEntity boxInfoEntity){
         var result = new ArrayList<TokenResult>();
 
         tokenInfo.getServiceIds().forEach(serviceId -> {
             // 生成 token
-            BoxTokenEntity boxTokenEntity = new BoxTokenEntity();
-            {
-                boxTokenEntity.setBoxUUID(tokenInfo.getBoxUUID());
-                boxTokenEntity.setServiceId(serviceId);
-                boxTokenEntity.setServiceName(ServiceEnum.fromValue(serviceId).name());
-                boxTokenEntity.setBoxRegKey("brk_" + CommonUtils.createUnifiedRandomCharacters(10));
-                boxTokenEntity.setExpiresAt(OffsetDateTime.now().plusHours(24));
-            }
-            boxTokenEntityRepository.persist(boxTokenEntity);
+            BoxTokenEntity boxTokenEntity = createBoxToken(tokenInfo.getBoxUUID(), ServiceEnum.fromValue(serviceId));
             if(Objects.isNull(boxInfoEntity)){
                 result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(),
                     boxTokenEntity.getExpiresAt()));
@@ -79,13 +71,32 @@ public class TokenService {
         return result;
     }
 
+    public BoxTokenEntity createBoxToken(String boxUUID, ServiceEnum serviceEnum) {
+        return createBoxToken(boxUUID, serviceEnum, "brk_" + CommonUtils.createUnifiedRandomCharacters(10));
+    }
+
+    @Transactional
+    public BoxTokenEntity createBoxToken(String boxUUID, ServiceEnum serviceEnum, String boxRegKey) {
+        // 生成 token
+        BoxTokenEntity boxTokenEntity = new BoxTokenEntity();
+        {
+            boxTokenEntity.setBoxUUID(boxUUID);
+            boxTokenEntity.setServiceId(serviceEnum.getServiceId());
+            boxTokenEntity.setServiceName(serviceEnum.name());
+            boxTokenEntity.setBoxRegKey(boxRegKey);
+            boxTokenEntity.setExpiresAt(OffsetDateTime.now().plusHours(24));
+        }
+        boxTokenEntityRepository.persist(boxTokenEntity);
+        return boxTokenEntity;
+    }
+
     public BoxTokenEntity verifyBoxRegKey(String boxUUID, String boxRegKey){
         var boxTokenEntity = boxTokenEntityRepository.findByBoxRegKey(boxRegKey);
         if(boxTokenEntity.isEmpty()){
-            throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
+            throw new WebApplicationException("invalid boxRegKey", Response.Status.UNAUTHORIZED);
         }
         if(!boxTokenEntity.get().getBoxUUID().equals(boxUUID)){
-            throw new WebApplicationException("boxRegKey error", Response.Status.UNAUTHORIZED);
+            throw new WebApplicationException("insufficient permissions", Response.Status.UNAUTHORIZED);
         }
         if(boxTokenEntity.get().getExpiresAt().isAfter(OffsetDateTime.now())){
             throw new WebApplicationException("boxRegKey expired", Response.Status.UNAUTHORIZED);

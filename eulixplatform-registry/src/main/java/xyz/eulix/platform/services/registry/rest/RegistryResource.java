@@ -64,7 +64,7 @@ public class RegistryResource {
             throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "userRegistryInfo.userType");
         }
         // 校验盒子是否未注册
-        RegistryBoxEntity boxEntity = registryService.hasBoxNotRegistered(userRegistryInfo.getBoxUUID(), userRegistryInfo.getBoxRegKey());
+        registryService.hasBoxNotRegisteredThrow(userRegistryInfo.getBoxUUID(), userRegistryInfo.getBoxRegKey());
         // 校验用户是否已注册
         registryService.hasUserRegistered(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId());
         SubdomainEntity subdomainEntity = null;
@@ -111,8 +111,8 @@ public class RegistryResource {
     @Operation(description = "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。")
     public BoxRegistryResetResult resetBox(@Valid BoxRegistryResetInfo boxResetInfo,
                                            @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        final boolean match = registryService.verifyBox(boxResetInfo.getBoxRegKey(), boxResetInfo.getBoxUUID());
-        if (!match) {
+        Boolean notRegistered = registryService.hasBoxNotRegistered(boxResetInfo.getBoxUUID(), boxResetInfo.getBoxRegKey());
+        if (notRegistered) {
             LOG.warnv("box uuid had not registered, boxUuid:{0}", boxResetInfo.getBoxUUID());
             throw new WebApplicationException("invalid box registry reset info", Response.Status.FORBIDDEN);
         }
@@ -178,8 +178,8 @@ public class RegistryResource {
     @Operation(description = "校验盒子合法性。")
     public Response verifyBox(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
                               @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey) {
-        final boolean match = registryService.verifyBox(boxRegKey, boxUUID);
-        if (!match) {
+        Boolean notRegistered = registryService.hasBoxNotRegistered(boxUUID, boxRegKey);
+        if (notRegistered) {
             LOG.warnv("invalid registry box verify info, boxUuid:{0}", boxUUID);
             throw new WebApplicationException("invalid registry box verify info", Response.Status.FORBIDDEN);
         }
@@ -231,7 +231,7 @@ public class RegistryResource {
                                        @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey,
                                        @QueryParam("effective_time") @Max(604800) @Schema(description = "有效期，单位秒，最长7天") Integer effectiveTime) {
         // 校验 box 身份
-        registryService.hasBoxNotRegistered(boxUUID, boxRegKey);
+        registryService.hasBoxNotRegisteredThrow(boxUUID, boxRegKey);
         // 校验数量上限
         registryService.reachUpperLimit(boxUUID);
         // 生成
