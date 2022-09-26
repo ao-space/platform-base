@@ -2,6 +2,7 @@ package xyz.eulix.platform.services.registry.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import java.util.Optional;
 import xyz.eulix.platform.services.registry.entity.RegistryUserEntity;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,10 +15,10 @@ import java.util.List;
 @ApplicationScoped
 public class RegistryUserEntityRepository implements PanacheRepository<RegistryUserEntity> {
     // 根据box_uuid、user_id查询资源
-    private static final String FIND_BY_BOXUUID_USERID = "box_uuid=?1 AND user_id=?2";;
+    private static final String FIND_BY_BOXUUID_USERID = "box_uuid=?1 AND user_id=?2";
 
     // 根据box_uuid、user_id、user_reg_key查询资源
-    private static final String FIND_BY_BOXUUID_USERID_USERREGKEY = "box_uuid=?1 AND user_id=?2 AND user_reg_key=?3";;
+    private static final String FIND_BY_BOXUUID_USERID_USERREGKEY = "box_uuid=?1 AND user_id=?2 AND user_reg_key=?3";
 
     // 根据box_uuid查询资源
     private static final String FIND_BY_BOXUUID = "box_uuid=?1";
@@ -29,6 +30,10 @@ public class RegistryUserEntityRepository implements PanacheRepository<RegistryU
         return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).list();
     }
 
+
+    public Optional<RegistryUserEntity> findUserByBoxUUIDAndUserId(String boxUUID, String userId) {
+        return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).firstResultOptional();
+    }
     public List<RegistryUserEntity> findAllByUserIDAndUserRegKey(String boxUUID, String userId, String userRegKey) {
         return this.find(FIND_BY_BOXUUID_USERID_USERREGKEY, boxUUID, userId, userRegKey).list();
     }

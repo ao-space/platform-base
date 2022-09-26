@@ -97,7 +97,7 @@ public class BoxInfoResource {
         Stopwatch sw = Stopwatch.createStarted();
         Response response;
         try {
-            response = boxInfoService.template();
+            response = boxInfoService.template("");
         } catch (Exception e) {
             LOG.errorv(e,"[Throw] method: template(), exception");
             throw e;

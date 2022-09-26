@@ -1,6 +1,5 @@
 package xyz.eulix.platform.services.token.service;
 
-import org.jboss.logging.Logger;
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
@@ -22,7 +21,6 @@ import java.util.*;
  */
 @ApplicationScoped
 public class TokenService {
-    private static final Logger LOG = Logger.getLogger("app.log");
 
     @Inject
     BoxInfoEntityRepository boxInfoEntityRepository;
@@ -62,8 +60,7 @@ public class TokenService {
                 result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(),
                     boxTokenEntity.getExpiresAt()));
             } else {
-                result.add(TokenResult.of(boxTokenEntity.getServiceId(),
-                    operationUtils.encryptUsingPublicKey(boxTokenEntity.getBoxRegKey(), boxInfoEntity.getBoxPubKey()),
+                result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(),
                     boxTokenEntity.getExpiresAt()));
             }
 
@@ -98,7 +95,7 @@ public class TokenService {
         if(!boxTokenEntity.get().getBoxUUID().equals(boxUUID)){
             throw new WebApplicationException("insufficient permissions", Response.Status.UNAUTHORIZED);
         }
-        if(boxTokenEntity.get().getExpiresAt().isAfter(OffsetDateTime.now())){
+        if(boxTokenEntity.get().getExpiresAt().isBefore(OffsetDateTime.now())){
             throw new WebApplicationException("boxRegKey expired", Response.Status.UNAUTHORIZED);
         }
         return boxTokenEntity.get();

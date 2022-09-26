@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.registry.service;
 
 import com.alibaba.excel.EasyExcel;
+import javax.validation.constraints.NotBlank;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
@@ -9,6 +10,7 @@ import xyz.eulix.platform.services.registry.dto.registry.BoxInfosReq;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfosRes;
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
+import xyz.eulix.platform.services.registry.entity.BoxExcelModelV2;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
 import xyz.eulix.platform.services.token.dto.AuthTypeEnum;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
@@ -52,21 +54,17 @@ public class BoxInfoService {
     @Inject
     OperationUtils operationUtils;
 
-    public BoxInfosRes saveBoxInfos(BoxInfosReq boxInfosReq) {
+    public BoxInfosRes<String> saveBoxInfos(BoxInfosReq boxInfosReq) {
         List<String> boxUUIDs = new ArrayList<>();
         List<String> failures = new ArrayList<>();
-        boxInfosReq.getBoxInfos().forEach(boxInfo -> {
-            upsertBoxInfo(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxUUIDs, failures);
-        });
+        boxInfosReq.getBoxInfos().forEach(boxInfo -> upsertBoxInfo(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxUUIDs, failures));
         return BoxInfosRes.of(boxUUIDs, failures);
     }
 
     public BoxInfosRes<String> saveBoxInfosV2(BoxInfosReq boxInfosReq) {
         List<String> boxUUIDs = new ArrayList<>();
         List<String> failures = new ArrayList<>();
-        boxInfosReq.getBoxInfos().forEach(boxInfo -> {
-            upsertBoxInfoV2(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxInfo.getBoxPubKey(), boxInfo.getAuthType(), boxUUIDs, failures);
-        });
+        boxInfosReq.getBoxInfos().forEach(boxInfo -> upsertBoxInfoV2(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxInfo.getBoxPubKey(), boxInfo.getAuthType(), boxUUIDs, failures));
         return BoxInfosRes.of(boxUUIDs, failures);
     }
 
@@ -210,8 +208,8 @@ public class BoxInfoService {
         return boxInfoEntityOp.isPresent();
     }
 
-    public Response template() {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate.xlsx")) {
+    public Response template(String version) {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate"+version+".xlsx")) {
             byte[] b = inputStream.readAllBytes();
             return Response.ok(b)
                     .header("Content-Disposition", "attachment;filename=" + URLEncoder.encode("出厂信息模板.xlsx", StandardCharsets.UTF_8)
@@ -224,10 +222,17 @@ public class BoxInfoService {
         }
     }
 
-    public BoxInfosRes upload(MultipartBody multipartBody) {
+    public BoxInfosRes<BoxFailureInfo> upload(MultipartBody multipartBody) {
         ArrayList<String> success = new ArrayList<>();
         ArrayList<BoxFailureInfo> fail = new ArrayList<>();
         EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(this, operationUtils, success, fail)).sheet().doRead();
+        return BoxInfosRes.of(success, fail);
+    }
+
+    public BoxInfosRes<BoxFailureInfo> uploadV2(MultipartBody multipartBody) {
+        ArrayList<String> success = new ArrayList<>();
+        ArrayList<BoxFailureInfo> fail = new ArrayList<>();
+        EasyExcel.read(multipartBody.file, BoxExcelModelV2.class, new BoxExcelListenerV2(this, operationUtils, success, fail)).sheet().doRead();
         return BoxInfosRes.of(success, fail);
     }
 
@@ -245,6 +250,26 @@ public class BoxInfoService {
         }
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
                 EasyExcel.write(output, BoxExcelModel.class).sheet("sheet1").doWrite(lists));
+        response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.header("Content-Disposition", "attachment;filename=" + fileName);
+        return response.build();
+    }
+
+    public Response exportV2(List<String> boxUUIDs) {
+        var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + ".xlsx",
+            StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        List<BoxExcelModelV2> lists = new ArrayList<>();
+        List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(boxUUIDs);
+        for (BoxInfoEntity boxInfoEntity : entities) {
+            var boxExcelModelV2 = operationUtils.jsonToObject(boxInfoEntity.getExtra(),
+                BoxExcelModelV2.class);
+            boxExcelModelV2.setAuthType(boxInfoEntity.getAuthType());
+            boxExcelModelV2.setBoxPubKey(boxInfoEntity.getBoxPubKey());
+            lists.add(boxExcelModelV2);
+        }
+        Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
+            EasyExcel.write(output, BoxExcelModelV2.class).sheet("sheet1").doWrite(lists));
         response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
         response.header("Content-Disposition", "attachment;filename=" + fileName);
         return response.build();

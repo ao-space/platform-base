@@ -1,18 +1,17 @@
 package xyz.eulix.platform.services.registry.entity;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import javax.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import xyz.eulix.platform.common.support.CommonUtils;
 
-import javax.persistence.MappedSuperclass;
-
 @Getter
 @Setter
 @ToString
 @MappedSuperclass
-public class BoxExcelModel {
+public class BoxExcelModelV2 {
   @ExcelProperty("序号") private String number;
   @ExcelProperty("IP")  private String ip;
   @ExcelProperty("版本") private String version;
@@ -26,6 +25,8 @@ public class BoxExcelModel {
   @ExcelProperty("操作用户") private  String operateUser;
   @ExcelProperty("其他") private String other;
   @ExcelProperty("时间") private String time;
+  @ExcelProperty("授权类型") private String authType;
+  @ExcelProperty("盒子公钥") private String boxPubKey;
 
   private String boxqrcode;
   private String btid;
@@ -33,14 +34,15 @@ public class BoxExcelModel {
   private String btidHash;
 
   public boolean isNUllOrEmpty(){
-    if(CommonUtils.isNullOrEmpty(this.number) && CommonUtils.isNullOrEmpty(this.ip) && CommonUtils.isNullOrEmpty(this.version) &&
-       CommonUtils.isNullOrEmpty(this.mac) && CommonUtils.isNullOrEmpty(this.cpuCount) && CommonUtils.isNullOrEmpty(this.cpuId) &&
-       CommonUtils.isNullOrEmpty(this.memory) && CommonUtils.isNullOrEmpty(this.wifi) && CommonUtils.isNullOrEmpty(this.bluetooth) &&
-       CommonUtils.isNullOrEmpty(this.usb) && CommonUtils.isNullOrEmpty(this.operateUser) && CommonUtils.isNullOrEmpty(this.other) &&
-       CommonUtils.isNullOrEmpty(this.time)){
-      return true;
-    } else {
-      return false;
-    }
+    return CommonUtils.isNullOrEmpty(this.number) && CommonUtils.isNullOrEmpty(this.ip)
+        && CommonUtils.isNullOrEmpty(this.version) &&
+        CommonUtils.isNullOrEmpty(this.mac) && CommonUtils.isNullOrEmpty(this.cpuCount)
+        && CommonUtils.isNullOrEmpty(this.cpuId) &&
+        CommonUtils.isNullOrEmpty(this.memory) && CommonUtils.isNullOrEmpty(this.wifi)
+        && CommonUtils.isNullOrEmpty(this.bluetooth) &&
+        CommonUtils.isNullOrEmpty(this.usb) && CommonUtils.isNullOrEmpty(this.operateUser)
+        && CommonUtils.isNullOrEmpty(this.other) &&
+        CommonUtils.isNullOrEmpty(this.time) && CommonUtils.isNullOrEmpty(this.authType)
+        && CommonUtils.isNullOrEmpty(this.boxPubKey);
   }
  }

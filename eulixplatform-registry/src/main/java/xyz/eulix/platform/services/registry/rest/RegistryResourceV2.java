@@ -5,6 +5,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryDetailInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryInfo;
+import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
 import xyz.eulix.platform.services.registry.dto.registry.SubdomainUpdateResult;
 import xyz.eulix.platform.services.registry.dto.registry.v2.*;
 import xyz.eulix.platform.common.support.log.Logged;
@@ -16,6 +17,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
+import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
 import xyz.eulix.platform.services.registry.service.RegistryService;
 import xyz.eulix.platform.services.token.service.TokenService;
 
@@ -59,11 +62,6 @@ public class RegistryResourceV2 {
         registryService.resetBox(boxUUID);
     }
 
-    @RolesAllowed("admin")
-    public void resetForce(String boxUUID) {
-        registryService.resetBox(boxUUID);
-    }
-
     @Logged
     @POST
     @Path("/boxes/{box_uuid}/users")
@@ -76,7 +74,10 @@ public class RegistryResourceV2 {
                                              @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
-        return UserRegistryResultV2.of("boxUUID", "userId", "userDomain", "userType", "clientUUID");
+        // 校检盒子
+        registryService.hasBoxNotRegisteredThrow(boxUUID);
+        // 注册
+        return registryService.registryUserV2(userRegistryInfo, boxUUID);
     }
 
     @Logged
@@ -91,6 +92,7 @@ public class RegistryResourceV2 {
                           @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        registryService.resetUser(boxUUID, userId);
     }
 
     @Logged
@@ -106,7 +108,12 @@ public class RegistryResourceV2 {
                                                  @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
-        return ClientRegistryResultV2.of();
+        // 校检用户
+        registryService.hasUserNotRegistered(boxUUID, userId);
+        RegistryClientEntity clientEntity = registryService.registryClientV2(boxUUID, userId, clientInfo.getClientUUID(),
+            RegistryTypeEnum.fromValue(clientInfo.getClientType()));
+        return ClientRegistryResultV2.of(clientEntity.getBoxUUID(), clientEntity.getUserId(),
+            clientEntity.getClientUUID(), clientEntity.getRegistryType());
     }
 
     @Logged
@@ -122,6 +129,7 @@ public class RegistryResourceV2 {
                             @PathParam("client_uuid") @NotBlank String clientUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        registryService.deleteClientByClientUUID(boxUUID, userId, clientUUID);
     }
 
     @Logged
@@ -136,7 +144,13 @@ public class RegistryResourceV2 {
                                              @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
-        return SubdomainGenResultV2.of();
+        // 校验 box 身份
+        registryService.hasBoxNotRegisteredThrow(boxUUID);
+        // 校验数量上限
+        registryService.reachUpperLimit(boxUUID);
+
+        SubdomainEntity subdomainEntity = registryService.subdomainGen(boxUUID, subdomainGenInfo.getEffectiveTime());
+        return SubdomainGenResultV2.of(boxUUID, subdomainEntity.getSubdomain(), subdomainEntity.getExpiresAt());
     }
 
     @Logged
@@ -152,7 +166,10 @@ public class RegistryResourceV2 {
                                                  @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
-        return new SubdomainUpdateResult();
+        // 校验用户是否未注册
+        registryService.hasUserNotRegistered(boxUUID, userId);
+        return registryService.subdomainUpdate(boxUUID,
+            userId, subdomainUpdateInfo.getSubdomain());
     }
 
     @RolesAllowed("admin")
