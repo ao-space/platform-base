@@ -1,6 +1,7 @@
 package xyz.eulix.platform.services.registry.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import java.util.Optional;
 import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -32,6 +33,9 @@ public class RegistryClientEntityRepository implements PanacheRepository<Registr
         return this.find(FIND_BY_CLIENTUUID, boxUUID, userId, clientUUID).list();
     }
 
+    public Optional<RegistryClientEntity> findByBoxUUIDAndUserIdAndClientUUID(String boxUUID, String userId, String clientUUID) {
+        return this.find(FIND_BY_CLIENTUUID, boxUUID, userId, clientUUID).firstResultOptional();
+    }
     public List<RegistryClientEntity> findAllByClientUUIDAndClientRegKey(String boxUUID, String userId, String clientUUID, String clientRegKey) {
         return this.find(FIND_BY_CLIENTUUID_CLIENTREGKEY, boxUUID, userId, clientUUID, clientRegKey).list();
     }

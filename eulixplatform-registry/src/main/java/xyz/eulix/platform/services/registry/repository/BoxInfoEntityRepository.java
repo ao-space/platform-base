@@ -36,7 +36,7 @@ public class BoxInfoEntityRepository implements PanacheRepository<BoxInfoEntity>
 
     @Transactional
     public int updateByBoxUUID(String extra, String authType, String boxPubKey, String boxUUID){
-        return update("set extra=?1, auth_type=?2, box_pub_key=?3 updated_at=now() ,where box_uuid=?4 ", extra, authType, boxPubKey, boxUUID);
+        return update("set extra=?1, auth_type=?2, box_pub_key=?3 updated_at=now() where box_uuid=?4 ", extra, authType, boxPubKey, boxUUID);
     }
 
     @Transactional

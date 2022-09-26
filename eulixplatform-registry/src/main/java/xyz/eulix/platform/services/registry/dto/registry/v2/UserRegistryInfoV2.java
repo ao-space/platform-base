@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.registry.dto.registry.v2;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotBlank;
  * of registry information.
  */
 @Data
+@AllArgsConstructor(staticName = "of")
 public class UserRegistryInfoV2 {
     @NotBlank
     @Schema(description = "用户的 ID")

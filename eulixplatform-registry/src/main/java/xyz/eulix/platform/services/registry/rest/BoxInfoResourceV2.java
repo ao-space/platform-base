@@ -7,6 +7,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import xyz.eulix.platform.services.registry.dto.registry.BaseResultRes;
+import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
 import xyz.eulix.platform.services.registry.dto.registry.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfosReq;
@@ -95,12 +96,12 @@ public class BoxInfoResourceV2 {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/boxinfos/template")
     @Operation(description = "模板下载")
-    public Response tempalte(@NotBlank @HeaderParam("Request-Id") String requestId) {
+    public Response template(@NotBlank @HeaderParam("Request-Id") String requestId) {
         LOG.infov("[Invoke] method: template()");
         Stopwatch sw = Stopwatch.createStarted();
         Response response;
         try {
-            response = boxInfoService.template();
+            response = boxInfoService.template("V2");
         } catch (Exception e) {
             LOG.errorv(e, "[Throw] method: template(), exception");
             throw e;
@@ -117,13 +118,13 @@ public class BoxInfoResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/boxinfos/upload")
     @Operation(description = "盒子出厂信息导入")
-    public BoxInfosRes upload(@NotBlank @HeaderParam("Request-Id") String requestId,
+    public BoxInfosRes<BoxFailureInfo> upload(@NotBlank @HeaderParam("Request-Id") String requestId,
                               @Valid @MultipartForm MultipartBody multipartBody) {
         LOG.infov("[Invoke] method: upload(), fileName: {0}", multipartBody.fileName);
         Stopwatch sw = Stopwatch.createStarted();
-        BoxInfosRes uploadRes;
+        BoxInfosRes<BoxFailureInfo> uploadRes;
         try {
-            uploadRes = boxInfoService.upload(multipartBody);
+            uploadRes = boxInfoService.uploadV2(multipartBody);
         } catch (Exception e) {
             LOG.errorv(e, "[Throw] method: upload(), exception");
             throw e;
@@ -142,6 +143,18 @@ public class BoxInfoResourceV2 {
     @Operation(description = "盒子出厂信息导出")
     public Response export(@NotBlank @HeaderParam("Request-Id") String requestId,
                            @Valid @Size(min = 1, max = 1000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
-        return null;
+        LOG.infov("[Invoke] method: export()");
+        Stopwatch sw = Stopwatch.createStarted();
+        Response response;
+        try {
+            response = boxInfoService.exportV2(boxUUIDs);
+        } catch (Exception e) {
+            LOG.errorv(e,"[Throw] method: export(), exception");
+            throw e;
+        } finally {
+            sw.stop();
+        }
+        LOG.infov("[Return] method: export(),elapsed: {0}", sw);
+        return response;
     }
 }

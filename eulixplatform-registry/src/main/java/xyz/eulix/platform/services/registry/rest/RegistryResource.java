@@ -133,7 +133,7 @@ public class RegistryResource {
             LOG.warnv("user id had not registered, boxUuid:{0}, userId:{1}",userResetInfo.getBoxUUID(), userResetInfo.getUserId());
             throw new WebApplicationException("invalid user registry reset info", Response.Status.FORBIDDEN);
         }
-        registryService.resetUser(userResetInfo);
+        registryService.resetUser(userResetInfo.getBoxUUID(), userResetInfo.getUserId());
         return UserRegistryResetResult.of(userResetInfo.getBoxUUID(), userResetInfo.getUserId());
     }
 
