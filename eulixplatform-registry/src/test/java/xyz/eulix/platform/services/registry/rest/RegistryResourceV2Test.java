@@ -39,7 +39,6 @@ class RegistryResourceV2Test {
     }
 
     @AfterEach
-
     @Transactional
     void tearDown() {
         boxTokenEntityRepository.delete("box_uuid", "box_uuid");

@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.token.dto;
 
+import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -16,7 +17,7 @@ public class TokenInfo {
     @Schema(description = "盒子的 UUID")
     private String boxUUID;
 
-    @NotBlank
+    @NotEmpty
     @Schema(description = "平台id：空间平台（serviceId=10001）、产品服务平台（serviceId=10002）")
     private List<String> serviceIds;
 
