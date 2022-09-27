@@ -95,7 +95,7 @@ public class BoxInfoService {
     }
 
     @Transactional
-    public <T> boolean upsertBoxInfoV2(String boxUUID, String desc, T extra, String boxPubKey, String authType,List<String> boxUUIDs, List<String> failures) {
+    public <T> boolean upsertBoxInfoV2(String boxUUID, String desc, T extra, String authType, String boxPubKey,List<String> boxUUIDs, List<String> failures) {
         try {
             String extraStr = null;
             if (CommonUtils.isNotNull(extra)) {
