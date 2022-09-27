@@ -4,12 +4,10 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
-import xyz.eulix.platform.services.registry.entity.BoxExcelModel;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModelV2;
 
 public class BoxExcelListenerV2 implements ReadListener<BoxExcelModelV2> {
@@ -59,8 +57,10 @@ public class BoxExcelListenerV2 implements ReadListener<BoxExcelModelV2> {
                 model.setBtid(btid);
                 model.setBoxqrcode("https://ao.space/?btid=" + btid);
                 model.setBtidHash(operationUtils.string2SHA256("eulixspace-" + btid));
+                var boxPubKey = model.getBoxPubKey();
+                model.setBoxPubKey(null);
                 if (!boxInfoService.upsertBoxInfoV2(boxUUID, null, model, model.getAuthType(),
-                    model.getBoxPubKey(), success, failure)) {
+                    boxPubKey, success, failure)) {
                     fail.add(BoxFailureInfo.of(String.valueOf(number), boxUUID));
                 }
             } else {

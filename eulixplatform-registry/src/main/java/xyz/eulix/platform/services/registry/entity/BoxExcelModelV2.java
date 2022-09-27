@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import xyz.eulix.platform.common.support.CommonUtils;
+import xyz.eulix.platform.common.support.validator.ValueOfEnum;
+import xyz.eulix.platform.services.token.dto.AuthTypeEnum;
 
 @Getter
 @Setter
@@ -25,7 +27,9 @@ public class BoxExcelModelV2 {
   @ExcelProperty("操作用户") private  String operateUser;
   @ExcelProperty("其他") private String other;
   @ExcelProperty("时间") private String time;
-  @ExcelProperty("授权类型") private String authType;
+  @ExcelProperty("授权类型")
+  @ValueOfEnum(enumClass = AuthTypeEnum.class, valueMethod = "getName")
+  private String authType;
   @ExcelProperty("盒子公钥") private String boxPubKey;
 
   private String boxqrcode;
