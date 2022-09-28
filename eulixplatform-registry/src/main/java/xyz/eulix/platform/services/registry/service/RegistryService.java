@@ -168,14 +168,14 @@ public class RegistryService {
         var registryBoxEntity = boxEntityRepository.findByBoxUUID(boxToken.getBoxUUID());
         if (registryBoxEntity.isPresent()) {
             return BoxRegistryResultV2.of(
-                    registryBoxEntity.get().getBoxRegKey(),
+                    registryBoxEntity.get().getBoxUUID(),
                     NetworkClient.of(registryBoxEntity.get().getNetworkClientId(), registryBoxEntity.get().getNetworkSecretKey()));
         }
         // 注册box
         RegistryBoxEntity boxEntity = registryBox(boxToken.getBoxUUID(), boxToken.getBoxRegKey());
         // 计算路由
         networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
-        return BoxRegistryResultV2.of(boxEntity.getBoxRegKey(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
+        return BoxRegistryResultV2.of(boxEntity.getBoxUUID(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
     }
 
     @Transactional

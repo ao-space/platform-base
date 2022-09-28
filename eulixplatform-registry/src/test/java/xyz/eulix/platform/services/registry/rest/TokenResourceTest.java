@@ -89,7 +89,7 @@ public class TokenResourceTest {
     info.setServiceIds(serviceIds);
     var body = utils.objectToJson(TokenVerifySignInfo.of(boxUUID, serviceIds));
     info.setSign(utils.encryptUsingPrivateKey(body, privateKey));
-    System.out.println(info);
+
     var tokenResult = given()
         .header("Request-Id", requestId)
         .body(info)
