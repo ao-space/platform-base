@@ -64,7 +64,7 @@ public class BoxInfoService {
     public BoxInfosRes<String> saveBoxInfosV2(BoxInfosReq boxInfosReq) {
         List<String> boxUUIDs = new ArrayList<>();
         List<String> failures = new ArrayList<>();
-        boxInfosReq.getBoxInfos().forEach(boxInfo -> upsertBoxInfoV2(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxInfo.getBoxPubKey(), boxInfo.getAuthType(), boxUUIDs, failures));
+        boxInfosReq.getBoxInfos().forEach(boxInfo -> upsertBoxInfoV2(boxInfo.getBoxUUID(), boxInfo.getDesc(), boxInfo.getExtra(), boxInfo.getAuthType(), boxInfo.getBoxPubKey(), boxUUIDs, failures));
         return BoxInfosRes.of(boxUUIDs, failures);
     }
 
