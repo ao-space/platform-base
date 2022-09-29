@@ -501,7 +501,7 @@ public class RegistryService {
         final List<RegistryClientEntity> clientEntities = clientEntityRepository.findAllByClientUUID(boxUUID, userId, clientUUID);
         if (clientEntities.isEmpty()) {
             LOG.warnv("invalid registry client verify info, boxUuid:{0}, userId:{1}, clientUuid:{2}", boxUUID, userId, clientUUID);
-            throw new WebApplicationException("invalid registry client verify info", Response.Status.FORBIDDEN);
+            throw new ServiceOperationException(ServiceError.CLIENT_NOT_REGISTERED);
         }
     }
 
