@@ -26,8 +26,8 @@ public class BoxInfoEntityRepository implements PanacheRepository<BoxInfoEntity>
         return this.find(FIND_BY_BOXUUID, boxUUID).firstResultOptional();
     }
 
-    public void deleteByBoxUUIDS(List<String> boxUUIDs) {
-        this.delete(FIND_BY_BOXUUIDS, boxUUIDs);
+    public long deleteByBoxUUIDS(List<String> boxUUIDs) {
+        return this.delete(FIND_BY_BOXUUIDS, boxUUIDs);
     }
 
     public List<BoxInfoEntity> findByBoxUUIDS(List<String> boxUUIDs) {

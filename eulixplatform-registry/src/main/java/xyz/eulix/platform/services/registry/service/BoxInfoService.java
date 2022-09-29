@@ -25,6 +25,7 @@ import xyz.eulix.platform.common.support.service.ServiceOperationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -97,6 +98,8 @@ public class BoxInfoService {
     @Transactional
     public <T> boolean upsertBoxInfoV2(String boxUUID, String desc, T extra, String authType, String boxPubKey,List<String> boxUUIDs, List<String> failures) {
         try {
+            isValidBoxInfo(authType, boxPubKey);
+
             String extraStr = null;
             if (CommonUtils.isNotNull(extra)) {
                 extraStr = operationUtils.objectToJson(extra);
@@ -122,8 +125,8 @@ public class BoxInfoService {
     }
 
     @Transactional
-    public void delBoxInfos(List<String> boxUUIDs) {
-        boxInfoEntityRepository.deleteByBoxUUIDS(boxUUIDs);
+    public Long delBoxInfos(List<String> boxUUIDs) {
+        return boxInfoEntityRepository.deleteByBoxUUIDS(boxUUIDs);
     }
 
     public PageListResult<BoxInfo> listBoxInfo(Integer currentPage, Integer pageSize) {
@@ -224,15 +227,17 @@ public class BoxInfoService {
 
     public BoxInfosRes<BoxFailureInfo> upload(MultipartBody multipartBody) {
         ArrayList<String> success = new ArrayList<>();
+        ArrayList<String> failure = new ArrayList<>();
         ArrayList<BoxFailureInfo> fail = new ArrayList<>();
-        EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(this, operationUtils, success, fail)).sheet().doRead();
+        EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(this, operationUtils, success, failure, fail)).sheet().doRead();
         return BoxInfosRes.of(success, fail);
     }
 
     public BoxInfosRes<BoxFailureInfo> uploadV2(MultipartBody multipartBody) {
         ArrayList<String> success = new ArrayList<>();
+        ArrayList<String> failure = new ArrayList<>();
         ArrayList<BoxFailureInfo> fail = new ArrayList<>();
-        EasyExcel.read(multipartBody.file, BoxExcelModelV2.class, new BoxExcelListenerV2(this, operationUtils, success, fail)).sheet().doRead();
+        EasyExcel.read(multipartBody.file, BoxExcelModelV2.class, new BoxExcelListenerV2(this, operationUtils, success, failure, fail)).sheet().doRead();
         return BoxInfosRes.of(success, fail);
     }
 
@@ -281,4 +286,20 @@ public class BoxInfoService {
         return boxUUIDs;
     }
 
+    /**
+     * 校验入参是否合法
+     *
+     * @param authType 认证类型
+     * @param boxPubKey 盒子公钥
+     */
+    public void isValidBoxInfo(String authType, String boxPubKey) {
+        if (CommonUtils.isNullOrEmpty(authType)) {
+            LOG.errorv("authType is null");
+            throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "authType");
+        }
+        if (AuthTypeEnum.BOX_PUB_KEY.getName().equals(authType) && CommonUtils.isNullOrEmpty(boxPubKey)) {
+            LOG.errorv("boxPubKey is null");
+            throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "boxPubKey");
+        }
+    }
 }
