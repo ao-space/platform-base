@@ -201,12 +201,19 @@ public class RegistryService {
     @Transactional
     public UserRegistryResultV2 registryUserV2(UserRegistryInfoV2 userRegistryInfo, String boxUUID) {
 
-        var userRegistryEntity = userEntityRepository.findUserByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
+        Optional<RegistryUserEntity> userRegistryEntityOp = userEntityRepository.findUserByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
 
-        // 注册用户
-        var userEntity = userRegistryEntity.orElseGet(
-            () -> registryUser(boxUUID, userRegistryInfo.getUserId(),
-                RegistryTypeEnum.fromValue(userRegistryInfo.getUserType())));
+        if (userRegistryEntityOp.isPresent()) {
+            SubdomainEntity subdomainEntity = subdomainEntityRepository.findByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
+            RegistryUserEntity userRegistryEntity = userRegistryEntityOp.get();
+            Optional<RegistryClientEntity> registryClientEntity = clientEntityRepository.findByBoxUUIDAndUserIdAndClientUUID(boxUUID, userRegistryInfo.getUserId(),
+                    userRegistryInfo.getClientUUID());
+            String bindClientUUID = null;
+            if (registryClientEntity.isPresent()) {
+                bindClientUUID = registryClientEntity.get().getClientUUID();
+            }
+            return UserRegistryResultV2.of(boxUUID, userRegistryEntity.getUserId(), subdomainEntity.getUserDomain(), userRegistryEntity.getRegistryType(), bindClientUUID);
+        }
 
         SubdomainEntity subdomainEntity;
         if (CommonUtils.isNullOrEmpty(userRegistryInfo.getSubdomain())) {
@@ -218,17 +225,20 @@ public class RegistryService {
             subdomainEntity = isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain());
         }
 
+        // 注册用户
+        RegistryUserEntity userEntity = registryUser(boxUUID, userRegistryInfo.getUserId(),
+                RegistryTypeEnum.fromValue(userRegistryInfo.getUserType()));
+
         // 修改域名状态
         subdomainEntityRepository.updateBySubdomain(userRegistryInfo.getUserId(), SubdomainStateEnum.USED.getState(),
-            userRegistryInfo.getSubdomain());
+                userRegistryInfo.getSubdomain());
 
         // 添加用户面路由：用户域名 - network server 地址 & network client id
         networkService.cacheNSRoute(subdomainEntity.getUserDomain(), boxUUID);
 
-
         // 注册client（用户的绑定设备）
-        var clientEntity = registryClientV2(boxUUID, userRegistryInfo.getUserId(),
-            userRegistryInfo.getClientUUID(), RegistryTypeEnum.CLIENT_BIND);
+        RegistryClientEntity clientEntity = registryClientV2(boxUUID, userRegistryInfo.getUserId(),
+                userRegistryInfo.getClientUUID(), RegistryTypeEnum.CLIENT_BIND);
 
         return UserRegistryResultV2.of(boxUUID, userEntity.getUserId(), subdomainEntity.getUserDomain(), userEntity.getRegistryType(), clientEntity.getClientUUID());
     }
@@ -293,9 +303,9 @@ public class RegistryService {
     @Transactional
     public RegistryClientEntity registryClientV2(String boxUUID, String userId, String clientUUID, RegistryTypeEnum clientType) {
         var registryClientEntity = clientEntityRepository.findByBoxUUIDAndUserIdAndClientUUID(
-            boxUUID, userId, clientUUID);
-        if(registryClientEntity.isPresent()){
-            return  registryClientEntity.get();
+                boxUUID, userId, clientUUID);
+        if (registryClientEntity.isPresent()) {
+            return registryClientEntity.get();
         }
         RegistryClientEntity clientEntity = new RegistryClientEntity();
         {
@@ -308,7 +318,6 @@ public class RegistryService {
         clientEntityRepository.persist(clientEntity);
         return clientEntity;
     }
-
 
 
     @Transactional
@@ -379,7 +388,7 @@ public class RegistryService {
     /**
      * 校验盒子是否未注册 V2
      *
-     * @param boxUUID   boxUUID
+     * @param boxUUID boxUUID
      */
     public void hasBoxNotRegisteredThrow(String boxUUID) {
         final Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUID(boxUUID);
@@ -444,14 +453,15 @@ public class RegistryService {
     /**
      * 校验用户是否未注册 V2
      *
-     * @param boxUUID    boxUUID
-     * @param userId     userId
+     * @param boxUUID boxUUID
+     * @param userId  userId
      */
     public void hasUserNotRegistered(String boxUUID, String userId) {
         var registryUserEntity = userEntityRepository.findUserByBoxUUIDAndUserId(boxUUID, userId);
         if (registryUserEntity.isEmpty()) {
             LOG.warnv("invalid user registry info, boxUUID:{0}, userId:{1}", boxUUID, userId);
-            throw new ServiceOperationException(ServiceError.USER_NOT_REGISTERED);        }
+            throw new ServiceOperationException(ServiceError.USER_NOT_REGISTERED);
+        }
     }
 
     /**
