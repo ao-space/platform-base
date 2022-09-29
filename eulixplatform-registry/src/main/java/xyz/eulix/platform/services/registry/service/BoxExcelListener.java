@@ -24,10 +24,11 @@ public class BoxExcelListener implements ReadListener<BoxExcelModel> {
     private ArrayList<String> failure;
     private ArrayList<BoxFailureInfo> fail;
 
-    public BoxExcelListener(BoxInfoService boxInfoService, OperationUtils utils, ArrayList<String> success, ArrayList<BoxFailureInfo> fail) {
+    public BoxExcelListener(BoxInfoService boxInfoService, OperationUtils utils, ArrayList<String> success, ArrayList<String> failure, ArrayList<BoxFailureInfo> fail) {
         this.boxInfoService = boxInfoService;
         this.operationUtils = utils;
         this.success = success;
+        this.failure = failure;
         this.fail = fail;
     }
 

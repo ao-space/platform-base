@@ -6,6 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import xyz.eulix.platform.common.support.model.BatchDeleteResult;
 import xyz.eulix.platform.services.registry.dto.registry.BaseResultRes;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
 import xyz.eulix.platform.services.registry.dto.registry.MultipartBody;
@@ -61,10 +62,11 @@ public class BoxInfoResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "批量删除盒子出厂信息，需管理员权限")
-    public BaseResultRes delBoxInfos(@NotBlank @HeaderParam("Request-Id") String requestId,
-                                     @Valid @Size(min = 1, max = 2000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
-        boxInfoService.delBoxInfos(boxUUIDs);
-        return BaseResultRes.of(true);
+    public BatchDeleteResult delBoxInfos(@NotBlank @HeaderParam("Request-Id") String requestId,
+                                         @Valid @Size(min = 1, max = 2000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
+        BatchDeleteResult deleteResult = BatchDeleteResult.of();
+        deleteResult.setDeletedCount(boxInfoService.delBoxInfos(boxUUIDs));
+        return deleteResult;
     }
 
     @RolesAllowed("admin")
