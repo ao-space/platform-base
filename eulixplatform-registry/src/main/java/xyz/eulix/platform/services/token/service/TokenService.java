@@ -1,5 +1,7 @@
 package xyz.eulix.platform.services.token.service;
 
+import static xyz.eulix.platform.services.token.dto.ServiceEnum.REGISTRY;
+
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
@@ -91,6 +93,9 @@ public class TokenService {
         var boxTokenEntity = boxTokenEntityRepository.findByBoxRegKey(boxRegKey);
         if(boxTokenEntity.isEmpty()){
             throw new WebApplicationException("invalid boxRegKey", Response.Status.UNAUTHORIZED);
+        }
+        if(!ServiceEnum.fromValue(boxTokenEntity.get().getServiceId()).equals(REGISTRY)){
+            throw new WebApplicationException("boxRegKey verification failed, service platform mismatch", Response.Status.UNAUTHORIZED);
         }
         if(!boxTokenEntity.get().getBoxUUID().equals(boxUUID)){
             throw new WebApplicationException("insufficient permissions", Response.Status.UNAUTHORIZED);

@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.registry.rest;
 
+import javax.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
@@ -59,6 +60,11 @@ public class RegistryResourceV2 {
                          @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        Boolean notRegistered = registryService.hasBoxNotRegistered(boxUUID, boxRegKey);
+        if (notRegistered) {
+            LOG.warnv("box uuid had not registered, boxUuid:{0}", boxUUID);
+            throw new WebApplicationException("invalid box registry reset info", Status.NOT_FOUND);
+        }
         registryService.resetBox(boxUUID);
     }
 
@@ -92,6 +98,11 @@ public class RegistryResourceV2 {
                           @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        final boolean match = registryService.verifyUser(boxUUID, userId);
+        if (!match) {
+            LOG.warnv("user id had not registered, boxUuid:{0}, userId:{1}",boxUUID, userId);
+            throw new WebApplicationException("invalid user registry reset info", Status.NOT_FOUND);
+        }
         registryService.resetUser(boxUUID, userId);
     }
 
@@ -129,6 +140,11 @@ public class RegistryResourceV2 {
                             @PathParam("client_uuid") @NotBlank String clientUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        final boolean isExist = registryService.verifyClient(boxUUID, userId, clientUUID);
+        if (!isExist) {
+            LOG.warnv("client uuid had not registered, boxUuid:{0}, userId:{1}, clientUuid:{2}", boxUUID, userId, clientUUID);
+            throw new WebApplicationException("invalid client registry reset info", Status.NOT_FOUND);
+        }
         registryService.deleteClientByClientUUID(boxUUID, userId, clientUUID);
     }
 
