@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
 import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
 import xyz.eulix.platform.services.registry.service.RegistryService;
@@ -55,7 +56,7 @@ public class RegistryResourceV2 {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "删除盒子注册信息")
     public void resetBox(@HeaderParam("Request-Id") @NotBlank String reqId,
-                         @HeaderParam("Box-Reg-Key") String boxRegKey,
+                         @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                          @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
@@ -111,9 +112,9 @@ public class RegistryResourceV2 {
         // 校检用户
         registryService.hasUserNotRegistered(boxUUID, userId);
         RegistryClientEntity clientEntity = registryService.registryClientV2(boxUUID, userId, clientInfo.getClientUUID(),
-            RegistryTypeEnum.fromValue(clientInfo.getClientType()));
+                RegistryTypeEnum.fromValue(clientInfo.getClientType()));
         return ClientRegistryResultV2.of(clientEntity.getBoxUUID(), clientEntity.getUserId(),
-            clientEntity.getClientUUID(), clientEntity.getRegistryType());
+                clientEntity.getClientUUID(), clientEntity.getRegistryType());
     }
 
     @Logged
@@ -168,8 +169,7 @@ public class RegistryResourceV2 {
         tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
         // 校验用户是否未注册
         registryService.hasUserNotRegistered(boxUUID, userId);
-        return registryService.subdomainUpdate(boxUUID,
-            userId, subdomainUpdateInfo.getSubdomain());
+        return registryService.subdomainUpdate(boxUUID, userId, subdomainUpdateInfo.getSubdomain());
     }
 
     @RolesAllowed("admin")
@@ -192,7 +192,6 @@ public class RegistryResourceV2 {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "强制删除盒子注册信息")
     public void resetBoxForce(@HeaderParam("Request-Id") @NotBlank String reqId,
-                              @HeaderParam("Box-Reg-Key") String boxRegKey,
                               @PathParam("box_uuid") @NotBlank String boxUUID) {
         LOG.infov("reset box forcely, boxUuid:{0}", boxUUID);
         registryService.resetBox(boxUUID);

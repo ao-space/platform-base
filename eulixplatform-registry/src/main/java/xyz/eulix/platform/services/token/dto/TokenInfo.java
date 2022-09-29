@@ -1,8 +1,10 @@
 package xyz.eulix.platform.services.token.dto;
 
 import javax.validation.constraints.NotEmpty;
+
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import xyz.eulix.platform.common.support.validator.ValueOfEnum;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -19,7 +21,7 @@ public class TokenInfo {
 
     @NotEmpty
     @Schema(description = "平台id：空间平台（serviceId=10001）、产品服务平台（serviceId=10002）")
-    private List<String> serviceIds;
+    private List<@ValueOfEnum(enumClass = ServiceEnum.class, valueMethod = "getServiceId") String> serviceIds;
 
     @NotBlank
     @Schema(description = "签名")
