@@ -79,9 +79,9 @@ public class BoxInfoResourceV2 {
     public PageListResult<BoxInfo> boxInfoList(@NotBlank @HeaderParam("Request-Id") String requestId,
                                                @Parameter(required = true, description = "当前页") @QueryParam("current_page") Integer currentPage,
                                                @Parameter(required = true, description = "每页数量，最大2000") @Max(2000) @QueryParam("page_size") Integer pageSize,
-                                               @Parameter(description = "是否注册") @QueryParam("isregistry") Boolean isRegistry,
-                                               @Parameter(description = "boxuuid") @QueryParam("boxuuid") String boxUUID,
-                                               @Parameter(description = "cpuid") @QueryParam("cpuid") String cpuId) {
+                                               @Parameter(description = "是否注册") @QueryParam("is_registry") Boolean isRegistry,
+                                               @Parameter(description = "box uuid") @QueryParam("box_uuid") String boxUUID,
+                                               @Parameter(description = "cpuid") @QueryParam("cpu_id") String cpuId) {
         if (CommonUtils.isNotNull(isRegistry)) {
             return boxInfoService.listBoxInfo(currentPage, pageSize, isRegistry);
         } else if (CommonUtils.isNotNull(boxUUID)) {

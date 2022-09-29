@@ -5,7 +5,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.*;
-import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
 import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
 import xyz.eulix.platform.services.registry.service.RegistryService;
@@ -67,7 +66,7 @@ public class RegistryResource {
         registryService.hasBoxNotRegisteredThrow(userRegistryInfo.getBoxUUID(), userRegistryInfo.getBoxRegKey());
         // 校验用户是否已注册
         registryService.hasUserRegistered(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId());
-        SubdomainEntity subdomainEntity = null;
+        SubdomainEntity subdomainEntity;
         if (CommonUtils.isNullOrEmpty(userRegistryInfo.getSubdomain())) {
             // 申请subdomain
             subdomainEntity = registryService.subdomainGen(userRegistryInfo.getBoxUUID());
