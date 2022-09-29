@@ -11,10 +11,8 @@ import xyz.eulix.platform.common.support.model.StatusResult;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +32,7 @@ public class BasicResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "查询空间平台能力")
-    public PlatformApiResults ability() {
+    public PlatformApiResults ability(@NotBlank @HeaderParam("Request-Id") String requestId) {
         List<PlatformApi> platformApis = new ArrayList<>();
         PlatformApi platformApi = PlatformApi.of("POST",
                 "/platform/v*/api/registry/box",
@@ -52,7 +50,7 @@ public class BasicResourceV2 {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "查询空间平台状态")
-    public StatusResult status() {
+    public StatusResult status(@NotBlank @HeaderParam("Request-Id") String requestId) {
         return StatusResult.of("ok", properties.getVersion());
     }
 }
