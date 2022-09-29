@@ -210,6 +210,11 @@ public class RegistryResourceV2 {
     public void resetBoxForce(@HeaderParam("Request-Id") @NotBlank String reqId,
                               @PathParam("box_uuid") @NotBlank String boxUUID) {
         LOG.infov("reset box forcely, boxUuid:{0}", boxUUID);
+        final boolean isExist = registryService.isValidBoxUUID(boxUUID);
+        if (!isExist) {
+            LOG.warnv("box uuid had not registered, boxUuid:{0}", boxUUID);
+            throw new WebApplicationException("invalid box registry reset info", Status.NOT_FOUND);
+        }
         registryService.resetBox(boxUUID);
     }
 }
