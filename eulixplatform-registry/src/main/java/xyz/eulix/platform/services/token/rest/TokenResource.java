@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 @RequestScoped
 @Path("/v2/platform")
-@Tag(name = "Token Service", description = "BoxRegKey管理")
+@Tag(name = "Platform Token Service", description = "BoxRegKey管理")
 public class TokenResource {
     private static final Logger LOG = Logger.getLogger("app.log");
 
@@ -32,7 +32,7 @@ public class TokenResource {
     @Path("/auth/box_reg_keys")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "获取box_reg_key")
+    @Operation(description = "获取box_reg_keys")
     public TokenResults createTokens(@Valid TokenInfo tokenInfo,
                                     @HeaderParam("Request-Id") @NotBlank String reqId) {
         // 验证签名

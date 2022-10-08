@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.common.support.service.ServiceError;
 import xyz.eulix.platform.common.support.service.ServiceOperationException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -81,6 +82,7 @@ public class RestConfiguration {
       status = Response.Status.PRECONDITION_FAILED.getStatusCode();
     } else if (exception instanceof ConstraintViolationException) {
       status = Response.Status.BAD_REQUEST.getStatusCode();
+      code = ServiceError.INPUT_PARAMETER_ERROR.getCode();
     } else if (exception instanceof ServiceOperationException) {
       status = Response.Status.BAD_REQUEST.getStatusCode();
       code = ((ServiceOperationException) exception).getErrorCode();
@@ -92,7 +94,11 @@ public class RestConfiguration {
       body.put("code", code);
     }
     if (message != null) {
-      body.put("error", message);
+      if (request.path().startsWith("/v2")) {
+        body.put("message", message);
+      } else {
+        body.put("error", message);
+      }
     }
 
     return Response.status(status).entity(body).build();
