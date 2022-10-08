@@ -4,7 +4,9 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.common.support.log.Logged;
+import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
 import xyz.eulix.platform.services.token.dto.TokenInfo;
+import xyz.eulix.platform.services.token.dto.TokenResult;
 import xyz.eulix.platform.services.token.dto.TokenResults;
 import xyz.eulix.platform.services.token.service.TokenService;
 
@@ -14,6 +16,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 
 @RequestScoped
 @Path("/v2/platform")
@@ -33,8 +36,8 @@ public class TokenResource {
     public TokenResults createTokens(@Valid TokenInfo tokenInfo,
                                     @HeaderParam("Request-Id") @NotBlank String reqId) {
         // 验证签名
-        var boxInfoEntity = tokenService.verifySign(tokenInfo);
-        var tokenResults = tokenService.createBoxTokens(tokenInfo, boxInfoEntity);
+        BoxInfoEntity boxInfoEntity = tokenService.verifySign(tokenInfo);
+        ArrayList<TokenResult> tokenResults = tokenService.createBoxTokens(tokenInfo, boxInfoEntity);
         return TokenResults.of(tokenInfo.getBoxUUID(), tokenResults);
     }
 

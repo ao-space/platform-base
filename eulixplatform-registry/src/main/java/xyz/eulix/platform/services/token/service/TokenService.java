@@ -2,8 +2,11 @@ package xyz.eulix.platform.services.token.service;
 
 import static xyz.eulix.platform.services.token.dto.ServiceEnum.REGISTRY;
 
+import org.jboss.logging.Logger;
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.serialization.OperationUtils;
+import xyz.eulix.platform.common.support.service.ServiceError;
+import xyz.eulix.platform.common.support.service.ServiceOperationException;
 import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
 import xyz.eulix.platform.services.token.dto.*;
 import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
@@ -23,6 +26,7 @@ import java.util.*;
  */
 @ApplicationScoped
 public class TokenService {
+    private static final Logger LOG = Logger.getLogger("app.log");
 
     @Inject
     BoxInfoEntityRepository boxInfoEntityRepository;
@@ -33,38 +37,37 @@ public class TokenService {
     @Inject
     OperationUtils operationUtils;
 
-    public BoxInfoEntity verifySign(TokenInfo tokenInfo){
-        var boxInfoEntity = boxInfoEntityRepository.findByBoxUUID(tokenInfo.getBoxUUID());
-        if(boxInfoEntity.isPresent()){
-            if(!boxInfoEntity.get().getAuthType().equals(AuthTypeEnum.BOX_PUB_KEY.getName())){
-                return null;
+    public BoxInfoEntity verifySign(TokenInfo tokenInfo) {
+        Optional<BoxInfoEntity> boxInfoEntityOp = boxInfoEntityRepository.findByBoxUUID(tokenInfo.getBoxUUID());
+        if (boxInfoEntityOp.isPresent()) {
+            if (AuthTypeEnum.BOX_UUID.getName().equals(boxInfoEntityOp.get().getAuthType())) {
+                return boxInfoEntityOp.get();
             }
-            var verifySignInfoJson = operationUtils.decryptUsingPublicKey(tokenInfo.getSign(), boxInfoEntity.get().getBoxPubKey());
+            if (CommonUtils.isNullOrEmpty(tokenInfo.getSign())) {
+                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "tokenInfo.sign");
+            }
+            String verifySignInfoJson = operationUtils.decryptUsingPublicKey(tokenInfo.getSign(), boxInfoEntityOp.get().getBoxPubKey());
             TokenVerifySignInfo verifySignInfo = operationUtils.jsonToObject(verifySignInfoJson, TokenVerifySignInfo.class);
-            if(Objects.equals(verifySignInfo,
-                    TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds()))){
-                return boxInfoEntity.get();
+            if (Objects.equals(verifySignInfo, TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds()))) {
+                return boxInfoEntityOp.get();
             } else {
-                throw new WebApplicationException("failed to verify signature", Response.Status.FORBIDDEN);
+                LOG.errorv("failed to verify signature boxUUID :{0}", tokenInfo.getBoxUUID());
+                throw new WebApplicationException("signature verification failed", Response.Status.FORBIDDEN);
             }
+        } else {
+            LOG.errorv("invalid boxUUID :{0}", tokenInfo.getBoxUUID());
+            throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
         }
-        throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
     }
 
     @Transactional
-    public ArrayList<TokenResult> createBoxTokens(TokenInfo tokenInfo, BoxInfoEntity boxInfoEntity){
+    public ArrayList<TokenResult> createBoxTokens(TokenInfo tokenInfo, BoxInfoEntity boxInfoEntity) {
         var result = new ArrayList<TokenResult>();
 
         tokenInfo.getServiceIds().forEach(serviceId -> {
             // 生成 token
             BoxTokenEntity boxTokenEntity = createBoxToken(tokenInfo.getBoxUUID(), ServiceEnum.fromValue(serviceId));
-            if(Objects.isNull(boxInfoEntity)){
-                result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(),
-                    boxTokenEntity.getExpiresAt()));
-            } else {
-                result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(),
-                    boxTokenEntity.getExpiresAt()));
-            }
+            result.add(TokenResult.of(boxTokenEntity.getServiceId(), boxTokenEntity.getBoxRegKey(), boxTokenEntity.getExpiresAt()));
 
         });
         return result;
@@ -89,18 +92,18 @@ public class TokenService {
         return boxTokenEntity;
     }
 
-    public BoxTokenEntity verifyBoxRegKey(String boxUUID, String boxRegKey){
+    public BoxTokenEntity verifyBoxRegKey(String boxUUID, String boxRegKey) {
         var boxTokenEntity = boxTokenEntityRepository.findByBoxRegKey(boxRegKey);
-        if(boxTokenEntity.isEmpty()){
+        if (boxTokenEntity.isEmpty()) {
             throw new WebApplicationException("invalid boxRegKey", Response.Status.UNAUTHORIZED);
         }
-        if(!ServiceEnum.fromValue(boxTokenEntity.get().getServiceId()).equals(REGISTRY)){
+        if (!ServiceEnum.fromValue(boxTokenEntity.get().getServiceId()).equals(REGISTRY)) {
             throw new WebApplicationException("boxRegKey verification failed, service platform mismatch", Response.Status.UNAUTHORIZED);
         }
-        if(!boxTokenEntity.get().getBoxUUID().equals(boxUUID)){
+        if (!boxTokenEntity.get().getBoxUUID().equals(boxUUID)) {
             throw new WebApplicationException("insufficient permissions", Response.Status.UNAUTHORIZED);
         }
-        if(boxTokenEntity.get().getExpiresAt().isBefore(OffsetDateTime.now())){
+        if (boxTokenEntity.get().getExpiresAt().isBefore(OffsetDateTime.now())) {
             throw new WebApplicationException("boxRegKey expired", Response.Status.UNAUTHORIZED);
         }
         return boxTokenEntity.get();
