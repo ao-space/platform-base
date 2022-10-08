@@ -40,7 +40,7 @@ public class TokenService {
     public BoxInfoEntity verifySign(TokenInfo tokenInfo) {
         Optional<BoxInfoEntity> boxInfoEntityOp = boxInfoEntityRepository.findByBoxUUID(tokenInfo.getBoxUUID());
         if (boxInfoEntityOp.isPresent()) {
-            if (!boxInfoEntityOp.get().getAuthType().equals(AuthTypeEnum.BOX_PUB_KEY.getName())) {
+            if (AuthTypeEnum.BOX_UUID.getName().equals(boxInfoEntityOp.get().getAuthType())) {
                 return boxInfoEntityOp.get();
             }
             if (CommonUtils.isNullOrEmpty(tokenInfo.getSign())) {
