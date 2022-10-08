@@ -23,6 +23,6 @@ public class TokenInfo {
     @Schema(description = "平台id：空间平台（serviceId=10001）、产品服务平台（serviceId=10002）")
     private List<@ValueOfEnum(enumClass = ServiceEnum.class, valueMethod = "getServiceId") String> serviceIds;
 
-    @Schema(description = "签名")
+    @Schema(description = "签名，使用公钥验证盒子身份时必传")
     private String sign;
 }
