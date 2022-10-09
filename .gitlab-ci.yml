@@ -73,6 +73,8 @@ validate:package:
     - mvn $MAVEN_CLI_OPTS package
     - wget https://gosspublic.alicdn.com/ossutil/1.7.13/ossutil64 -O /usr/bin/ossutil64 && chmod +x /usr/bin/ossutil64
     - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-opstage/target/eulixplatform-opstage-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-services/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
+    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-common/target/eulixplatform-common-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-common/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
+    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-registry/target/eulixplatform-registry-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-registry/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
   artifacts:
     paths:
       - eulixplatform-opstage/target/
