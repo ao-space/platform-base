@@ -76,6 +76,8 @@ validate:package:
   artifacts:
     paths:
       - eulixplatform-opstage/target/
+      - eulixplatform-common/target/
+      - eulixplatform-registry/target/
 
 docker:jvm:
   stage: docker
