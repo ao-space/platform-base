@@ -9,7 +9,8 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum SubdomainStateEnum {
     TEMPORARY(0, "临时"),
-    USED(1, "已使用")
+    USED(1, "已使用"),
+    HISTORY(2, "历史使用")
     ;
 
     @Setter @Getter

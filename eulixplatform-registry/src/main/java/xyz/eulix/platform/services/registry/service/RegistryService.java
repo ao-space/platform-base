@@ -214,7 +214,12 @@ public class RegistryService {
         Optional<RegistryUserEntity> userRegistryEntityOp = userEntityRepository.findUserByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
 
         if (userRegistryEntityOp.isPresent()) {
-            SubdomainEntity subdomainEntity = subdomainEntityRepository.findByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
+            Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findByBoxUUIDAndUserIdAndState(boxUUID, userRegistryInfo.getUserId(),
+                    SubdomainStateEnum.USED.getState());
+            String userDomain = null;
+            if (subdomainEntityOp.isPresent()) {
+                userDomain = subdomainEntityOp.get().getUserDomain();
+            }
             RegistryUserEntity userRegistryEntity = userRegistryEntityOp.get();
             Optional<RegistryClientEntity> registryClientEntity = clientEntityRepository.findByBoxUUIDAndUserIdAndClientUUID(boxUUID, userRegistryInfo.getUserId(),
                     userRegistryInfo.getClientUUID());
@@ -222,7 +227,7 @@ public class RegistryService {
             if (registryClientEntity.isPresent()) {
                 bindClientUUID = registryClientEntity.get().getClientUUID();
             }
-            return UserRegistryResultV2.of(boxUUID, userRegistryEntity.getUserId(), subdomainEntity.getUserDomain(), userRegistryEntity.getRegistryType(), bindClientUUID);
+            return UserRegistryResultV2.of(boxUUID, userRegistryEntity.getUserId(), userDomain, userRegistryEntity.getRegistryType(), bindClientUUID);
         }
 
         SubdomainEntity subdomainEntity;
@@ -424,7 +429,7 @@ public class RegistryService {
             LOG.warnv("subdomain does not exist, subdomain:{0}", subdomain);
             throw new ServiceOperationException(ServiceError.SUBDOMAIN_NOT_EXIST);
         }
-        if (SubdomainStateEnum.USED.getState().equals(subdomainEntityOp.get().getState())) {
+        if (!SubdomainStateEnum.TEMPORARY.getState().equals(subdomainEntityOp.get().getState())) {
             LOG.warnv("subdomain already used, subdomain:{0}", subdomain);
             throw new ServiceOperationException(ServiceError.SUBDOMAIN_ALREADY_USED);
         }
@@ -596,11 +601,18 @@ public class RegistryService {
             List<ClientRegistryDetailInfo> clientRegistryDetailInfos = new ArrayList<>();
             List<RegistryClientEntity> clientEntities = clientEntityRepository.findByBoxUUIdAndUserId(uuid, userEntity.getUserId());
             clientEntities.forEach(clientEntitie -> clientRegistryDetailInfos.add(ClientRegistryDetailInfo.of(
-                    clientEntitie.getRegistryType(), clientEntitie.getClientUUID(), clientEntitie.getCreatedAt())));
-            SubdomainEntity subdomainEntity = subdomainEntityRepository.findByBoxUUIDAndUserId(uuid, userEntity.getUserId());
+                    clientEntitie.getRegistryType(),
+                    clientEntitie.getClientUUID(),
+                    clientEntitie.getCreatedAt())));
+            Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findByBoxUUIDAndUserIdAndState(uuid,
+                    userEntity.getUserId(), SubdomainStateEnum.USED.getState());
             userRegistryDetailInfos.add(UserRegistryDetailInfo.of(
-                    subdomainEntity == null ? null : subdomainEntity.getUserDomain(), subdomainEntity == null ? null : subdomainEntity.getSubdomain(), userEntity.getRegistryType(),
-                    userEntity.getUserId(), userEntity.getCreatedAt(), clientRegistryDetailInfos));
+                    subdomainEntityOp.isEmpty() ? null : subdomainEntityOp.get().getUserDomain(),
+                    subdomainEntityOp.isEmpty() ? null : subdomainEntityOp.get().getSubdomain(),
+                    userEntity.getRegistryType(),
+                    userEntity.getUserId(),
+                    userEntity.getCreatedAt(),
+                    clientRegistryDetailInfos));
         }
         return BoxRegistryDetailInfo.of(boxEntity.getNetworkClientId(), boxEntity.getCreatedAt(), boxEntity.getUpdatedAt(), userRegistryDetailInfos);
     }
@@ -616,12 +628,12 @@ public class RegistryService {
     public SubdomainUpdateResult subdomainUpdate(String boxUUID, String userId, String subdomain) {
         SubdomainUpdateResult updateResult = new SubdomainUpdateResult();
         // 合法性校验，历史域名是否已使用
-        SubdomainEntity subdomainEntityOld = subdomainEntityRepository.findByBoxUUIDAndUserId(boxUUID, userId);
-        String subdomainOld = subdomainEntityOld.getSubdomain();
-        if (!SubdomainStateEnum.USED.getState().equals(subdomainEntityOld.getState())) {
-            LOG.warnv("subdomain:{0} is not in use", subdomainEntityOld.getState());
+        Optional<SubdomainEntity> subdomainEntityOld = subdomainEntityRepository.findByBoxUUIDAndUserIdAndState(boxUUID, userId, SubdomainStateEnum.USED.getState());
+        if (subdomainEntityOld.isEmpty()) {
+            LOG.warnv("user's subdomain is not in use, boxUUID:{0}, userId:{1}", boxUUID, userId);
             throw new ServiceOperationException(ServiceError.SUBDOMAIN_NOT_IN_USER);
         }
+        String subdomainOld = subdomainEntityOld.get().getSubdomain();
         // 唯一性校验 & 幂等设计，防止数据库、redis数据不一致，建议client失败重试3次
         Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findBySubdomain(subdomain);
         if (subdomainEntityOp.isPresent() && !subdomainOld.equals(subdomain)) {
@@ -648,17 +660,11 @@ public class RegistryService {
         LOG.infov("subdomain update begin, from:{0} to:{1}", subdomainOld, subdomain);
         // 更新域名
         String userDomain = subdomain + "." + properties.getRegistrySubdomain();
-        subdomainService.updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
+        if (!subdomainOld.equals(subdomain)) {
+            subdomainService.updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
+        }
         // 添加用户面路由：用户域名 - network server 地址 & network client id
         networkService.cacheNSRoute(userDomain, boxUUID);
-
-        if (!subdomainOld.equals(subdomain)) {
-            String userDomainOld = subdomainEntityOld.getUserDomain();
-            Integer subdomainEffectiveTime = properties.getSubdomainEffectiveTime() * 24 * 60 * 60;
-            // 更新历史用户面路由，设置超时时间为30天
-            networkService.expireNSRoute(userDomainOld, subdomainEffectiveTime);
-            LOG.infov("expire history subdomain succeed, subdomain:{0} expire seconds:{1}s", subdomainOld, subdomainEffectiveTime);
-        }
         LOG.infov("subdomain update succeed, from:{0} to:{1}", subdomainOld, subdomain);
 
         updateResult.setSuccess(true);
