@@ -386,6 +386,16 @@ public class RegistryService {
     }
 
     /**
+     * 校验盒子是否已注册 V2
+     *
+     * @param boxUUID boxUUID
+     */
+    public Boolean hasBoxRegisteredV2(String boxUUID) {
+        final Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUID(boxUUID);
+        return boxEntityOp.isPresent();
+    }
+
+    /**
      * 校验盒子是否未注册
      *
      * @param boxUUID   boxUUID

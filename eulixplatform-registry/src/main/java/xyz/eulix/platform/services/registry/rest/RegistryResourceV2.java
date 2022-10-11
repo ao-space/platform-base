@@ -209,8 +209,8 @@ public class RegistryResourceV2 {
     @Operation(description = "强制删除盒子注册信息")
     public void resetBoxForce(@HeaderParam("Request-Id") @NotBlank String reqId,
                               @PathParam("box_uuid") @NotBlank String boxUUID) {
-        LOG.infov("reset box forcely, boxUuid:{0}", boxUUID);
-        final boolean isExist = registryService.isValidBoxUUID(boxUUID);
+        LOG.infov("reset box force, boxUuid:{0}", boxUUID);
+        final boolean isExist = registryService.hasBoxRegisteredV2(boxUUID);
         if (!isExist) {
             LOG.warnv("box uuid had not registered, boxUuid:{0}", boxUUID);
             throw new WebApplicationException("invalid box registry reset info", Status.NOT_FOUND);
