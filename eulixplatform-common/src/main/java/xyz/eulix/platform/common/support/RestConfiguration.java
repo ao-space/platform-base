@@ -38,6 +38,8 @@ public class RestConfiguration {
 
   public static final String REQUEST_ID = "Request-Id";
 
+  public static final String CODE_PREFIX = "SSP";
+
   /**
    * It provides exception result mapping for REST responses. For more information:
    * <a href="https://developer.jboss.org/docs/DOC-48310">https://developer.jboss.org/docs/DOC-48310</a>.
@@ -91,7 +93,11 @@ public class RestConfiguration {
     Map<String, Object> body = Maps.newLinkedHashMap();
     body.put("requestId", requestId);
     if (code != null) {
-      body.put("code", code);
+      if (request.path().startsWith("/v2")) {
+        body.put("code", CODE_PREFIX + code);
+      } else {
+        body.put("code", code);
+      }
     }
     if (message != null) {
       if (request.path().startsWith("/v2")) {
