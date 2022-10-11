@@ -26,11 +26,17 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
     // 根据box_uuid、user_id查询资源
     private static final String FIND_BY_BOXUUID_USERID = "box_uuid=?1 AND user_id=?2";
 
+    // 根据box_uuid、user_id、state查询资源
+    private static final String FIND_BY_BOXUUID_USERID_STATE = "box_uuid=?1 AND user_id=?2 AND state=?3";
+
     // 根据box_uuid查询资源
     private static final String FIND_BY_BOXUUID = "box_uuid=?1";
 
     // 根据box_uuid、user_id更新资源
     private static final String UPDATE_BY_BOXUUID_USERID = "subdomain=?1, user_domain=?2, updated_at=now() where box_uuid=?3 AND user_id=?4";
+
+    // 根据box_uuid、user_id更新资源状态
+    private static final String UPDATE_STATE_BY_BOXUUID_USERID = "state=?1, updated_at=now() where box_uuid=?2 AND user_id=?3";
 
     public Optional<SubdomainEntity> findByUserDomain(String userDomain) {
         return this.find(FIND_BY_USER_DOMAIN, userDomain).firstResultOptional();
@@ -52,8 +58,8 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
         this.delete(FIND_BY_BOXUUID, boxUUID);
     }
 
-    public SubdomainEntity findByBoxUUIDAndUserId(String boxUUID, String userId){
-        return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).firstResult();
+    public Optional<SubdomainEntity> findByBoxUUIDAndUserIdAndState(String boxUUID, String userId, Integer state){
+        return this.find(FIND_BY_BOXUUID_USERID_STATE, boxUUID, userId, state).firstResultOptional();
     }
 
     // 用正则来匹配subdomain
@@ -64,5 +70,9 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
 
     public void updateSubdomainByBoxUUIDAndUserId(String boxUUID, String userId, String subdomain, String userDomain) {
         this.update(UPDATE_BY_BOXUUID_USERID, subdomain, userDomain, boxUUID, userId);
+    }
+
+    public void updateStateByBoxUUIDAndUserId(String boxUUID, String userId, Integer state) {
+        this.update(UPDATE_STATE_BY_BOXUUID_USERID, state, boxUUID, userId);
     }
 }
