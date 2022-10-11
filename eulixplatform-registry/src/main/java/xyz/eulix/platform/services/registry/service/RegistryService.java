@@ -214,7 +214,12 @@ public class RegistryService {
         Optional<RegistryUserEntity> userRegistryEntityOp = userEntityRepository.findUserByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
 
         if (userRegistryEntityOp.isPresent()) {
-            SubdomainEntity subdomainEntity = subdomainEntityRepository.findByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
+            Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findByBoxUUIDAndUserIdAndState(boxUUID, userRegistryInfo.getUserId(),
+                    SubdomainStateEnum.USED.getState());
+            String userDomain = null;
+            if (subdomainEntityOp.isPresent()) {
+                userDomain = subdomainEntityOp.get().getUserDomain();
+            }
             RegistryUserEntity userRegistryEntity = userRegistryEntityOp.get();
             Optional<RegistryClientEntity> registryClientEntity = clientEntityRepository.findByBoxUUIDAndUserIdAndClientUUID(boxUUID, userRegistryInfo.getUserId(),
                     userRegistryInfo.getClientUUID());
@@ -222,7 +227,7 @@ public class RegistryService {
             if (registryClientEntity.isPresent()) {
                 bindClientUUID = registryClientEntity.get().getClientUUID();
             }
-            return UserRegistryResultV2.of(boxUUID, userRegistryEntity.getUserId(), subdomainEntity.getUserDomain(), userRegistryEntity.getRegistryType(), bindClientUUID);
+            return UserRegistryResultV2.of(boxUUID, userRegistryEntity.getUserId(), userDomain, userRegistryEntity.getRegistryType(), bindClientUUID);
         }
 
         SubdomainEntity subdomainEntity;
