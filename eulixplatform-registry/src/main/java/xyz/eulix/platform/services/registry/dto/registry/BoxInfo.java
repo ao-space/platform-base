@@ -26,7 +26,7 @@ public class BoxInfo {
     @Schema(description = "盒子的扩展信息,json格式")
     private Object extra;
 
-    @Schema(description = "盒子的公钥")
+    @Schema(description = "盒子的公钥，authType=box_pub_key时必传")
     private String boxPubKey;
 
     @Schema(description = "盒子的authType: box_uuid/box_pub_key")
