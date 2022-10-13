@@ -826,4 +826,19 @@ public class RegistryService {
         return clientUUIDs;
     }
 
+    public RegistryUserEntity getRegistryUserEntity(String boxUUID, String userId){
+        var registryUserEntity = userEntityRepository.findUserByBoxUUIDAndUserId(
+            boxUUID, userId);
+        return registryUserEntity.orElse(null);
+    }
+
+    public SubdomainEntity getSubdomainEntity(String boxUUID, String userId){
+        var subdomainEntity = subdomainEntityRepository.findByBoxUUIDAndUserIdAndState(
+            boxUUID, userId, 1);
+        return subdomainEntity.orElse(null);
+    }
+    public RegistryClientEntity getRegistryClientEntity(String boxUUID, String userId, String clientUUID){
+        var registryClientEntity = clientEntityRepository.findByBoxUUIDAndUserIdAndClientUUID(boxUUID, userId, clientUUID);
+        return registryClientEntity.orElse(null);
+    }
 }
