@@ -38,7 +38,7 @@ public class RestConfiguration {
 
   public static final String REQUEST_ID = "Request-Id";
 
-  public static final String CODE_PREFIX = "SSP";
+  public static final String CODE_PREFIX = "SSP-";
 
   /**
    * It provides exception result mapping for REST responses. For more information:
