@@ -1,9 +1,11 @@
 package xyz.eulix.platform.services.network.rest;
 
+import javax.validation.Valid;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.network.dto.BaseResultRes;
+import xyz.eulix.platform.services.network.dto.NetworkAuthReqV2;
 import xyz.eulix.platform.services.network.dto.NetworkServerRes;
 import xyz.eulix.platform.services.network.dto.StunServerRes;
 import xyz.eulix.platform.services.network.service.NetworkService;
@@ -25,15 +27,14 @@ public class NetworkResourceV2 {
     NetworkService networkService;
 
     @Logged
-    @GET
-    @Path("/clients/{network_client_id}/network/auth")
+    @POST
+    @Path("/clients/network/auth")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "认证 network client 身份")
     public BaseResultRes networkClientAuth(@HeaderParam("Request-Id") @NotBlank String reqId,
-                                           @PathParam("network_client_id") @NotBlank String networkClientId,
-                                           @QueryParam("network_secret_key") @NotBlank String networkSecretKey) {
-        Boolean result = networkService.networkClientAuth(networkClientId, networkSecretKey);
+        @Valid NetworkAuthReqV2 networkAuthReqV2) {
+        Boolean result = networkService.networkClientAuth(networkAuthReqV2.getNetworkClientId(), networkAuthReqV2.getNetworkSecretKey());
         return BaseResultRes.of(result);
     }
 
