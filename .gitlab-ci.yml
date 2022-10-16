@@ -15,6 +15,25 @@ cache:
     - .m2/repository
     - .sonar/cache
 
+cloc:code:
+  stage: validate
+  image:
+    name: aldanial/cloc
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - sed -i "s#http://deb.debian.org#http://opentuna.cn#g" /etc/apt/sources.list && sed -i "s#http://security.debian.org#http://opentuna.cn#g" /etc/apt/sources.list
+    - apt update && apt install mariadb-client -y
+    - export ENV_TIME=`date +%Y%m%d` && echo $ENV_TIME
+    - /usr/src/cloc --sql 1 --sql-append --sql-project $CI_PROJECT_NAME . | grep insert | tee cloc.sql
+    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD -e "create database if not exists bpcode$ENV_TIME;"
+    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "create table if not exists metadata (timestamp varchar(500),Project varchar(500),elapsed_s real);"
+    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "create table if not exists t (Project varchar(500) ,Language varchar(500) ,File varchar(500) ,File_dirname varchar(500) ,File_basename varchar(500) ,nBlank integer ,nComment integer ,nCode integer ,nScaled real );"
+    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "delete from metadata where Project ='$CI_PROJECT_NAME';"
+    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "delete from t where Project ='$CI_PROJECT_NAME';"
+    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "SOURCE cloc.sql"
+    - rm -rf cloc.sql
+
 test:
   stage: validate
   image: busybox
