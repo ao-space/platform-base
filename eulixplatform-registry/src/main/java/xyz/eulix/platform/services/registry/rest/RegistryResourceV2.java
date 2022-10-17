@@ -46,7 +46,7 @@ public class RegistryResourceV2 {
                                            @HeaderParam("Request-Id") @NotBlank String reqId,
                                            @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey) {
         // 验证 box reg key 有效期
-        var boxTokenEntity = tokenService.verifyBoxRegKey(boxRegistryInfo.getBoxUUID(), boxRegKey);
+        var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxRegistryInfo.getBoxUUID(), boxRegKey);
         return registryService.registryBoxV2(boxTokenEntity);
     }
 
@@ -60,7 +60,7 @@ public class RegistryResourceV2 {
                          @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                          @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         Boolean notRegistered = registryService.hasBoxNotRegistered(boxUUID, boxRegKey);
         if (notRegistered) {
             LOG.warnv("box uuid had not registered, boxUuid:{0}", boxUUID);
@@ -80,7 +80,7 @@ public class RegistryResourceV2 {
                                              @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                              @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         // 校检盒子
         registryService.hasBoxNotRegisteredThrow(boxUUID);
         // 注册
@@ -98,7 +98,7 @@ public class RegistryResourceV2 {
                           @PathParam("box_uuid") @NotBlank String boxUUID,
                           @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         final boolean match = registryService.verifyUser(boxUUID, userId);
         if (!match) {
             LOG.warnv("user id had not registered, boxUuid:{0}, userId:{1}",boxUUID, userId);
@@ -119,7 +119,7 @@ public class RegistryResourceV2 {
                                                  @PathParam("box_uuid") @NotBlank String boxUUID,
                                                  @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         // 校检用户
         registryService.hasUserNotRegistered(boxUUID, userId);
         RegistryClientEntity clientEntity = registryService.registryClientV2(boxUUID, userId, clientInfo.getClientUUID(),
@@ -140,7 +140,7 @@ public class RegistryResourceV2 {
                             @PathParam("user_id") @NotBlank String userId,
                             @PathParam("client_uuid") @NotBlank String clientUUID) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         final boolean isExist = registryService.verifyClient(boxUUID, userId, clientUUID);
         if (!isExist) {
             LOG.warnv("client uuid had not registered, boxUuid:{0}, userId:{1}, clientUuid:{2}", boxUUID, userId, clientUUID);
@@ -160,7 +160,7 @@ public class RegistryResourceV2 {
                                              @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                              @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         // 校验 box 身份
         registryService.hasBoxNotRegisteredThrow(boxUUID);
         // 校验数量上限
@@ -182,7 +182,7 @@ public class RegistryResourceV2 {
                                                  @PathParam("box_uuid") @NotBlank String boxUUID,
                                                  @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         // 校验用户是否未注册
         registryService.hasUserNotRegistered(boxUUID, userId);
         return registryService.subdomainUpdate(boxUUID, userId, subdomainUpdateInfo.getSubdomain());
