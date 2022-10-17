@@ -280,7 +280,7 @@ public class RegistryResource {
         @NotBlank @QueryParam("user_id") @Schema(description = "用户的 id。") String userId,
         @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         // 校检用户
         registryService.hasUserNotRegistered(boxUUID, userId);
         var registryUserEntity = registryService.getRegistryUserEntity(boxUUID, userId);
@@ -301,7 +301,7 @@ public class RegistryResource {
         @NotBlank @QueryParam("client_uuid") @Schema(description = "客户端的 uuid。") String clientUUID,
         @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey) {
         // 验证 box reg key 有效期
-        tokenService.verifyBoxRegKey(boxUUID, boxRegKey);
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         // 校检 client
         registryService.hasClientNotRegistered(boxUUID, userId, clientUUID);
 

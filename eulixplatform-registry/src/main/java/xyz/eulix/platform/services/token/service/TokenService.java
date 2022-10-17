@@ -92,12 +92,20 @@ public class TokenService {
         return boxTokenEntity;
     }
 
-    public BoxTokenEntity verifyBoxRegKey(String boxUUID, String boxRegKey) {
+    public BoxTokenEntity verifyRegistryBoxRegKey(String boxUUID, String boxRegKey) {
+        return verifyBoxRegKey(boxUUID, boxRegKey, REGISTRY);
+    }
+
+    public void verifyOpsBoxRegKey(String boxUUID, String boxRegKey) {
+        verifyBoxRegKey(boxUUID, boxRegKey, ServiceEnum.OPSTAGE);
+    }
+
+    public BoxTokenEntity verifyBoxRegKey(String boxUUID, String boxRegKey, ServiceEnum serviceEnum) {
         var boxTokenEntity = boxTokenEntityRepository.findByBoxRegKey(boxRegKey);
         if (boxTokenEntity.isEmpty()) {
             throw new WebApplicationException("invalid boxRegKey", Response.Status.UNAUTHORIZED);
         }
-        if (!ServiceEnum.fromValue(boxTokenEntity.get().getServiceId()).equals(REGISTRY)) {
+        if (!ServiceEnum.fromValue(boxTokenEntity.get().getServiceId()).equals(serviceEnum)) {
             throw new WebApplicationException("boxRegKey verification failed, service platform mismatch", Response.Status.UNAUTHORIZED);
         }
         if (!boxTokenEntity.get().getBoxUUID().equals(boxUUID)) {
