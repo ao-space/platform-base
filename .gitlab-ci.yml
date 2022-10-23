@@ -2,6 +2,7 @@ image: registry.eulix.xyz/collab/infra/public-service/maven:3.6.3-openjdk-11
 
 stages:
   - validate
+  - coverage
   - docker
   - sign
 
@@ -78,7 +79,24 @@ validate:test:
   tags:
     - x86_64
   script:
-    - mvn $MAVEN_CLI_OPTS verify
+    - mvn $MAVEN_CLI_OPTS org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report
+  artifacts:
+    paths:
+      - target/site/jacoco/
+
+coverage:
+  stage: coverage
+  image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.7
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+  script:
+    - python /opt/cover2cover.py target/site/jacoco/jacoco.xml $CI_PROJECT_DIR/src/main/java/ > target/site/cobertura.xml
+  needs: ["validate:test"]
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: target/site/cobertura.xml
 
 validate:package:
   stage: validate
