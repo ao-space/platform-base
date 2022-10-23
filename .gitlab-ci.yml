@@ -54,7 +54,7 @@ sonarqube-check-push:
 
 sonarqube-check-mr:
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'dev'
+    - if: $CI_MERGE_REQUEST_ID && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'dev'
   stage: validate
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" 
@@ -83,10 +83,6 @@ validate:test:
   artifacts:
     paths:
       - target/site/jacoco/
-    reports:
-      license_scanning: target/site/jacoco/index.html
-    expose_as: 'JacocoReport'
-    expire_in: 1 mos
 
 coverage:
   stage: coverage
