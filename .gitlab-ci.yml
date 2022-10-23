@@ -83,6 +83,10 @@ validate:test:
   artifacts:
     paths:
       - target/site/jacoco/
+    reports:
+      jacoco_report: target/site/jacoco/index.html
+    expose_as: 'JacocoReport'
+    expire_in: 1 mos
 
 coverage:
   stage: coverage
