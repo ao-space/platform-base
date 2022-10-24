@@ -80,6 +80,7 @@ validate:test:
     - x86_64
   script:
     - mvn $MAVEN_CLI_OPTS org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report
+    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/target/site/jacoco/index.html"
   artifacts:
     paths:
       - target/site/jacoco/
