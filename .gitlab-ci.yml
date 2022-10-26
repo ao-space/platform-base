@@ -108,10 +108,14 @@ validate:package:
   script:
     - mvn $MAVEN_CLI_OPTS package
     - wget https://gosspublic.alicdn.com/ossutil/1.7.13/ossutil64 -O /usr/bin/ossutil64 && chmod +x /usr/bin/ossutil64
-    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp target/eulixplatform-services-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-services/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
+    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-opstage/target/eulixplatform-opstage-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-services/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
+    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-common/target/eulixplatform-common-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-common/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
+    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-registry/target/eulixplatform-registry-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-registry/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
   artifacts:
     paths:
-      - target/
+      - eulixplatform-opstage/target/
+      - eulixplatform-common/target/
+      - eulixplatform-registry/target/
 
 docker:jvm:
   stage: docker
@@ -133,6 +137,7 @@ docker:jvm:
     - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
     - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
   script:
+    - cd eulixplatform-opstage
     - docker build --build-arg CI_PIPELINE_ID=$CI_PIPELINE_ID --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA -f src/main/docker/Dockerfile.jvm -t $DOCKER_BUILD_IMAGE .
     - docker tag $DOCKER_BUILD_IMAGE $DOCKER_LATEST_IMAGE
     - docker tag $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE_GITLAB
