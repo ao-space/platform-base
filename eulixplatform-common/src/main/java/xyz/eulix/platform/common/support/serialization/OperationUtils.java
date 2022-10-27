@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
+import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import javax.crypto.Cipher;
+import java.util.Objects;
 import lombok.SneakyThrows;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -32,8 +33,6 @@ import java.security.NoSuchAlgorithmException;
 public class OperationUtils {
     private static final Logger LOG = Logger.getLogger("app.log");
 
-    private static final String RSA = "RSA/ECB/PKCS1Padding";
-
     @Inject
     ObjectMapper objectMapper;
 
@@ -49,10 +48,10 @@ public class OperationUtils {
 
     /**
      * 利用Apache的工具类实现SHA-256加密
-     * 所需jar包下載 http://pan.baidu.com/s/1nuKxYGh
+     * 所需jar包下載 <a href="http://pan.baidu.com/s/1nuKxYGh">...</a>
      *
      * @param str 加密前的报文
-     * @return
+     * @return 加密后的报文
      */
     public String string2SHA256(String str) {
         MessageDigest messageDigest;
@@ -72,9 +71,10 @@ public class OperationUtils {
         try {
             OkHttpClient httpClient = new OkHttpClient();
             var requestBuilder = new Request.Builder()
-                    .url(HttpUrl.parse(urlString).newBuilder().build());
+                    .url(Objects.requireNonNull(HttpUrl.parse(urlString)).newBuilder().build());
             var response = httpClient.newCall(requestBuilder.build()).execute();
-            byte b[] = response.body().source().inputStream().readAllBytes();
+            assert response.body() != null;
+            byte[] b = response.body().source().inputStream().readAllBytes();
             return Response.ok(b).header("Content-Disposition", response.header("Content-Disposition", "attachment;filename=" + fileName[fileName.length-1]))
                     .header("Content-Length", b.length).build();
         } catch (IOException e) {
@@ -84,35 +84,20 @@ public class OperationUtils {
     }
 
     @SneakyThrows
-    public String encryptUsingPublicKey(String body, String publicKey) {
-        final Cipher dc = Cipher.getInstance(RSA);
-        dc.init(Cipher.ENCRYPT_MODE, getRSAPublicKey(publicKey));
-        final byte[] encrypted = dc.doFinal(body.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(encrypted);
+    public String signUsingBoxPrivateKey(String data, String privateKey) {
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(getRSAPrivateKey(privateKey));
+        privateSignature.update(data.getBytes(StandardCharsets.UTF_8));
+        byte[] signature = privateSignature.sign();
+        return Base64.getEncoder().encodeToString(signature);
     }
 
     @SneakyThrows
-    public String encryptUsingPrivateKey(String body, String privateKey) {
-        final Cipher dc = Cipher.getInstance(RSA);
-        dc.init(Cipher.ENCRYPT_MODE, getRSAPrivateKey(privateKey));
-        final byte[] encrypted = dc.doFinal(body.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(encrypted);
-    }
-
-    @SneakyThrows
-    public String decryptUsingPrivateKey(String body, String privateKey) {
-        final Cipher dc = Cipher.getInstance(RSA);
-        dc.init(Cipher.DECRYPT_MODE, getRSAPrivateKey(privateKey));
-        final byte[] decrypted = dc.doFinal(Base64.getDecoder().decode(body));
-        return new String(decrypted, StandardCharsets.UTF_8);
-    }
-
-    @SneakyThrows
-    public String decryptUsingPublicKey(String body, String publicKey) {
-        final Cipher dc = Cipher.getInstance(RSA);
-        dc.init(Cipher.DECRYPT_MODE, getRSAPublicKey(publicKey));
-        final byte[] decrypted = dc.doFinal(Base64.getDecoder().decode(body));
-        return new String(decrypted, StandardCharsets.UTF_8);
+    public boolean verifySignUsingBoxPublicKey(String data, String signature, String publicKey) {
+        Signature sign = Signature.getInstance("SHA256withRSA");
+        sign.initVerify(getRSAPublicKey(publicKey));
+        sign.update(data.getBytes(StandardCharsets.UTF_8));
+        return sign.verify(Base64.getDecoder().decode(signature));
     }
 
     /**

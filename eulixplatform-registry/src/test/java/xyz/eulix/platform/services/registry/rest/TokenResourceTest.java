@@ -88,7 +88,7 @@ public class TokenResourceTest {
     serviceIds.add("10001");
     info.setServiceIds(serviceIds);
     var body = utils.objectToJson(TokenVerifySignInfo.of(boxUUID, serviceIds));
-    info.setSign(utils.encryptUsingPrivateKey(body, privateKey));
+    info.setSign(utils.signUsingBoxPrivateKey(body, privateKey));
 
     var tokenResult = given()
         .header("Request-Id", requestId)
