@@ -1,7 +1,6 @@
 package xyz.eulix.platform.services.registry.service;
 
-import com.alibaba.excel.EasyExcel;
-import javax.validation.constraints.NotBlank;
+import com.alibaba.excel.EasyExcelFactory;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.registry.dto.registry.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
@@ -55,6 +54,14 @@ public class BoxInfoService {
     @Inject
     OperationUtils operationUtils;
 
+    private static final String XLSX = ".xlsx";
+
+    private static final String CONTENT_DISPOSITION = "Content-Disposition";
+
+    private static final String CONTENT_TYPE = "Content-Type";
+
+    private static final String ATTACHMENT = "attachment;filename=";
+
     public BoxInfosRes<String> saveBoxInfos(BoxInfosReq boxInfosReq) {
         List<String> boxUUIDs = new ArrayList<>();
         List<String> failures = new ArrayList<>();
@@ -96,7 +103,7 @@ public class BoxInfoService {
     }
 
     @Transactional
-    public <T> boolean upsertBoxInfoV2(String boxUUID, String desc, T extra, String authType, String boxPubKey,List<String> boxUUIDs, List<String> failures) {
+    public <T> boolean upsertBoxInfoV2(String boxUUID, String desc, T extra, String authType, String boxPubKey, List<String> boxUUIDs, List<String> failures) {
         try {
             isValidBoxInfo(authType, boxPubKey);
 
@@ -212,11 +219,11 @@ public class BoxInfoService {
     }
 
     public Response template(String version) {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate"+version+".xlsx")) {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("template/boxTemplate" + version + XLSX)) {
             byte[] b = inputStream.readAllBytes();
             return Response.ok(b)
-                    .header("Content-Disposition", "attachment;filename=" + URLEncoder.encode("出厂信息模板.xlsx", StandardCharsets.UTF_8)
-                            .replaceAll("\\+", "%20"))
+                    .header(CONTENT_DISPOSITION, ATTACHMENT + URLEncoder.encode("出厂信息模板.xlsx", StandardCharsets.UTF_8)
+                            .replace("\\+", "%20"))
                     .header("Content-Length", b.length)
                     .build();
         } catch (IOException e) {
@@ -229,7 +236,7 @@ public class BoxInfoService {
         ArrayList<String> success = new ArrayList<>();
         ArrayList<String> failure = new ArrayList<>();
         ArrayList<BoxFailureInfo> fail = new ArrayList<>();
-        EasyExcel.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(this, operationUtils, success, failure, fail)).sheet().doRead();
+        EasyExcelFactory.read(multipartBody.file, BoxExcelModel.class, new BoxExcelListener(this, operationUtils, success, failure, fail)).sheet().doRead();
         return BoxInfosRes.of(success, fail);
     }
 
@@ -237,7 +244,7 @@ public class BoxInfoService {
         ArrayList<String> success = new ArrayList<>();
         ArrayList<String> failure = new ArrayList<>();
         ArrayList<BoxFailureInfo> fail = new ArrayList<>();
-        EasyExcel.read(multipartBody.file, BoxExcelModelV2.class, new BoxExcelListenerV2(this, operationUtils, success, failure, fail)).sheet().doRead();
+        EasyExcelFactory.read(multipartBody.file, BoxExcelModelV2.class, new BoxExcelListenerV2(this, operationUtils, success, failure, fail)).sheet().doRead();
         return BoxInfosRes.of(success, fail);
     }
 
@@ -246,37 +253,37 @@ public class BoxInfoService {
             throw new ServiceOperationException(ServiceError.BOXUUIDS_IS_EMPTY);
         }
         var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + ".xlsx",
-                StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + XLSX,
+                StandardCharsets.UTF_8).replace("\\+", "%20");
         List<BoxExcelModel> lists = new ArrayList<>();
         List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(this.boxInfosToBoxUUIDs(boxInfosReq));
         for (BoxInfoEntity boxInfoEntity : entities) {
             lists.add(operationUtils.jsonToObject(boxInfoEntity.getExtra(), BoxExcelModel.class));
         }
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
-                EasyExcel.write(output, BoxExcelModel.class).sheet("sheet1").doWrite(lists));
-        response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
-        response.header("Content-Disposition", "attachment;filename=" + fileName);
+                EasyExcelFactory.write(output, BoxExcelModel.class).sheet("sheet1").doWrite(lists));
+        response.header(CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.header(CONTENT_DISPOSITION, ATTACHMENT + fileName);
         return response.build();
     }
 
     public Response exportV2(List<String> boxUUIDs) {
         var dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + ".xlsx",
-            StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        String fileName = URLEncoder.encode("盒子信息-" + dateFormat.format(System.currentTimeMillis()) + XLSX,
+                StandardCharsets.UTF_8).replace("\\+", "%20");
         List<BoxExcelModelV2> lists = new ArrayList<>();
         List<BoxInfoEntity> entities = boxInfoEntityRepository.findByBoxUUIDS(boxUUIDs);
         for (BoxInfoEntity boxInfoEntity : entities) {
             var boxExcelModelV2 = operationUtils.jsonToObject(boxInfoEntity.getExtra(),
-                BoxExcelModelV2.class);
+                    BoxExcelModelV2.class);
             boxExcelModelV2.setAuthType(boxInfoEntity.getAuthType());
             boxExcelModelV2.setBoxPubKey(boxInfoEntity.getBoxPubKey());
             lists.add(boxExcelModelV2);
         }
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->
-            EasyExcel.write(output, BoxExcelModelV2.class).sheet("sheet1").doWrite(lists));
-        response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
-        response.header("Content-Disposition", "attachment;filename=" + fileName);
+                EasyExcelFactory.write(output, BoxExcelModelV2.class).sheet("sheet1").doWrite(lists));
+        response.header(CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.header(CONTENT_DISPOSITION, ATTACHMENT + fileName);
         return response.build();
     }
 
@@ -289,7 +296,7 @@ public class BoxInfoService {
     /**
      * 校验入参是否合法
      *
-     * @param authType 认证类型
+     * @param authType  认证类型
      * @param boxPubKey 盒子公钥
      */
     public void isValidBoxInfo(String authType, String boxPubKey) {

@@ -2,6 +2,7 @@ package xyz.eulix.platform.services.registry.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryResetInfo;
@@ -29,6 +30,7 @@ class RegistryResourceTest {
                 .when().post("/platform/v1/api/registry/box")
                 .body()
                 .as(BoxRegistryResult.class);
+        Assertions.assertNotNull(result);
     }
 
     @Test

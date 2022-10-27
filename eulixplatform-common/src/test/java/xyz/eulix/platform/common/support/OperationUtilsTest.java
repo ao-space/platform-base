@@ -51,13 +51,15 @@ public class OperationUtilsTest {
   @Inject
   OperationUtils operationUtils;
 
+
   @Test
-  public void EncryptionAndDecryption(){
-    var enKey = operationUtils.encryptUsingPublicKey("test", publicKey);
+  public void verifySignUsingBoxPublicKey(){
 
-    var deKey = operationUtils.decryptUsingPrivateKey(enKey, privateKey);
+    var enKey = operationUtils.signUsingBoxPrivateKey("test", privateKey);
 
-    Assertions.assertEquals("test", deKey);
+    var deKey = operationUtils.verifySignUsingBoxPublicKey( "test", enKey, publicKey);
+
+    Assertions.assertTrue(deKey);
   }
 
 }
