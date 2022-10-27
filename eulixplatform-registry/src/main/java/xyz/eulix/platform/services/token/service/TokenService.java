@@ -46,9 +46,10 @@ public class TokenService {
             if (CommonUtils.isNullOrEmpty(tokenInfo.getSign())) {
                 throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "tokenInfo.sign");
             }
-            String verifySignInfoJson = operationUtils.decryptUsingPublicKey(tokenInfo.getSign(), boxInfoEntityOp.get().getBoxPubKey());
-            TokenVerifySignInfo verifySignInfo = operationUtils.jsonToObject(verifySignInfoJson, TokenVerifySignInfo.class);
-            if (Objects.equals(verifySignInfo, TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds()))) {
+            var tokenVerifySignInfo = TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds());
+            boolean verifySignInfo = operationUtils.verifySignUsingBoxPublicKey(operationUtils.objectToJson(tokenVerifySignInfo), tokenInfo.getSign(), boxInfoEntityOp.get().getBoxPubKey());
+
+            if (verifySignInfo) {
                 return boxInfoEntityOp.get();
             } else {
                 LOG.errorv("failed to verify signature boxUUID :{0}", tokenInfo.getBoxUUID());
