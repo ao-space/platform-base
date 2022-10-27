@@ -30,10 +30,12 @@ public class AuthService {
      *
      * @param boxInfoReq box info
      */
+    @Transactional
     public void savePkeyAuth(TransBoxInfoReq boxInfoReq) {
         savePkeyAuth(boxInfoReq.getPkey(), boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
     }
 
+    @Transactional
     public PollPkeyRsp savePkeyAuth(String pkey, TransBoxInfoReqV2 boxInfoReq) {
         savePkeyAuth(pkey, boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
         return PollPkeyRsp.of(pkey, boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());

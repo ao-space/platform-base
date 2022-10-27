@@ -567,7 +567,6 @@ public class RegistryService {
         return subdomainEntity;
     }
 
-    @Transactional
     public SubdomainEntity subdomainSave(String boxUUID, String subdomain, Integer effectiveTime) {
         SubdomainEntity subdomainEntity = new SubdomainEntity();
         {
@@ -579,7 +578,7 @@ public class RegistryService {
             }
             subdomainEntity.setState(SubdomainStateEnum.TEMPORARY.getState());
         }
-        subdomainEntityRepository.persist(subdomainEntity);
+        subdomainEntityRepository.save(subdomainEntity);
         return subdomainEntity;
     }
 

@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryInfo;
@@ -51,7 +52,7 @@ class RegistryResourceV2Test {
         {
             info.setBoxUUID("box_uuid");
         }
-        given()
+        final BoxRegistryResultV2 result = given()
                 .header("Request-Id", bid)
                 .header("Box-Reg-Key", "box_reg_key")
                 .body(info)
@@ -59,6 +60,7 @@ class RegistryResourceV2Test {
                 .when().post("/v2/platform/boxes")
                 .body()
                 .as(BoxRegistryResultV2.class);
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -85,8 +87,8 @@ class RegistryResourceV2Test {
                 .when().post("/v2/platform/boxes")
                 .body()
                 .as(BoxRegistryResultV2.class);
-        System.out.println(result1);
-        System.out.println(result);
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result1);
     }
 
     @Test

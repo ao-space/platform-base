@@ -88,7 +88,7 @@ public final class CommonUtils {
     public static String getUUID() {
         String uuid = UUID.randomUUID().toString();
         //去掉“-”符号
-        return uuid.replaceAll("-", "");
+        return uuid.replace("-", "");
     }
 
     /**

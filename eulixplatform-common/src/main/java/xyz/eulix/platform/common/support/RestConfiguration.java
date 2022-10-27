@@ -128,7 +128,7 @@ public class RestConfiguration {
     @Override
     public void filter(ContainerRequestContext context) {
       context.setProperty(STOPWATCH, Stopwatch.createStarted());
-      final String ri = request.getHeader("Request-Id");
+      final String ri = request.getHeader(REQUEST_ID);
       if (request.params().isEmpty()) {
         LOG.infof(
             "[Request] %s %s from ip: %s, req-id: %s",
@@ -169,7 +169,7 @@ public class RestConfiguration {
     @Override
     public void filter(
         ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-      final String ri = request.getHeader("Request-Id");
+      final String ri = request.getHeader(REQUEST_ID);
       final Stopwatch sw = (Stopwatch) requestContext.getProperty(STOPWATCH);
       final String method = requestContext.getMethod();
       try {

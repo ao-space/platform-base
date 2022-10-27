@@ -16,7 +16,7 @@ import java.util.Objects;
 public class ServiceOperationException extends RuntimeException {
 
   private final int errorCode;
-  private final Object[] messageParameters;
+  private final transient Object[] messageParameters;
 
   public ServiceOperationException(Throwable cause, ServiceError error, Object... parameters) {
     super(Objects.requireNonNull(error).getMessage(), Objects.requireNonNull(cause));

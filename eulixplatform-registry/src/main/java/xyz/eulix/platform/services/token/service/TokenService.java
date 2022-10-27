@@ -73,6 +73,7 @@ public class TokenService {
         return result;
     }
 
+    @Transactional
     public BoxTokenEntity createBoxToken(String boxUUID, ServiceEnum serviceEnum) {
         return createBoxToken(boxUUID, serviceEnum, "brk_" + CommonUtils.createUnifiedRandomCharacters(10));
     }

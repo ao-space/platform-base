@@ -32,6 +32,8 @@ import java.security.NoSuchAlgorithmException;
 public class OperationUtils {
     private static final Logger LOG = Logger.getLogger("app.log");
 
+    private static final String RSA = "RSA/ECB/PKCS1Padding";
+
     @Inject
     ObjectMapper objectMapper;
 
@@ -83,7 +85,7 @@ public class OperationUtils {
 
     @SneakyThrows
     public String encryptUsingPublicKey(String body, String publicKey) {
-        final Cipher dc = Cipher.getInstance("RSA");
+        final Cipher dc = Cipher.getInstance(RSA);
         dc.init(Cipher.ENCRYPT_MODE, getRSAPublicKey(publicKey));
         final byte[] encrypted = dc.doFinal(body.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(encrypted);
@@ -91,7 +93,7 @@ public class OperationUtils {
 
     @SneakyThrows
     public String encryptUsingPrivateKey(String body, String privateKey) {
-        final Cipher dc = Cipher.getInstance("RSA");
+        final Cipher dc = Cipher.getInstance(RSA);
         dc.init(Cipher.ENCRYPT_MODE, getRSAPrivateKey(privateKey));
         final byte[] encrypted = dc.doFinal(body.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(encrypted);
@@ -99,7 +101,7 @@ public class OperationUtils {
 
     @SneakyThrows
     public String decryptUsingPrivateKey(String body, String privateKey) {
-        final Cipher dc = Cipher.getInstance("RSA");
+        final Cipher dc = Cipher.getInstance(RSA);
         dc.init(Cipher.DECRYPT_MODE, getRSAPrivateKey(privateKey));
         final byte[] decrypted = dc.doFinal(Base64.getDecoder().decode(body));
         return new String(decrypted, StandardCharsets.UTF_8);
@@ -107,7 +109,7 @@ public class OperationUtils {
 
     @SneakyThrows
     public String decryptUsingPublicKey(String body, String publicKey) {
-        final Cipher dc = Cipher.getInstance("RSA");
+        final Cipher dc = Cipher.getInstance(RSA);
         dc.init(Cipher.DECRYPT_MODE, getRSAPublicKey(publicKey));
         final byte[] decrypted = dc.doFinal(Base64.getDecoder().decode(body));
         return new String(decrypted, StandardCharsets.UTF_8);

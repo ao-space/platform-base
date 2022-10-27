@@ -4,6 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,5 +75,10 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
 
     public void updateStateByBoxUUIDAndUserId(String boxUUID, String userId, Integer state) {
         this.update(UPDATE_STATE_BY_BOXUUID_USERID, state, boxUUID, userId);
+    }
+
+    @Transactional
+    public void save(SubdomainEntity subdomainEntity) {
+        this.persist(subdomainEntity);
     }
 }
