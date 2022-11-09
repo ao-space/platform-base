@@ -1,14 +1,21 @@
 image: registry.eulix.xyz/collab/infra/public-service/maven:3.6.3-openjdk-11
 
+include:
+  - project: 'bp/ams-ci-template'
+    ref: main
+    file: '/sonarqube.yml'
+
 stages:
   - validate
   - coverage
   - docker
   - sign
+  - codelint
 
 variables:
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+  ENV_SONARQUBE_TYPE: maven
 
 cache:
   key: ${CI_JOB_NAME}
@@ -41,31 +48,11 @@ test:
   script:
     - echo "Do a test here"
 
-sonarqube-check-push:
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'dev'
-  stage: validate
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" 
-    GIT_DEPTH: "0" 
-  script: 
-    - mvn $MAVEN_CLI_OPTS test-compile
-    - mvn $MAVEN_CLI_OPTS sonar:sonar -Dsonar.projectKey=eulixplatform-services -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.branch.name=$CI_COMMIT_BRANCH
-
-sonarqube-check-mr:
-  rules:
-    - if: $CI_MERGE_REQUEST_ID && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'dev'
-  stage: validate
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" 
-    GIT_DEPTH: "0" 
-  script: 
-    - mvn $MAVEN_CLI_OPTS test-compile
-    - mvn $MAVEN_CLI_OPTS sonar:sonar -Dsonar.projectKey=eulixplatform-services -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.pullrequest.key=$CI_MERGE_REQUEST_IID -Dsonar.pullrequest.branch=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME -Dsonar.pullrequest.base=$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -Dsonar.gitlab.project_id=$CI_PROJECT_ID -Dsonar.gitlab.ping_user=$GITLAB_USER_LOGIN -Dsonar.gitlab.max_blocker_issues_gate=-1 -Dsonar.gitlab.max_critical_issues_gate=-1 -Dsonar.gitlab.comment_no_issue=true -Dsonar.gitlab.disable_inline_comments=true -Dsonar.gitlab.only_issue_from_commit_file=false -Dsonar.gitlab.load_rules=true -Dsonar.gitlab.only_issue_from_commit_line=false -Dsonar.gitlab.disable_global_comment=false -Dsonar.gitlab.all_issues=true -Dsonar.gitlab.failure_notification_mode=commit-status -Dsonar.gitlab.quality_gate_fail_mode=NONE -Dsonar.gitlab.merge_request_discussion=false -Dsonar.gitlab.fail_on_qualitygate=false -Dsonar.gitlab.build_init_state=running
-
 validate:build:
   stage: validate
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_MERGE_REQUEST_ID
   tags:
     - x86_64
@@ -75,6 +62,8 @@ validate:build:
 validate:test:
   stage: validate
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_MERGE_REQUEST_ID
   tags:
     - x86_64
@@ -88,7 +77,10 @@ validate:test:
 validate:package:
   stage: validate
   rules:
-    - if: $CI_COMMIT_BRANCH || $CI_MERGE_REQUEST_ID
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
   tags:
     - x86_64
   script:
@@ -107,12 +99,10 @@ docker:jvm:
   stage: docker
   dependencies:
     - validate:package
-  only:
-    variables: 
-      - $CI_COMMIT_BRANCH
-  except:
-    variables: 
-      - $CI_MERGE_REQUEST_ID
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
   tags:
     - docker_build-x86_64
   before_script: 
@@ -135,12 +125,10 @@ docker:jvm:
 
 artifacts-sign:
   stage: sign
-  only:
-    variables: 
-      - $CI_COMMIT_BRANCH
-  except:
-    variables: 
-      - $CI_MERGE_REQUEST_ID
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
   image:
     name: registry.eulix.xyz/collab/infra/infrastructure/sigstore/cosign:v1.10.1
     entrypoint: [''] 
