@@ -13,12 +13,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryInfo;
-import xyz.eulix.platform.services.registry.dto.registry.SubdomainUpdateResult;
 import xyz.eulix.platform.services.registry.dto.registry.v2.BoxRegistryResultV2;
-import xyz.eulix.platform.services.registry.dto.registry.v2.SubdomainGenInfoV2;
-import xyz.eulix.platform.services.registry.dto.registry.v2.SubdomainGenResultV2;
-import xyz.eulix.platform.services.registry.dto.registry.v2.UserRegistryInfoV2;
-import xyz.eulix.platform.services.registry.dto.registry.v2.UserRegistryResultV2;
 import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
 import xyz.eulix.platform.services.token.repository.BoxTokenEntityRepository;
 

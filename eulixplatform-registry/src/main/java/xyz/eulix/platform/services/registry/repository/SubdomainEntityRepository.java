@@ -81,4 +81,12 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
     public void save(SubdomainEntity subdomainEntity) {
         this.persist(subdomainEntity);
     }
+
+    public List<SubdomainEntity> findByBoxUUId(String boxUUID) {
+        return this.find(FIND_BY_BOXUUID, boxUUID).list();
+    }
+    public List<SubdomainEntity> findByBoxUUIdAndUserId(String boxUUID, String userId) {
+        return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).list();
+
+    }
 }

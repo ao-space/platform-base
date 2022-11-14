@@ -259,6 +259,19 @@ public class RegistryResource {
     }
 
     @RolesAllowed("admin")
+    @Logged
+    @GET
+    @Path("/subdomain/detail")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "查询用户域名")
+    public SubdomainGetResult getSubdomain(@HeaderParam("Request-Id") @NotBlank String reqId,
+                                           @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                           @QueryParam("user_domain") @NotBlank String userDomain) {
+        return SubdomainGetResult.of("boxUUID", "userId", "subdomain", "userDomain", 0, null);
+    }
+
+    @RolesAllowed("admin")
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
