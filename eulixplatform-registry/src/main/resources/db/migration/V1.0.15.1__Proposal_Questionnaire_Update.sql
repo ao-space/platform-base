@@ -1,0 +1,1 @@
+ALTER TABLE proposal ADD contact VARCHAR(128) DEFAULT NULL;

@@ -123,43 +123,8 @@ public class RegistryService {
     }
 
     @Transactional
-    public void deleteBoxByBoxUUID(String boxUUID) {
-        boxEntityRepository.delete("box_uuid", boxUUID);
-    }
-
-    @Transactional
-    public void deleteUserByUserId(String boxUUID, String userId) {
-        userEntityRepository.deleteByUserId(boxUUID, userId);
-    }
-
-    @Transactional
-    public void deleteUserByBoxUUID(String boxUUID) {
-        userEntityRepository.deleteByBoxUUID(boxUUID);
-    }
-
-    @Transactional
-    public void deleteClientByUserId(String boxUUID, String userId) {
-        clientEntityRepository.deleteByUserId(boxUUID, userId);
-    }
-
-    @Transactional
-    public void deleteClientByBoxUUID(String boxUUID) {
-        clientEntityRepository.deleteByBoxUUID(boxUUID);
-    }
-
-    @Transactional
     public void deleteClientByClientUUID(String boxUUID, String userId, String clientUUID) {
         clientEntityRepository.deleteByClientUUID(boxUUID, userId, clientUUID);
-    }
-
-    @Transactional
-    public void deleteSubdomainByUserId(String boxUUID, String userId) {
-        subdomainEntityRepository.deleteSubdomainByUserId(boxUUID, userId);
-    }
-
-    @Transactional
-    private void deleteSubdomainByBoxUUID(String boxUUID) {
-        subdomainEntityRepository.deleteSubdomainByBoxUUID(boxUUID);
     }
 
     @Transactional
@@ -214,20 +179,7 @@ public class RegistryService {
         Optional<RegistryUserEntity> userRegistryEntityOp = userEntityRepository.findUserByBoxUUIDAndUserId(boxUUID, userRegistryInfo.getUserId());
 
         if (userRegistryEntityOp.isPresent()) {
-            Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findByBoxUUIDAndUserIdAndState(boxUUID, userRegistryInfo.getUserId(),
-                    SubdomainStateEnum.USED.getState());
-            String userDomain = null;
-            if (subdomainEntityOp.isPresent()) {
-                userDomain = subdomainEntityOp.get().getUserDomain();
-            }
-            RegistryUserEntity userRegistryEntity = userRegistryEntityOp.get();
-            Optional<RegistryClientEntity> registryClientEntity = clientEntityRepository.findByBoxUUIDAndUserIdAndClientUUID(boxUUID, userRegistryInfo.getUserId(),
-                    userRegistryInfo.getClientUUID());
-            String bindClientUUID = null;
-            if (registryClientEntity.isPresent()) {
-                bindClientUUID = registryClientEntity.get().getClientUUID();
-            }
-            return UserRegistryResultV2.of(boxUUID, userRegistryEntity.getUserId(), userDomain, userRegistryEntity.getRegistryType(), bindClientUUID);
+            resetUserInner(boxUUID, userRegistryInfo.getUserId());
         }
 
         SubdomainEntity subdomainEntity;
@@ -320,7 +272,7 @@ public class RegistryService {
         var registryClientEntity = clientEntityRepository.findByBoxUUIDAndUserIdAndClientUUID(
                 boxUUID, userId, clientUUID);
         if (registryClientEntity.isPresent()) {
-            return registryClientEntity.get();
+            clientEntityRepository.deleteByClientUUID(boxUUID, userId, clientUUID);
         }
         RegistryClientEntity clientEntity = new RegistryClientEntity();
         {
@@ -334,32 +286,56 @@ public class RegistryService {
         return clientEntity;
     }
 
-
     @Transactional
     public void resetUser(String boxUUID, String userId) {
+        resetUserInner(boxUUID, userId);
+    }
+
+    private void resetUserInner(String boxUUID, String userId) {
         // 重置用户
-        deleteUserByUserId(boxUUID, userId);
+        userEntityRepository.deleteByUserId(boxUUID, userId);
+        // 重置用户面路由
+        resetNsRoute(boxUUID, userId);
         // 重置域名
-        deleteSubdomainByUserId(boxUUID, userId);
+        subdomainEntityRepository.deleteSubdomainByUserId(boxUUID, userId);
         // 重置client
-        deleteClientByUserId(boxUUID, userId);
+        clientEntityRepository.deleteByUserId(boxUUID, userId);
+
     }
 
     @Transactional
     public void resetBox(String boxUUID) {
         Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUID(boxUUID);
         // 重置盒子
-        deleteBoxByBoxUUID(boxUUID);
+        boxEntityRepository.delete("box_uuid", boxUUID);
         // 重置用户
-        deleteUserByBoxUUID(boxUUID);
+        userEntityRepository.deleteByBoxUUID(boxUUID);
+        // 重置路由
+        resetNsRoute(boxUUID);
         // 重置域名
-        deleteSubdomainByBoxUUID(boxUUID);
+        subdomainEntityRepository.deleteSubdomainByBoxUUID(boxUUID);
         // 重置client
-        deleteClientByBoxUUID(boxUUID);
+        clientEntityRepository.deleteByBoxUUID(boxUUID);
         // 重置映射关系
         boxEntityOp.ifPresent(registryBoxEntity -> networkService.deleteByClientID(registryBoxEntity.getNetworkClientId()));
+
     }
 
+    public void resetNsRoute(String boxUUID){
+        var subdomainEntities = subdomainEntityRepository.findByBoxUUId(boxUUID);
+        for (var subdomain: subdomainEntities
+        ) {
+            networkService.expireNSRoute(subdomain.getUserDomain(), 3600);
+        }
+    }
+
+    public void resetNsRoute(String boxUUID, String userId){
+        var subdomainEntities = subdomainEntityRepository.findByBoxUUIdAndUserId(boxUUID, userId);
+        for (var subdomain: subdomainEntities
+        ) {
+            networkService.expireNSRoute(subdomain.getUserDomain(), 3600);
+        }
+    }
     /**
      * 校验boxUUID合法性
      *
