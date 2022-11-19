@@ -1,0 +1,1 @@
+https://repository.jboss.org/licenses/apache-2.0.txt
