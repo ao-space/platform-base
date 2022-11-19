@@ -1,0 +1,1 @@
+License: {Name: GNU Library General Public License v2.1 or later, URL: https://www.opensource.org/licenses/LGPL-2.1, Distribution: repo, Comments: See discussion at https://hibernate.org/community/license/ for more details., }
