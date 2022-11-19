@@ -428,3 +428,6 @@ dependency:
     - name: org.sonatype.plexus:plexus-sec-dispatcher 
       license: Apache-2.0
       version: 1.4
+    - name: io.quarkus:quarkus-resteasy-jaxb
+      livense: Apache-2.0
+      version: 2.4.2.Final
