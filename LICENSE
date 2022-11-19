@@ -1,0 +1,633 @@
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+
+========================================================================
+ licenses
+========================================================================
+
+    com.aliyun.oss:aliyun-sdk-oss 3.10.2 
+    com.aliyun:aliyun-java-sdk-core 3.4.0 
+    com.aliyun:aliyun-java-sdk-ecs 4.2.0 
+    com.aliyun:aliyun-java-sdk-kms 2.7.0 
+    com.aliyun:aliyun-java-sdk-ram 3.0.0 
+    com.aliyun:aliyun-java-sdk-sts 3.0.0 
+    io.quarkus:quarkus-resteasy-jaxb 2.4.2.Final 
+
+========================================================================
+Apache-2.0 licenses
+========================================================================
+
+    cglib:cglib 3.3.0 Apache-2.0
+    com.alibaba:easyexcel 3.0.2 Apache-2.0
+    com.fasterxml.jackson.core:jackson-annotations 2.12.5 Apache-2.0
+    com.fasterxml.jackson.core:jackson-core 2.12.5 Apache-2.0
+    com.fasterxml.jackson.core:jackson-databind 2.12.5 Apache-2.0
+    com.fasterxml.jackson.dataformat:jackson-dataformat-yaml 2.12.5 Apache-2.0
+    com.fasterxml.jackson.datatype:jackson-datatype-jdk8 2.12.5 Apache-2.0
+    com.fasterxml.jackson.datatype:jackson-datatype-jsr310 2.12.5 Apache-2.0
+    com.fasterxml.jackson.jaxrs:jackson-jaxrs-base 2.12.5 Apache-2.0
+    com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider 2.12.5 Apache-2.0
+    com.fasterxml.jackson.module:jackson-module-jaxb-annotations 2.12.5 Apache-2.0
+    com.fasterxml.jackson.module:jackson-module-parameter-names 2.12.5 Apache-2.0
+    com.fasterxml:classmate 1.5.1 Apache-2.0
+    com.github.ben-manes.caffeine:caffeine 2.9.2 Apache-2.0
+    com.github.docker-java:docker-java-api 3.2.12 Apache-2.0
+    com.github.docker-java:docker-java-transport 3.2.12 Apache-2.0
+    com.github.docker-java:docker-java-transport-zerodep 3.2.12 Apache-2.0
+    com.google.code.findbugs:jsr305 3.0.2 Apache-2.0
+    com.google.code.gson:gson 2.8.6 Apache-2.0
+    com.google.errorprone:error_prone_annotations 2.2.0 Apache-2.0
+    com.google.guava:failureaccess 1.0.1 Apache-2.0
+    com.google.guava:guava 30.1.1-jre Apache-2.0
+    com.google.inject:guice 4.2.1 Apache-2.0
+    com.google.j2objc:j2objc-annotations 1.3 Apache-2.0
+    com.ibm.async:asyncutil 0.1.0 Apache-2.0
+    com.squareup.okhttp3:okhttp 3.14.9 Apache-2.0
+    com.squareup.okio:okio 1.17.2 Apache-2.0
+    com.zaxxer:SparseBitSet 1.2 Apache-2.0
+    commons-cli:commons-cli 1.4 Apache-2.0
+    commons-codec:commons-codec 1.15 Apache-2.0
+    commons-io:commons-io 2.11.0 Apache-2.0
+    io.netty:netty-buffer 4.1.68.Final Apache-2.0
+    io.netty:netty-codec 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-dns 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-haproxy 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-http 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-http2 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-socks 4.1.68.Final Apache-2.0
+    io.netty:netty-common 4.1.68.Final Apache-2.0
+    io.netty:netty-handler 4.1.68.Final Apache-2.0
+    io.netty:netty-handler-proxy 4.1.68.Final Apache-2.0
+    io.netty:netty-resolver 4.1.68.Final Apache-2.0
+    io.netty:netty-resolver-dns 4.1.68.Final Apache-2.0
+    io.netty:netty-transport 4.1.68.Final Apache-2.0
+    io.quarkus.arc:arc 2.4.2.Final Apache-2.0
+    io.quarkus.gizmo:gizmo 1.0.9.Final Apache-2.0
+    io.quarkus.security:quarkus-security 1.1.4.Final Apache-2.0
+    io.quarkus:quarkus-agroal 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-apache-httpclient 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-arc 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-bootstrap-app-model 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-bootstrap-core 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-bootstrap-gradle-resolver 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-bootstrap-maven-resolver 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-bootstrap-runner 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-builder 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-caffeine 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-class-change-agent 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-config-yaml 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-core 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-core-deployment 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-credentials 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-datasource 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-datasource-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-development-mode-spi 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-devtools-utilities 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-flyway 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-orm 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-orm-panache 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-orm-panache-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-validator 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-ide-launcher 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jackson 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jaxb 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jaxp 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jdbc-h2 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jdbc-mysql 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jsonp 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jsonp-deployment 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-mutiny 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-narayana-jta 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-netty 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-oidc 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-oidc-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-panache-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-panache-hibernate-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-redis-client 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-rest-client 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-rest-client-config 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-rest-client-jackson 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy-jackson 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy-server-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-security 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-security-runtime-spi 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-smallrye-context-propagation 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-smallrye-jwt-build 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-smallrye-openapi 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-swagger-ui 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-test-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-test-keycloak-server 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-vertx 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-vertx-http 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-vertx-http-dev-console-runtime-spi 2.4.2.Final Apache-2.0
+    io.smallrye.common:smallrye-common-annotation 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-classloader 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-constraint 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-expression 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-function 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-io 1.6.0 Apache-2.0
+    io.smallrye.config:smallrye-config 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-common 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-core 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-source-yaml 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-validator 2.5.1 Apache-2.0
+    io.smallrye.reactive:mutiny 1.1.2 Apache-2.0
+    io.smallrye.reactive:mutiny-smallrye-context-propagation 1.1.2 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-auth-common 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-bridge-common 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-core 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-redis-client 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-runtime 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-web 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-web-client 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-web-common 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-reactive-converter-api 2.6.0 Apache-2.0
+    io.smallrye.reactive:smallrye-reactive-converter-mutiny 2.6.0 Apache-2.0
+    io.smallrye.reactive:vertx-mutiny-generator 2.14.1 Apache-2.0
+    io.smallrye:smallrye-context-propagation 1.2.2 Apache-2.0
+    io.smallrye:smallrye-context-propagation-api 1.2.2 Apache-2.0
+    io.smallrye:smallrye-context-propagation-jta 1.2.2 Apache-2.0
+    io.smallrye:smallrye-context-propagation-storage 1.2.2 Apache-2.0
+    io.smallrye:smallrye-fault-tolerance-vertx 5.2.1 Apache-2.0
+    io.smallrye:smallrye-jwt 3.3.1 Apache-2.0
+    io.smallrye:smallrye-jwt-build 3.3.1 Apache-2.0
+    io.smallrye:smallrye-jwt-common 3.3.1 Apache-2.0
+    io.smallrye:smallrye-open-api-core 2.1.15 Apache-2.0
+    io.vertx:vertx-auth-common 4.1.5 Apache-2.0
+    io.vertx:vertx-bridge-common 4.1.5 Apache-2.0
+    io.vertx:vertx-codegen 4.1.5 Apache-2.0
+    io.vertx:vertx-redis-client 4.1.5 Apache-2.0
+    io.vertx:vertx-web-client 4.1.5 Apache-2.0
+    io.vertx:vertx-web-common 4.1.5 Apache-2.0
+    jakarta.inject:jakarta.inject-api 1.0 Apache-2.0
+    jakarta.validation:jakarta.validation-api 2.0.2 Apache-2.0
+    net.bytebuddy:byte-buddy 1.11.20 Apache-2.0
+    org.aesh:readline 2.1 Apache-2.0
+    org.apache.commons:commons-collections4 4.4 Apache-2.0
+    org.apache.commons:commons-compress 1.21 Apache-2.0
+    org.apache.commons:commons-csv 1.8 Apache-2.0
+    org.apache.commons:commons-lang3 3.12.0 Apache-2.0
+    org.apache.httpcomponents:httpasyncclient 4.1.4 Apache-2.0
+    org.apache.httpcomponents:httpclient 4.5.13 Apache-2.0
+    org.apache.httpcomponents:httpcore 4.4.14 Apache-2.0
+    org.apache.httpcomponents:httpcore-nio 4.4.14 Apache-2.0
+    org.apache.httpcomponents:httpmime 4.5.13 Apache-2.0
+    org.apache.james:apache-mime4j-core 0.8.3 Apache-2.0
+    org.apache.james:apache-mime4j-dom 0.8.3 Apache-2.0
+    org.apache.james:apache-mime4j-storage 0.8.3 Apache-2.0
+    org.apache.maven.resolver:maven-resolver-api 1.6.2 Apache-2.0
+    org.apache.maven.resolver:maven-resolver-connector-basic 1.6.2 Apache-2.0
+    org.apache.maven.resolver:maven-resolver-impl 1.6.2 Apache-2.0
+    org.apache.maven.resolver:maven-resolver-spi 1.6.2 Apache-2.0
+    org.apache.maven.resolver:maven-resolver-transport-wagon 1.6.2 Apache-2.0
+    org.apache.maven.resolver:maven-resolver-util 1.6.2 Apache-2.0
+    org.apache.maven.shared:maven-shared-utils 3.3.3 Apache-2.0
+    org.apache.maven.wagon:wagon-file 3.4.3 Apache-2.0
+    org.apache.maven.wagon:wagon-http 3.4.3 Apache-2.0
+    org.apache.maven.wagon:wagon-http-shared 3.4.3 Apache-2.0
+    org.apache.maven.wagon:wagon-provider-api 3.4.3 Apache-2.0
+    org.apache.maven:maven-artifact 3.8.1 Apache-2.0
+    org.apache.maven:maven-builder-support 3.8.1 Apache-2.0
+    org.apache.maven:maven-core 3.8.1 Apache-2.0
+    org.apache.maven:maven-embedder 3.8.1 Apache-2.0
+    org.apache.maven:maven-model 3.8.1 Apache-2.0
+    org.apache.maven:maven-model-builder 3.8.1 Apache-2.0
+    org.apache.maven:maven-plugin-api 3.8.1 Apache-2.0
+    org.apache.maven:maven-repository-metadata 3.8.1 Apache-2.0
+    org.apache.maven:maven-resolver-provider 3.8.1 Apache-2.0
+    org.apache.maven:maven-settings 3.8.1 Apache-2.0
+    org.apache.maven:maven-settings-builder 3.8.1 Apache-2.0
+    org.apache.xmlbeans:xmlbeans 3.1.0 Apache-2.0
+    org.apiguardian:apiguardian-api 1.1.2 Apache-2.0
+    org.bitbucket.b_c:jose4j 0.7.9 Apache-2.0
+    org.ccil.cowan.tagsoup:tagsoup 1.2.1 Apache-2.0
+    org.codehaus.groovy:groovy 3.0.8 Apache-2.0
+    org.codehaus.groovy:groovy-json 3.0.8 Apache-2.0
+    org.codehaus.groovy:groovy-xml 3.0.8 Apache-2.0
+    org.codehaus.jettison:jettison 1.1 Apache-2.0
+    org.codehaus.plexus:plexus-classworlds 2.6.0 Apache-2.0
+    org.codehaus.plexus:plexus-component-annotations 2.1.0 Apache-2.0
+    org.codehaus.plexus:plexus-interpolation 1.25 Apache-2.0
+    org.codehaus.plexus:plexus-utils 3.2.1 Apache-2.0
+    org.eclipse.microprofile.config:microprofile-config-api 2.0 Apache-2.0
+    org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api 1.2 Apache-2.0
+    org.eclipse.microprofile.jwt:microprofile-jwt-auth-api 1.2 Apache-2.0
+    org.eclipse.microprofile.openapi:microprofile-openapi-api 2.0.1-RC1 Apache-2.0
+    org.eclipse.microprofile.rest.client:microprofile-rest-client-api 2.0 Apache-2.0
+    org.ehcache:ehcache 3.8.1 Apache-2.0
+    org.flywaydb:flyway-core 7.15.0 Apache-2.0
+    org.fusesource.jansi:jansi 1.18 Apache-2.0
+    org.hibernate.validator:hibernate-validator 6.2.0.Final Apache-2.0
+    org.hibernate:quarkus-local-cache 0.1.0 Apache-2.0
+    org.jboss.logging:jboss-logging 3.4.2.Final Apache-2.0
+    org.jboss.logging:jboss-logging-annotations 2.2.1.Final Apache-2.0
+    org.jboss.narayana.jta:narayana-jta 5.12.0.Final Apache-2.0
+    org.jboss.narayana.jts:narayana-jts-integration 5.12.0.Final Apache-2.0
+    org.jboss.resteasy:resteasy-cdi 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client-api 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client-microprofile 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client-microprofile-base 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-core 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-core-spi 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-jackson2-provider 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-jaxb-provider 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-multipart-provider 4.7.3.Final Apache-2.0
+    org.jboss.threads:jboss-threads 3.4.2.Final Apache-2.0
+    org.jboss:jandex 2.4.1.Final Apache-2.0
+    org.jboss:jboss-transaction-spi 7.6.0.Final Apache-2.0
+    org.jetbrains:annotations 17.0.0 Apache-2.0
+    org.keycloak:keycloak-adapter-core 15.0.2 Apache-2.0
+    org.keycloak:keycloak-common 15.0.2 Apache-2.0
+    org.keycloak:keycloak-core 15.0.2 Apache-2.0
+    org.opentest4j:opentest4j 1.2.0 Apache-2.0
+    org.slf4j:slf4j-api 1.7.30 Apache-2.0
+    org.sonatype.plexus:plexus-cipher 1.4 Apache-2.0
+    org.sonatype.plexus:plexus-sec-dispatcher 1.4 Apache-2.0
+    org.yaml:snakeyaml 1.29 Apache-2.0
+    xyz.eulix.platform.services:eulixplatform-common 1.0.13 Apache-2.0
+    xyz.eulix.platform.services:eulixplatform-registry 1.0.13 Apache-2.0
+
+========================================================================
+Apache-2.0 and BSD-2-Clause and BSD-3-Clause licenses
+========================================================================
+
+    org.apache.commons:commons-math3 3.6.1 Apache-2.0 and BSD-2-Clause and BSD-3-Clause
+
+========================================================================
+Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause licenses
+========================================================================
+
+    org.apache.poi:poi 4.1.2 Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause
+    org.apache.poi:poi-ooxml 4.1.2 Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause
+    org.apache.poi:poi-ooxml-schemas 4.1.2 Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause
+
+========================================================================
+Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html licenses
+========================================================================
+
+    io.vertx:vertx-core 4.1.5 Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html
+    io.vertx:vertx-web 4.1.5 Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html
+
+========================================================================
+Apache-2.0 | 9999.0-empty-to-avoid-conflict-with-guava licenses
+========================================================================
+
+    com.google.guava:listenablefuture 9999.0-empty-to-avoid-conflict-with-guava Apache-2.0 | 9999.0-empty-to-avoid-conflict-with-guava
+
+========================================================================
+BSD-3-Clause licenses
+========================================================================
+
+    com.github.virtuald:curvesapi 1.06 BSD-3-Clause
+    com.sun.activation:jakarta.activation 1.2.1 BSD-3-Clause
+    com.sun.istack:istack-commons-runtime 3.0.10 BSD-3-Clause
+    com.sun.xml.bind:jaxb-impl 2.3.3 BSD-3-Clause
+    jakarta.activation:jakarta.activation-api 1.2.1 BSD-3-Clause
+    jakarta.xml.bind:jakarta.xml.bind-api 2.3.3 BSD-3-Clause
+    org.glassfish.jaxb:jaxb-runtime 2.3.3-b02 BSD-3-Clause
+    org.glassfish.jaxb:txw2 2.3.3-b02 BSD-3-Clause
+    org.hamcrest:hamcrest 2.1 BSD-3-Clause
+    org.hamcrest:hamcrest-core 1.3 BSD-3-Clause
+    org.jboss.spec.javax.xml.bind:jboss-jaxb-api_2.3_spec 2.0.0.Final BSD-3-Clause
+
+========================================================================
+CC0-1.0 licenses
+========================================================================
+
+    org.reactivestreams:reactive-streams 1.0.3 CC0-1.0
+
+========================================================================
+EPL-1.0 licenses
+========================================================================
+
+    junit:junit 4.13.1 EPL-1.0
+    org.eclipse.sisu:org.eclipse.sisu.inject 0.3.4 EPL-1.0
+    org.eclipse.sisu:org.eclipse.sisu.plexus 0.3.4 EPL-1.0
+
+========================================================================
+EPL-2.0 and GPL-2.0 licenses
+========================================================================
+
+    com.sun.mail:jakarta.mail 1.6.6 EPL-2.0 and GPL-2.0
+    jakarta.annotation:jakarta.annotation-api 1.3.5 EPL-2.0 and GPL-2.0
+    jakarta.el:jakarta.el-api 3.0.3 EPL-2.0 and GPL-2.0
+    jakarta.interceptor:jakarta.interceptor-api 1.2.5 EPL-2.0 and GPL-2.0
+    org.glassfish:jakarta.el 3.0.4 EPL-2.0 and GPL-2.0
+    org.glassfish:jakarta.json 1.1.6 EPL-2.0 and GPL-2.0
+    org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec 2.0.1.Final EPL-2.0 and GPL-2.0
+
+========================================================================
+GPL-2.0 licenses
+========================================================================
+
+    org.jboss.spec.javax.resource:jboss-connector-api_1.7_spec 1.0.0.Final GPL-2.0
+
+========================================================================
+GPL-2.0 and LGPL-2.1 and EPL-1.0 and BSD-3-Clause and EPL-2.0 and MIT and Apache-2.0 licenses
+========================================================================
+
+    mysql:mysql-connector-java 8.0.26 GPL-2.0 and LGPL-2.1 and EPL-1.0 and BSD-3-Clause and EPL-2.0 and MIT and Apache-2.0
+
+========================================================================
+LGPL-2.1 licenses
+========================================================================
+
+    org.hibernate.common:hibernate-commons-annotations 5.1.2.Final LGPL-2.1
+    org.hibernate:hibernate-core 5.6.1.Final LGPL-2.1
+    org.hibernate:hibernate-graalvm 5.6.1.Final LGPL-2.1
+
+========================================================================
+MIT licenses
+========================================================================
+
+    com.github.zafarkhaja:java-semver 0.9.0 MIT
+    org.bouncycastle:bcpkix-jdk15on 1.69 MIT
+    org.bouncycastle:bcprov-jdk15on 1.69 MIT
+    org.bouncycastle:bcutil-jdk15on 1.69 MIT
+    org.checkerframework:checker-qual 2.5.2 MIT
+    org.jsoup:jsoup 1.12.1 MIT
+    org.rnorth.duct-tape:duct-tape 1.0.8 MIT
+    org.testcontainers:testcontainers 1.16.2 MIT
+
+========================================================================
+UPL-1.0 licenses
+========================================================================
+
+    org.graalvm.sdk:graal-sdk 21.2.0 UPL-1.0
+
+========================================================================
+http://repository.jboss.org/licenses/apache-2.0.txt licenses
+========================================================================
+
+    org.jboss.logging:commons-logging-jboss-logging 1.0.0.Final http://repository.jboss.org/licenses/apache-2.0.txt
+    org.jboss.logmanager:jboss-logmanager-embedded 1.0.9 http://repository.jboss.org/licenses/apache-2.0.txt
+    org.jboss.slf4j:slf4j-jboss-logmanager 1.1.0.Final http://repository.jboss.org/licenses/apache-2.0.txt
+    org.wildfly.common:wildfly-common 1.5.4.Final-format-001 http://repository.jboss.org/licenses/apache-2.0.txt
+
+========================================================================
+http://www.antlr.org/license.html licenses
+========================================================================
+
+    antlr:antlr 2.7.7 http://www.antlr.org/license.html
+
+========================================================================
+http://www.apache.org/licenses/LICENSE-2.0.html licenses
+========================================================================
+
+    io.agroal:agroal-api 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.agroal:agroal-narayana 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.agroal:agroal-pool 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.rest-assured:json-path 4.4.0 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.rest-assured:rest-assured 4.4.0 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.rest-assured:rest-assured-common 4.4.0 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.rest-assured:xml-path 4.4.0 http://www.apache.org/licenses/LICENSE-2.0.html
+
+========================================================================
+http://www.eclipse.org/legal/epl-2.0, http://www.eclipse.org/org/documents/edl-v10.php licenses
+========================================================================
+
+    jakarta.persistence:jakarta.persistence-api 2.2.3 http://www.eclipse.org/legal/epl-2.0, http://www.eclipse.org/org/documents/edl-v10.php
+
+========================================================================
+http://www.eclipse.org/legal/epl-2.0, https://www.gnu.org/software/classpath/license.html licenses
+========================================================================
+
+    jakarta.transaction:jakarta.transaction-api 1.3.3 http://www.eclipse.org/legal/epl-2.0, https://www.gnu.org/software/classpath/license.html
+
+========================================================================
+http://www.gnu.org/licenses/lgpl.html and Apache-2.0 licenses
+========================================================================
+
+    com.github.java-json-tools:btf 1.3 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+    com.github.java-json-tools:jackson-coreutils 2.0 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+    com.github.java-json-tools:json-patch 1.13 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+    com.github.java-json-tools:msg-simple 1.2 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+
+========================================================================
+http://www.gnu.org/licenses/licenses.html and Apache-2.0 licenses
+========================================================================
+
+    net.java.dev.jna:jna 5.8.0 http://www.gnu.org/licenses/licenses.html and Apache-2.0
+
+========================================================================
+http://www.h2database.com/html/license.html licenses
+========================================================================
+
+    com.h2database:h2 1.4.197 http://www.h2database.com/html/license.html
+
+========================================================================
+https://asm.ow2.io/LICENSE.txt licenses
+========================================================================
+
+    org.ow2.asm:asm 9.2 https://asm.ow2.io/LICENSE.txt
+    org.ow2.asm:asm-analysis 9.2 https://asm.ow2.io/LICENSE.txt
+    org.ow2.asm:asm-commons 9.2 https://asm.ow2.io/LICENSE.txt
+    org.ow2.asm:asm-tree 9.2 https://asm.ow2.io/LICENSE.txt
+    org.ow2.asm:asm-util 9.1 https://asm.ow2.io/LICENSE.txt
+
+========================================================================
+https://github.com/locationtech/jts/blob/master/LICENSE_EPLv1.txt, https://github.com/locationtech/jts/blob/master/LICENSE_EDLv1.txt licenses
+========================================================================
+
+    org.locationtech.jts:jts-core 1.15.0 https://github.com/locationtech/jts/blob/master/LICENSE_EPLv1.txt, https://github.com/locationtech/jts/blob/master/LICENSE_EDLv1.txt
+
+========================================================================
+https://raw.github.com/hunterhacker/jdom/master/LICENSE.txt licenses
+========================================================================
+
+    org.jdom:jdom2 2.0.6 https://raw.github.com/hunterhacker/jdom/master/LICENSE.txt
+
+========================================================================
+https://repository.jboss.org/licenses/apache-2.0.txt licenses
+========================================================================
+
+    jakarta.enterprise:jakarta.enterprise.cdi-api 2.0.2 https://repository.jboss.org/licenses/apache-2.0.txt
+
+========================================================================
+https://www.eclipse.org/legal/epl-v20.html licenses
+========================================================================
+
+    org.junit.jupiter:junit-jupiter 5.8.1 https://www.eclipse.org/legal/epl-v20.html
+    org.junit.jupiter:junit-jupiter-api 5.8.1 https://www.eclipse.org/legal/epl-v20.html
+    org.junit.jupiter:junit-jupiter-engine 5.8.1 https://www.eclipse.org/legal/epl-v20.html
+    org.junit.jupiter:junit-jupiter-params 5.8.1 https://www.eclipse.org/legal/epl-v20.html
+    org.junit.platform:junit-platform-commons 1.8.1 https://www.eclipse.org/legal/epl-v20.html
+    org.junit.platform:junit-platform-engine 1.8.1 https://www.eclipse.org/legal/epl-v20.html
+    org.junit.platform:junit-platform-launcher 1.8.1 https://www.eclipse.org/legal/epl-v20.html
+

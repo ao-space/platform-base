@@ -1,52 +1,67 @@
+# Copyright (c) 2022 Institute of Software Chinese Academy of Sciences (ISCAS)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
 image: registry.eulix.xyz/collab/infra/public-service/maven:3.6.3-openjdk-11
+
+stages:
+  - license_check
+  - license_fix
+  - validate
+  - docker
+  - manifest
+  - sign
+  - codelint
+  - cloc
 
 include:
   - project: 'bp/ams-ci-template'
     ref: main
     file: '/sonarqube.yml'
-
-stages:
-  - validate
-  - coverage
-  - docker
-  - sign
-  - codelint
+  - project: 'bp/ams-ci-template'
+    ref: main
+    file: '/license.yml'
+  - project: 'bp/ams-ci-template'
+    ref: main
+    file: '/container.yml'
+  - project: 'bp/ams-ci-template'
+    ref: main
+    file: '/sign.yml'
+  - project: 'bp/ams-ci-template'
+    ref: main
+    file: '/cloc.yml'
 
 variables:
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
   ENV_SONARQUBE_TYPE: maven
+  ENV_LICENSE_TYPE: maven
+  ENV_CONTAINER_NAME: eulixplatform-services
+  LM_JAVA_VERSION: 11
 
 cache:
   key: ${CI_JOB_NAME}
   paths:
     - .m2/repository
     - .sonar/cache
-
-cloc:code:
-  stage: validate
-  image:
-    name: aldanial/cloc
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-  script:
-    - sed -i "s#http://deb.debian.org#http://opentuna.cn#g" /etc/apt/sources.list && sed -i "s#http://security.debian.org#http://opentuna.cn#g" /etc/apt/sources.list
-    - apt update && apt install mariadb-client -y
-    - export ENV_TIME=`date +%Y%m%d` && echo $ENV_TIME
-    - /usr/src/cloc --sql 1 --sql-append --sql-project $CI_PROJECT_NAME . | grep insert | tee cloc.sql
-    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD -e "create database if not exists bpcode$ENV_TIME;"
-    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "create table if not exists metadata (timestamp varchar(500),Project varchar(500),elapsed_s real);"
-    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "create table if not exists t (Project varchar(500) ,Language varchar(500) ,File varchar(500) ,File_dirname varchar(500) ,File_basename varchar(500) ,nBlank integer ,nComment integer ,nCode integer ,nScaled real );"
-    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "delete from metadata where Project ='$CI_PROJECT_NAME';"
-    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "delete from t where Project ='$CI_PROJECT_NAME';"
-    - mysql -h $CLOC_SQL_HOST -P$CLOC_SQL_PORT -u$CLOC_SQL_USERNAME -p$CLOC_SQL_PASSWORD --database "bpcode$ENV_TIME" -e "SOURCE cloc.sql"
-    - rm -rf cloc.sql
-
-test:
-  stage: validate
-  image: busybox
-  script:
-    - echo "Do a test here"
 
 validate:build:
   stage: validate
@@ -94,54 +109,3 @@ validate:package:
       - eulixplatform-opstage/target/
       - eulixplatform-common/target/
       - eulixplatform-registry/target/
-
-docker:jvm:
-  stage: docker
-  dependencies:
-    - validate:package
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH
-  tags:
-    - docker_build-x86_64
-  before_script: 
-    - docker login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
-    - docker login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
-    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
-    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
-    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
-    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
-  script:
-    - cd eulixplatform-opstage
-    - docker build --build-arg CI_PIPELINE_ID=$CI_PIPELINE_ID --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA -f src/main/docker/Dockerfile.jvm -t $DOCKER_BUILD_IMAGE .
-    - docker tag $DOCKER_BUILD_IMAGE $DOCKER_LATEST_IMAGE
-    - docker tag $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE_GITLAB
-    - docker tag $DOCKER_BUILD_IMAGE $DOCKER_LATEST_IMAGE_GITLAB
-    - docker push $DOCKER_BUILD_IMAGE
-    - docker push $DOCKER_LATEST_IMAGE
-    - docker push $DOCKER_BUILD_IMAGE_GITLAB
-    - docker push $DOCKER_LATEST_IMAGE_GITLAB
-
-artifacts-sign:
-  stage: sign
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH
-  image:
-    name: registry.eulix.xyz/collab/infra/infrastructure/sigstore/cosign:v1.10.1
-    entrypoint: [''] 
-  before_script:
-    - cosign login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
-    - cosign login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
-    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
-    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
-    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
-    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/eulixplatform-services:$CI_COMMIT_BRANCH
-    - echo $COSIGN_KEY | base64 -d > /tmp/cosign.key
-  script:
-    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE
-    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE
-    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE_GITLAB
-    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE_GITLAB
