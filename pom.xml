@@ -41,6 +41,7 @@
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.version>2.4.2.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+        <jacoco.version>0.8.8</jacoco.version>
         <keycloak.verion>15.0.2</keycloak.verion>
     </properties>
 
@@ -96,6 +97,14 @@
                 <artifactId>java-semver</artifactId>
                 <version>0.9.0</version>
             </dependency>
+            <!--jacoco-->
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <classifier>runtime</classifier>
+                <version>${jacoco.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -134,6 +143,7 @@
                         <systemPropertyVariables>
                             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                             <maven.home>${maven.home}</maven.home>
+                            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
@@ -155,6 +165,51 @@
                                     </java.util.logging.manager>
                                     <maven.home>${maven.home}</maven.home>
                                 </systemPropertyVariables>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <executions>
+                        <execution>
+                            <id>default-instrument</id>
+                            <goals>
+                                <goal>instrument</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-restore-instrumented-classes</id>
+                            <goals>
+                                <goal>restore-instrumented-classes</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-report</id>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-check</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <rule>
+                                        <element>BUNDLE</element>
+                                        <limits>
+                                            <limit>
+                                                <counter>COMPLEXITY</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>0.00</minimum>
+                                            </limit>
+                                        </limits>
+                                    </rule>
+                                </rules>
                             </configuration>
                         </execution>
                     </executions>
