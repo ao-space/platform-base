@@ -87,7 +87,10 @@ validate:test:
     - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/target/site/jacoco/index.html"
   artifacts:
     paths:
-      - target/site/jacoco/
+      - target/
+      - eulixplatform-opstage/target/
+      - eulixplatform-common/target/
+      - eulixplatform-registry/target/
 
 package:x86_64:
   stage: validate
