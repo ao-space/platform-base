@@ -83,8 +83,10 @@ validate:test:
   tags:
     - x86_64
   script:
-    - mvn $MAVEN_CLI_OPTS org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report
-    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/target/site/jacoco/index.html"
+    - mvn $MAVEN_CLI_OPTS verify
+    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/eulixplatform-common/target/site/jacoco/index.html"
+    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/eulixplatform-opstage/target/site/jacoco/index.html"
+    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/eulixplatform-registry/target/site/jacoco/index.html"
   artifacts:
     paths:
       - target/
