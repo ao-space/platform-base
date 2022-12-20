@@ -16,6 +16,7 @@
 
 package xyz.eulix.platform.services.migration.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
@@ -29,14 +30,15 @@ import java.util.List;
  * 用户割接信息
  */
 @Data
+@AllArgsConstructor(staticName = "of")
 public class UserMigrationInfo {
     @NotBlank
     @Schema(description = "用户的 ID")
     private String userId;
 
     @NotBlank
-    @Schema(description = "用户被指定的子域名字段")
-    private String subdomain;
+    @Schema(description = "用户被指定的用户域名字段")
+    private String userDomain;
 
     @NotBlank
     @Schema(description = "用户类型（管理员、普通成员），取值：user_admin、user_member")

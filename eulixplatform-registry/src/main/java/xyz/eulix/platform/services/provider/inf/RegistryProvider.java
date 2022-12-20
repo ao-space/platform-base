@@ -16,6 +16,8 @@
 
 package xyz.eulix.platform.services.provider.inf;
 
+import xyz.eulix.platform.services.token.dto.TokenInfo;
+
 /**
  * 注册相关Provider，可自定义实现
  */
@@ -27,6 +29,13 @@ public interface RegistryProvider {
      * @return 是否合法
      */
     Boolean isBoxIllegal(String boxUUID);
+
+    /**
+     * 盒子身份认证
+     *
+     * @param tokenInfo tokenInfo
+     */
+    void isBoxIllegal(TokenInfo tokenInfo);
 
     /**
      * 计算network路由

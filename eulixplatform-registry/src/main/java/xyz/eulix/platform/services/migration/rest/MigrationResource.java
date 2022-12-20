@@ -19,13 +19,17 @@ package xyz.eulix.platform.services.migration.rest;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.migration.dto.BoxMigrationInfo;
-import xyz.eulix.platform.services.migration.dto.BoxMigrationResult;
-import xyz.eulix.platform.services.migration.dto.MigrationRouteInfo;
-import xyz.eulix.platform.services.migration.dto.MigrationRouteResult;
+import xyz.eulix.platform.common.support.service.ServiceError;
+import xyz.eulix.platform.common.support.service.ServiceOperationException;
+import xyz.eulix.platform.services.lock.DistributedLock;
+import xyz.eulix.platform.services.lock.DistributedLockFactory;
+import xyz.eulix.platform.services.migration.dto.*;
 import xyz.eulix.platform.common.support.log.Logged;
+import xyz.eulix.platform.services.migration.service.MigrationService;
+import xyz.eulix.platform.services.token.service.TokenService;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.*;
@@ -35,6 +39,13 @@ import javax.ws.rs.core.MediaType;
 @Path("/v2/platform")
 @Tag(name = "Platform Migration Service", description = "割接APIv2.")
 public class MigrationResource {
+
+    @Inject
+    TokenService tokenService;
+    @Inject
+    MigrationService migrationService;
+    @Inject
+    DistributedLockFactory lockFactory;
     private static final Logger LOG = Logger.getLogger("app.log");
 
     @Logged
@@ -47,7 +58,25 @@ public class MigrationResource {
                                         @HeaderParam("Request-Id") @NotBlank String reqId,
                                         @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                         @PathParam("box_uuid") @NotBlank String boxUUID) {
-        return BoxMigrationResult.of();
+        var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
+
+        DistributedLock lock = lockFactory.newLock(boxUUID);
+        // 加锁
+        boolean isLocked = lock.tryLock();
+        if (isLocked) {
+            LOG.infov("migration in acquire lock success, boxUUID:{0}", boxUUID);
+            try {
+                return migrationService.migration(boxMigrationInfo, boxTokenEntity);
+            } finally {
+                // 释放锁
+                lock.unlock();
+                LOG.infov("migration in release lock success, boxUUID:{0}", boxUUID);
+            }
+        } else {
+            LOG.infov("migration in acquire lock fail, boxUUID:{0}", boxUUID);
+            throw new ServiceOperationException(ServiceError.MIGRATION_IN_LOCK_ERROR);
+        }
+
     }
 
     @Logged
@@ -60,6 +89,22 @@ public class MigrationResource {
                                                @HeaderParam("Request-Id") @NotBlank String reqId,
                                                @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                                @PathParam("box_uuid") @NotBlank String boxUUID) {
-        return MigrationRouteResult.of();
+        var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
+        DistributedLock lock = lockFactory.newLock(boxUUID);
+        // 加锁
+        boolean isLocked = lock.tryLock();
+        if (isLocked) {
+            LOG.infov("migration out acquire lock success, boxUUID:{0}", boxUUID);
+            try {
+                return migrationService.migrationRoute(migrationRouteInfo, boxTokenEntity);
+            } finally {
+                // 释放锁
+                lock.unlock();
+                LOG.infov("migration out release lock success, boxUUID:{0}", boxUUID);
+            }
+        } else {
+            LOG.infov("migration out acquire lock fail, boxUUID:{0}", boxUUID);
+            throw new ServiceOperationException(ServiceError.MIGRATION_OUT_LOCK_ERROR);
+        }
     }
 }

@@ -112,4 +112,13 @@ public interface ApplicationProperties {
 
     @ConfigProperty(name = "register.provider.name", defaultValue = "default")
     String getRegisterProviderName();
+
+    @ConfigProperty(name = "api-resources.location")
+    String getPlatformApisLocation();
+
+    @ConfigProperty(name = "lock.expire-time", defaultValue = "30")
+    Integer getLockExpireTime();
+
+    @ConfigProperty(name = "migration.route.subdomain.expire-time", defaultValue = "259200")
+    Integer getSubdomainRedirectTime();
 }

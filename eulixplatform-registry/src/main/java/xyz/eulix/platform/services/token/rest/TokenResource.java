@@ -52,8 +52,9 @@ public class TokenResource {
     public TokenResults createTokens(@Valid TokenInfo tokenInfo,
                                      @HeaderParam("Request-Id") @NotBlank String reqId) {
         // 验证签名
-        BoxInfoEntity boxInfoEntity = tokenService.verifySign(tokenInfo);
-        ArrayList<TokenResult> tokenResults = tokenService.createBoxTokens(tokenInfo, boxInfoEntity);
+        tokenService.verifySign(tokenInfo);
+        // 生成 box reg key
+        ArrayList<TokenResult> tokenResults = tokenService.createBoxTokens(tokenInfo);
         return TokenResults.of(tokenInfo.getBoxUUID(), tokenResults);
     }
 

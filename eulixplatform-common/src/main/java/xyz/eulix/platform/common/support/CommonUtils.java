@@ -132,7 +132,9 @@ public final class CommonUtils {
     public static boolean isNullOrEmpty(String value) {
         return value == null || value.isEmpty();
     }
-
+    public static boolean isNullOrBlank(String value) {
+        return value == null || value.isBlank();
+    }
     public static <T> boolean isNullOrEmpty(Collection<T> list) {
         return list == null || list.isEmpty();
     }

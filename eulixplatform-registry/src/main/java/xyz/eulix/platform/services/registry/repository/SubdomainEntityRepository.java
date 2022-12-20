@@ -21,6 +21,7 @@ import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,11 +50,23 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
     // 根据box_uuid查询资源
     private static final String FIND_BY_BOXUUID = "box_uuid=?1";
 
+    // 根据state查询资源
+    private static final String FIND_BY_STATE = "state=?1";
+
     // 根据box_uuid、user_id更新资源
     private static final String UPDATE_BY_BOXUUID_USERID = "subdomain=?1, user_domain=?2, updated_at=now() where box_uuid=?3 AND user_id=?4";
 
+    // 根据box_uuid、user_id、subdomain更新资源状态
+    private static final String UPDATE_STATE_BY_BOXUUID_USERID_SUBDOMAIN = "state=?1, updated_at=now() where box_uuid=?2 AND user_id=?3 AND subdomain=?4";
+
+    // 根据box_uuid更新资源状态
+    private static final String UPDATE_STATE_BY_BOXUUID = "state=?1, updated_at=now() where box_uuid=?2";
+
     // 根据box_uuid、user_id更新资源状态
     private static final String UPDATE_STATE_BY_BOXUUID_USERID = "state=?1, updated_at=now() where box_uuid=?2 AND user_id=?3";
+
+    // 根据box_uuid更新资源状态、有效期
+    private static final String UPDATE_STATE_EXPIRES_AT_BY_BOXUUID = "state=?1, updated_at=now(), expires_at=?2 where box_uuid=?3";
 
     public Optional<SubdomainEntity> findByUserDomain(String userDomain) {
         return this.find(FIND_BY_USER_DOMAIN, userDomain).firstResultOptional();
@@ -89,8 +102,20 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
         this.update(UPDATE_BY_BOXUUID_USERID, subdomain, userDomain, boxUUID, userId);
     }
 
+    public void updateStateByBoxUUIDAndUserIdAndSubdomain(String boxUUID, String userId, String subdomain, Integer state) {
+        this.update(UPDATE_STATE_BY_BOXUUID_USERID_SUBDOMAIN, state, boxUUID, userId, subdomain);
+    }
+
+    public void updateStateByBoxUUID(String boxUUID, Integer state) {
+        this.update(UPDATE_STATE_BY_BOXUUID, state, boxUUID);
+    }
+
     public void updateStateByBoxUUIDAndUserId(String boxUUID, String userId, Integer state) {
         this.update(UPDATE_STATE_BY_BOXUUID_USERID, state, boxUUID, userId);
+    }
+
+    public void updateStateAndExpiresAtByBoxUUID(String boxUUID, Integer state, OffsetDateTime offsetDateTime) {
+        this.update(UPDATE_STATE_EXPIRES_AT_BY_BOXUUID, state, offsetDateTime, boxUUID);
     }
 
     @Transactional
@@ -101,8 +126,13 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
     public List<SubdomainEntity> findByBoxUUId(String boxUUID) {
         return this.find(FIND_BY_BOXUUID, boxUUID).list();
     }
+
     public List<SubdomainEntity> findByBoxUUIdAndUserId(String boxUUID, String userId) {
         return this.find(FIND_BY_BOXUUID_USERID, boxUUID, userId).list();
 
+    }
+
+    public List<SubdomainEntity> findByState(Integer state) {
+        return this.find(FIND_BY_STATE, state).list();
     }
 }

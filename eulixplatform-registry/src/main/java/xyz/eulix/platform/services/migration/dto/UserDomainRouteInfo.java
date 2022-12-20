@@ -19,14 +19,20 @@ package xyz.eulix.platform.services.migration.dto;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-/**
- * 客户端割接结果
- */
-@Data(staticConstructor = "of")
-public class ClientMigrationResult {
-    @Schema(description = "客户端的 UUID")
-    private String clientUUID;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
-    @Schema(description = "客户端类型（绑定、扫码授权），取值：client_bind、client_auth")
-    private String clientType;
+/**
+ * 用户域名映射信息
+ */
+@Data
+public class UserDomainRouteInfo {
+    @NotBlank
+    @Schema(description = "当前userId")
+    private String userId;
+
+    @NotBlank
+    @Schema(description = "重定向 userDomain")
+    @Pattern(regexp = "^[a-z][a-z0-9]{5,19}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}){1,5}\\.?")
+    private String userDomainRedirect;
 }

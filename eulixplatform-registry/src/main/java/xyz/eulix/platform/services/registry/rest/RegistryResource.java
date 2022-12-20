@@ -92,8 +92,9 @@ public class RegistryResource {
             subdomainEntity = registryService.subdomainGen(userRegistryInfo.getBoxUUID());
             userRegistryInfo.setSubdomain(subdomainEntity.getSubdomain());
         } else {
-            // 校验subdomain是否不存在，或者已使用
-            subdomainEntity = registryService.isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain());
+            // 校验subdomain是否不存在，或者已使用，或者不属于当前盒子/当前盒子用户
+            subdomainEntity = registryService.isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain(), userRegistryInfo.getBoxUUID(),
+                    userRegistryInfo.getUserId());
         }
         // 注册
         return registryService.registryUser(userRegistryInfo, subdomainEntity.getUserDomain());

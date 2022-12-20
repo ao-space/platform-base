@@ -16,17 +16,31 @@
 
 package xyz.eulix.platform.services.basic.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import xyz.eulix.platform.common.support.validator.ValueOfEnum;
 
 import java.util.List;
+import java.util.Map;
 
-/**
- * 空间平台API
- */
-@Data(staticConstructor = "of")
-public class PlatformApi {
+@Data
+@NoArgsConstructor
+public class PlatformApis {
+  @JsonCreator
+  public PlatformApis(@JsonProperty("version") String version,
+                      @JsonProperty("services") Map<String, Map<String, PlatformApi>> services) {
+    this.version = version;
+    this.services = services;
+  }
+
+  private String version;
+  private Map<String, Map<String, PlatformApi>> services;
+
+  @Data(staticConstructor = "of")
+  public static class PlatformApi {
     @Schema(description = "http method")
     private final String method;
 
@@ -45,4 +59,7 @@ public class PlatformApi {
 
     @Schema(description = "API描述")
     private final String desc;
+  }
+
+
 }

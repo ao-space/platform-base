@@ -18,6 +18,7 @@ package xyz.eulix.platform.services.registry.service;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.common.support.log.Logged;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.provider.ProviderFactory;
@@ -155,7 +156,7 @@ public class RegistryService {
     }
 
     @Transactional
-    public BoxRegistryResultV2 registryBoxV2(BoxTokenEntity boxToken) {
+    public BoxRegistryResultV2 registryBoxV2(BoxTokenEntity boxToken, String networkClientId) {
         var registryBoxEntity = boxEntityRepository.findByBoxUUID(boxToken.getBoxUUID());
         if (registryBoxEntity.isPresent()) {
             return BoxRegistryResultV2.of(
@@ -163,7 +164,7 @@ public class RegistryService {
                     NetworkClient.of(registryBoxEntity.get().getNetworkClientId(), registryBoxEntity.get().getNetworkSecretKey()));
         }
         // 注册box
-        RegistryBoxEntity boxEntity = registryBox(boxToken.getBoxUUID(), boxToken.getBoxRegKey());
+        RegistryBoxEntity boxEntity = registryBox(boxToken.getBoxUUID(), boxToken.getBoxRegKey(), networkClientId);
         // 计算路由
         networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
         return BoxRegistryResultV2.of(boxEntity.getBoxUUID(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
@@ -204,8 +205,8 @@ public class RegistryService {
             subdomainEntity = subdomainGen(boxUUID);
             userRegistryInfo.setSubdomain(subdomainEntity.getSubdomain());
         } else {
-            // 校验subdomain是否不存在，或者已使用
-            subdomainEntity = isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain());
+            // 校验subdomain是否不存在，或者已使用，或者不属于当前盒子/当前盒子用户
+            subdomainEntity = isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain(), boxUUID, userRegistryInfo.getUserId());
         }
 
         // 注册用户
@@ -242,14 +243,14 @@ public class RegistryService {
     }
 
     @Transactional
-    public RegistryBoxEntity registryBox(String boxUUID, String boxRegKey) {
+    public RegistryBoxEntity registryBox(String boxUUID, String boxRegKey, String networkClientId) {
         // 注册box
         RegistryBoxEntity boxEntity = new RegistryBoxEntity();
         {
             boxEntity.setBoxUUID(boxUUID);
             boxEntity.setBoxRegKey(boxRegKey);
             // network client
-            boxEntity.setNetworkClientId(CommonUtils.getUUID());
+            boxEntity.setNetworkClientId(CommonUtils.isNullOrBlank(networkClientId) ? CommonUtils.getUUID() : networkClientId);
             boxEntity.setNetworkSecretKey("nrk_" + CommonUtils.createUnifiedRandomCharacters(10));
         }
         boxEntityRepository.persist(boxEntity);
@@ -307,18 +308,33 @@ public class RegistryService {
         resetUserInner(boxUUID, userId);
     }
 
+    /**
+     * 重置用户域名状态为临时;
+     * 设置用户面缓存过期时间1h;
+     * 清理其他用户数据;
+     *
+     * @param boxUUID boxUUID
+     * @param userId userId
+     */
     private void resetUserInner(String boxUUID, String userId) {
         // 重置用户
         userEntityRepository.deleteByUserId(boxUUID, userId);
-        // 重置用户面路由
+        // 设置用户面缓存过期时间1h
         resetNsRoute(boxUUID, userId);
-        // 重置域名
-        subdomainEntityRepository.deleteSubdomainByUserId(boxUUID, userId);
+        // 重置用户域名状态为临时
+        subdomainEntityRepository.updateStateByBoxUUIDAndUserId(boxUUID, userId, SubdomainStateEnum.TEMPORARY.getState());
         // 重置client
         clientEntityRepository.deleteByUserId(boxUUID, userId);
 
     }
 
+    /**
+     * 重置用户域名状态为临时;
+     * 设置用户面缓存过期时间1h;
+     * 清理其他盒子数据;
+     *
+     * @param boxUUID boxUUID
+     */
     @Transactional
     public void resetBox(String boxUUID) {
         Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUID(boxUUID);
@@ -326,29 +342,49 @@ public class RegistryService {
         boxEntityRepository.delete("box_uuid", boxUUID);
         // 重置用户
         userEntityRepository.deleteByBoxUUID(boxUUID);
-        // 重置路由
+        // 设置用户面缓存过期时间1h
         resetNsRoute(boxUUID);
-        // 重置域名
-        subdomainEntityRepository.deleteSubdomainByBoxUUID(boxUUID);
+        // 设置用户域名状态为临时
+        subdomainEntityRepository.updateStateByBoxUUID(boxUUID, SubdomainStateEnum.TEMPORARY.getState());
         // 重置client
         clientEntityRepository.deleteByBoxUUID(boxUUID);
         // 重置映射关系
         boxEntityOp.ifPresent(registryBoxEntity -> networkService.deleteByClientID(registryBoxEntity.getNetworkClientId()));
+    }
 
+    /**
+     * 设置用户域名状态为已迁移、过期时间为180天；
+     * 清理其他盒子数据;
+     *
+     * @param boxUUID boxUUID
+     */
+    @Transactional
+    public void resetBoxAfterRoute(String boxUUID) {
+        Optional<RegistryBoxEntity> boxEntityOp = boxEntityRepository.findByBoxUUID(boxUUID);
+        // 重置盒子
+        boxEntityRepository.delete("box_uuid", boxUUID);
+        // 重置用户
+        userEntityRepository.deleteByBoxUUID(boxUUID);
+        // 设置用户域名状态为已以前、过期时间为180天
+        // 不可以删除用户域名，防止域名被其他盒子/用户使用，覆盖当前用户域名的重定向结果
+        Integer redirectTime = properties.getSubdomainRedirectTime();
+        subdomainEntityRepository.updateStateAndExpiresAtByBoxUUID(boxUUID, SubdomainStateEnum.MIGRATED.getState(), OffsetDateTime.now().plusMinutes(redirectTime));
+        // 重置client
+        clientEntityRepository.deleteByBoxUUID(boxUUID);
+        // 重置映射关系
+        boxEntityOp.ifPresent(registryBoxEntity -> networkService.deleteByClientID(registryBoxEntity.getNetworkClientId()));
     }
 
     public void resetNsRoute(String boxUUID){
         var subdomainEntities = subdomainEntityRepository.findByBoxUUId(boxUUID);
-        for (var subdomain: subdomainEntities
-        ) {
+        for (var subdomain: subdomainEntities) {
             networkService.expireNSRoute(subdomain.getUserDomain(), 3600);
         }
     }
 
     public void resetNsRoute(String boxUUID, String userId){
         var subdomainEntities = subdomainEntityRepository.findByBoxUUIdAndUserId(boxUUID, userId);
-        for (var subdomain: subdomainEntities
-        ) {
+        for (var subdomain: subdomainEntities) {
             networkService.expireNSRoute(subdomain.getUserDomain(), 3600);
         }
     }
@@ -421,21 +457,39 @@ public class RegistryService {
     }
 
     /**
-     * 校验subdomain是否不存在，或者已使用
+     * 校验subdomain是否不存在，或者已使用，或者不属于当前盒子/当前盒子用户
      *
      * @param subdomain subdomain
+     * @param boxUUID boxUUID
+     * @param userId userId
      */
-    public SubdomainEntity isSubdomainNotExistOrUsed(String subdomain) {
+    public SubdomainEntity isSubdomainNotExistOrUsed(String subdomain, String boxUUID, String userId) {
         Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findBySubdomain(subdomain);
         if (subdomainEntityOp.isEmpty()) {
             LOG.warnv("subdomain does not exist, subdomain:{0}", subdomain);
             throw new ServiceOperationException(ServiceError.SUBDOMAIN_NOT_EXIST);
         }
-        if (!SubdomainStateEnum.TEMPORARY.getState().equals(subdomainEntityOp.get().getState())) {
-            LOG.warnv("subdomain already used, subdomain:{0}", subdomain);
+        isSubdomainUsed(subdomainEntityOp.get(), boxUUID, userId);
+        return subdomainEntityOp.get();
+    }
+
+    public void isSubdomainUsed(SubdomainEntity subdomainEntity, String boxUUID, String userId) {
+        // 校验是否临时状态
+        if (!SubdomainStateEnum.TEMPORARY.getState().equals(subdomainEntity.getState())) {
+            LOG.warnv("subdomain already used, subdomain:{0}", subdomainEntity.getSubdomain());
             throw new ServiceOperationException(ServiceError.SUBDOMAIN_ALREADY_USED);
         }
-        return subdomainEntityOp.get();
+        // 校验是否属于当前盒子/当前盒子用户
+        if (subdomainEntity.getBoxUUID().equals(boxUUID)) {
+            if (!CommonUtils.isNullOrEmpty(subdomainEntity.getUserId()) && !subdomainEntity.getUserId().equals(userId)) {
+                LOG.warnv("subdomain does not belong to user, subdomain:{0}, boxUUID:{1}, userId:{2}", subdomainEntity.getSubdomain(),
+                        boxUUID, userId);
+                throw new ServiceOperationException(ServiceError.SUBDOMAIN_INVALID);
+            }
+        } else {
+            LOG.warnv("subdomain does not belong to box, subdomain:{0}, boxUUID:{1}", subdomainEntity.getSubdomain(), boxUUID);
+            throw new ServiceOperationException(ServiceError.SUBDOMAIN_INVALID);
+        }
     }
 
     /**
@@ -559,6 +613,41 @@ public class RegistryService {
         return subdomainEntity;
     }
 
+    /**
+     * 迁入用户域名生成
+     *
+     * @param boxUUID       boxUUID
+     * @return subdomainEntity
+     */
+    public SubdomainEntity migrationSubdomainGen(String boxUUID, String subdomain) {
+        // 生成临时subdomain
+        SubdomainEntity subdomainEntity;
+
+        // 查出所有保留域名.
+        while (true) {
+            try {
+                // 是保留域名则重新生成
+                RegistryProvider registryProvider = providerFactory.getRegistryProvider();
+                if (!registryProvider.isSubdomainIllegal(subdomain)) {
+                    LOG.infov("subdomain:{0} isReservedDomain, retry...", subdomain);
+                    continue;
+                }
+                // 尝试存储到数据库
+                subdomainEntity = subdomainSave(boxUUID, subdomain, MAX_EFFECTIVE_TIME);
+                break;
+            } catch (PersistenceException exception) {
+                if (exception.getCause() != null && exception.getCause().getCause() instanceof SQLIntegrityConstraintViolationException) {
+                    LOG.infov("subdomain:{0} already exists, retry...", subdomain);
+                    subdomain = CommonUtils.randomLetters(1) + CommonUtils.randomDigestAndLetters(7);
+                } else {
+                    LOG.errorv(exception, "subdomain save failed");
+                    throw new ServiceOperationException(ServiceError.DATABASE_ERROR);
+                }
+            }
+        }
+        return subdomainEntity;
+    }
+
     public SubdomainEntity subdomainSave(String boxUUID, String subdomain, Integer effectiveTime) {
         SubdomainEntity subdomainEntity = new SubdomainEntity();
         {
@@ -619,7 +708,7 @@ public class RegistryService {
     }
 
     /**
-     * 更新域名
+     * 更新域名 todo
      *
      * @param boxUUID   boxUUID
      * @param userId    userId

@@ -19,6 +19,7 @@ package xyz.eulix.platform.services.cache;
 import io.quarkus.redis.client.RedisClient;
 import io.vertx.redis.client.Response;
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.common.support.log.Logged;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -60,7 +61,10 @@ public class NSRClient {
     public void setNSRoute(String userDomain, String serverAddr, String clientId) {
         setNSRoute(new NSRoute(NSR_PREV + userDomain, serverAddr + "," + clientId));
     }
-
+    @Logged
+    public void setRedirect(String userDomain, String serverAddr, String clientId, String newUserDomain, NSRRedirectStateEnum redirectState) {
+        setNSRoute(new NSRoute(NSR_PREV + userDomain, serverAddr + "," + clientId + "," + newUserDomain + "," + redirectState.getState()));
+    }
     public void expireNSRoute(String userDomain, String expireSeconds) {
         redisClient.expire(NSR_PREV + userDomain, expireSeconds);
         LOG.debugv("expire NSRoute success, key:{0}, expire time:{1}s", NSR_PREV + userDomain, expireSeconds);

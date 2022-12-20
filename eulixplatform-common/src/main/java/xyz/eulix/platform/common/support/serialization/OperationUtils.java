@@ -18,6 +18,8 @@ package xyz.eulix.platform.common.support.serialization;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
+
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.Signature;
@@ -40,7 +42,6 @@ import xyz.eulix.platform.common.support.service.ServiceOperationException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -143,5 +144,17 @@ public class OperationUtils {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(pem));
         return (RSAPublicKey) keyFactory.generatePublic(keySpec);
+    }
+
+    public String getStringFromFile(String resourceLocation) throws IOException {
+        try(InputStream inputStream = Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(resourceLocation))){
+            StringBuilder sb = new StringBuilder();
+            String line;
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        }
     }
 }

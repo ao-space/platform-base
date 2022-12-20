@@ -431,3 +431,6 @@ dependency:
     - name: io.quarkus:quarkus-resteasy-jaxb
       livense: Apache-2.0
       version: 2.4.2.Final
+    - name: io.quarkus:quarkus-scheduler
+      livense: Apache-2.0
+      version: 2.4.2.Final

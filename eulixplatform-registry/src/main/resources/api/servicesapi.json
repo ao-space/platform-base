@@ -1,0 +1,470 @@
+{
+  "version": "1.0.0",
+  "services": {
+    "eulixplatform-registry-service": {
+      "registry_box_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/registry/box",
+        "briefUri": "registry/box",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "注册盒子，成功后返回盒子的注册码，以及network client信息。"
+      },
+      "boxes_post": {
+        "method": "post",
+        "uri": "/v2/platform/boxes",
+        "briefUri": "boxes",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "注册盒子，成功后返回network client等信息"
+      },
+
+      "registry_user_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/registry/user",
+        "briefUri": "registry/user",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "获取注册用户信息"
+      },
+      "boxes_{box_uuid}_users_post": {
+        "method": "post",
+        "uri": "/v2/platform/boxes/{box_uuid}/users",
+        "briefUri": "boxes/{box_uuid}/users",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "注册用户，同步注册绑定客户端"
+      },
+
+      "registry_client_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/registry/client",
+        "briefUri": "registry/client",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "获取注册客户端信息"
+      },
+      "boxes_{box_uuid}_users_{user_id}_clients_post": {
+        "method": "post",
+        "uri": "/v2/platform/boxes/{box_uuid}/users/{user_id}/clients",
+        "briefUri": "boxes/{box_uuid}/users/{user_id}/clients",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "注册客户端"
+      },
+
+      "registry_reset_box_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/registry/reset/box",
+        "briefUri": "registry/reset/box",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。"
+      },
+      "boxes_{box_uuid}_delete": {
+        "method": "delete",
+        "uri": "/v2/platform/boxes/{box_uuid}",
+        "briefUri": "boxes/{box_uuid}",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "删除盒子注册信息"
+      },
+
+      "registry_reset_user_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/registry/reset/user",
+        "briefUri": "registry/reset/user",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。"
+      },
+      "boxes_{box_uuid}_users_{user_id}_delete": {
+        "method": "delete",
+        "uri": "/v2/platform/boxes/{box_uuid}/users/{user_id}",
+        "briefUri": "boxes/{box_uuid}/users/{user_id}",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "删除用户注册信息"
+      },
+
+      "registry_reset_client_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/registry/reset/client",
+        "briefUri": "registry/reset/client",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "重置客户端绑定关系，重置后可以为客户端重新注册绑定关系。"
+      },
+      "boxes_{box_uuid}_users_{user_id}_clients_{client_uuid}_delete": {
+        "method": "delete",
+        "uri": "/v2/platform/boxes/{box_uuid}/users/{user_id}/clients/{client_uuid}",
+        "briefUri": "boxes/{box_uuid}/users/{user_id}/clients/{client_uuid}",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "删除客户端注册信息"
+      },
+
+      "registry_verify_box_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/registry/verify/box",
+        "briefUri": "registry/verify/box",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "校验盒子合法性。"
+      },
+
+      "registry_verify_user_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/registry/verify/user",
+        "briefUri": "registry/verify/user",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "校验用户合法性。"
+      },
+
+      "registry_verify_client_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/registry/verify/client",
+        "briefUri": "registry/verify/client",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "校验客户端合法性。"
+      },
+
+      "subdomain_gen_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/subdomain/gen",
+        "briefUri": "subdomain/gen",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "分发全局唯一的subdomain。"
+      },
+      "boxes_{box_uuid}_subdomains_post": {
+        "method": "post",
+        "uri": "/v2/platform/boxes/{box_uuid}/subdomains",
+        "briefUri": "boxes/{box_uuid}/subdomains",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "申请subdomain，平台保证全局唯一性"
+      },
+
+      "subdomain_update_put": {
+        "method": "put",
+        "uri": "/platform/v1/api/subdomain/update",
+        "briefUri": "subdomain/update",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "更新subdomain。幂等设计，建议client失败重试3次。"
+      },
+      "boxes_{box_uuid}_users_{user_id}_subdomain_put": {
+        "method": "put",
+        "uri": "/v2/platform/boxes/{box_uuid}/users/{user_id}/subdomain",
+        "briefUri": "boxes/{box_uuid}/users/{user_id}/subdomain",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "更新用户subdomain。幂等设计，建议client失败重试3次"
+      },
+
+      "auth_pkey_gen_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/auth/pkey/gen",
+        "briefUri": "auth/pkey/gen",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "Generate pkey for new client."
+      },
+      "pkeys_post": {
+        "method": "post",
+        "uri": "/v2/platform/pkeys",
+        "briefUri": "pkeys",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "生成pkey，被授权端调用"
+      },
+
+      "auth_pkey_boxinfo_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/auth/pkey/boxinfo",
+        "briefUri": "auth/pkey/boxinfo",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "Receive box info from app(old client)."
+      },
+      "pkeys_{pkey}_boxinfo_post": {
+        "method": "post",
+        "uri": "/v2/platform/pkeys/{pkey}/boxinfo",
+        "briefUri": "pkeys/{pkey}/boxinfo",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "发送盒子公钥，授权端调用"
+      },
+
+      "auth_pkey_poll_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/auth/pkey/poll",
+        "briefUri": "auth/pkey/poll",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "Poll box info by new client."
+      },
+      "pkeys_{pkey}_boxinfo_get": {
+        "method": "get",
+        "uri": "/v2/platform/pkeys/{pkey}/boxinfo",
+        "briefUri": "pkeys/{pkey}/boxinfo",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "获取盒子公钥，被授权端调用"
+      },
+
+      "network_server_detail_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/network/server/detail",
+        "briefUri": "network/server/detail",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "查询最新 network server 信息"
+      },
+      "servers_network_detail_get": {
+        "method": "get",
+        "uri": "/v2/platform/servers/network/detail",
+        "briefUri": "servers/network/detail",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "查询最新 network server 信息"
+      },
+
+      "network_client_auth_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/network/client/auth",
+        "briefUri": "network/client/auth",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "认证 network client 身份"
+      },
+      "clients_network_auth_post": {
+        "method": "post",
+        "uri": "/v2/platform/clients/network/auth",
+        "briefUri": "clients/network/auth",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "认证 network client 身份"
+      },
+
+      "status_get": {
+        "method": "get",
+        "uri": "/v2/platform/status",
+        "briefUri": "status",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "查询空间平台状态"
+      },
+      "platform_status_get": {
+        "method": "get",
+        "uri": "/platform/status",
+        "briefUri": "platform/status",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "base_api",
+        "desc": "Try to fetch the current status of server."
+      },
+
+      "ability_get": {
+        "method": "get",
+        "uri": "/v2/platform/ability",
+        "briefUri": "ability",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "查询空间平台能力"
+      },
+      "boxes_{box_uuid}_migration_post": {
+        "method": "post",
+        "uri": "/v2/platform/boxes/{box_uuid}/migration",
+        "briefUri": "boxes/{box_uuid}/migration",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "空间平台割接"
+      },
+      "boxes_{box_uuid}_route_post": {
+        "method": "post",
+        "uri": "/v2/platform/boxes/{box_uuid}/route",
+        "briefUri": "boxes/{box_uuid}/route",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "域名重定向"
+      },
+      "auth_box_reg_keys_post": {
+        "method": "post",
+        "uri": "/v2/platform/auth/box_reg_keys",
+        "briefUri": "auth/box_reg_keys",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "获取box_reg_keys"
+      },
+      "auth_box_reg_key_check_post": {
+        "method": "post",
+        "uri": "/v2/platform/auth/box_reg_key/check",
+        "briefUri": "auth/box_reg_key/check",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "base_api",
+        "desc": "校验box_reg_key有效性"
+      },
+
+
+      "push_message_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/push/message",
+        "briefUri": "push/message",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "extension_api",
+        "desc": "发送通知"
+      },
+      "push_device_post": {
+        "method": "post",
+        "uri": "/platform/v1/api/push/device",
+        "briefUri": "push/device",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "extension_api",
+        "desc": "注册 device token"
+      },
+
+      "stun_server_detail_get": {
+        "method": "get",
+        "uri": "/platform/v1/api/stun/server/detail",
+        "briefUri": "stun/server/detail",
+        "compatibleVersions": [
+          1
+        ],
+        "type": "extension_api",
+        "desc": "查询相应 stun server 信息"
+      },
+      "servers_stun_detail_get": {
+        "method": "get",
+        "uri": "/v2/platform/servers/stun/detail",
+        "briefUri": "servers/stun/detail",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "extension_api",
+        "desc": "查询相应 stun server 信息"
+      },
+
+      "device_register_post": {
+        "method": "post",
+        "uri": "/v2/platform/device/register",
+        "briefUri": "device/register",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "extension_api",
+        "desc": "注册 device token"
+      },
+      "message_push_post": {
+        "method": "post",
+        "uri": "/v2/platform/message/push",
+        "briefUri": "message/push",
+        "compatibleVersions": [
+          1,
+          2
+        ],
+        "type": "extension_api",
+        "desc": "发送通知"
+      }
+    }
+  }
+}

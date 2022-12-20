@@ -18,7 +18,6 @@ package xyz.eulix.platform.services.registry.dto.registry;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Arrays;
 
@@ -31,18 +30,13 @@ public enum RegistryTypeEnum {
     CLIENT_AUTH("client_auth", "授权类型客户端"),
     ;
 
-    @Setter @Getter
-    private String name;
+    @Getter
+    private final String name;
 
-    @Setter @Getter
-    private String desc;
+    @Getter
+    private final String desc;
 
     public static RegistryTypeEnum fromValue(String value) {
-        return Arrays.stream(values()).filter(appType -> {
-            if (appType.getName().equals(value)) {
-                return true;
-            }
-            return false;
-        }).findFirst().orElseThrow();
+        return Arrays.stream(values()).filter(appType -> appType.getName().equals(value)).findFirst().orElseThrow();
     }
 }

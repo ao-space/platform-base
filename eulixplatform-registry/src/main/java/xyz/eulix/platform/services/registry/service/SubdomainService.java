@@ -39,7 +39,7 @@ public class SubdomainService {
     @Transactional
     public void updateSubdomain(String boxUUID, String userId, String subdomain, String userDomain, String subdomainOld) {
         // subdomain
-        subdomainEntityRepository.updateStateByBoxUUIDAndUserId(boxUUID, userId, SubdomainStateEnum.HISTORY.getState());
+        subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(boxUUID, userId, subdomainOld, SubdomainStateEnum.HISTORY.getState());
         SubdomainEntity subdomainEntity = new SubdomainEntity();
         {
             subdomainEntity.setBoxUUID(boxUUID);
