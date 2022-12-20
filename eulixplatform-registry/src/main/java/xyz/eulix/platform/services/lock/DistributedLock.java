@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package xyz.eulix.platform.services.migration.dto;
+package xyz.eulix.platform.services.lock;
 
-import lombok.Data;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import java.util.concurrent.TimeUnit;
 
-import javax.validation.constraints.NotBlank;
+public interface DistributedLock {
+    /**
+     * 在有效时间内阻塞加锁，可被中断
+     */
+    boolean tryLock(long waitTime, TimeUnit unit) throws InterruptedException;
 
-/**
- * 用户域名映射信息
- */
-@Data
-public class SubdomainRouteInfo {
-    @NotBlank
-    @Schema(description = "当前subdomain")
-    private String subdomain;
+    /**
+     * 尝试加锁
+     */
+    boolean tryLock();
 
-    @NotBlank
-    @Schema(description = "重定向subdomain")
-    private String subdomainRedirect;
+    /**
+     * 解锁操作
+     */
+    void unlock();
 }

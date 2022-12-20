@@ -27,5 +27,5 @@ import java.util.List;
 @Data(staticConstructor = "of")
 public class PlatformApiResults {
     @Schema(description = "空间平台API列表")
-    private final List<PlatformApi> platformApis;
+    private final List<PlatformApis.PlatformApi> platformApis;
 }

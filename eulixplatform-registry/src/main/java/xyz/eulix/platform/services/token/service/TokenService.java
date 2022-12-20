@@ -20,13 +20,10 @@ import static xyz.eulix.platform.services.token.dto.ServiceEnum.REGISTRY;
 
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.common.support.CommonUtils;
-import xyz.eulix.platform.common.support.serialization.OperationUtils;
-import xyz.eulix.platform.common.support.service.ServiceError;
-import xyz.eulix.platform.common.support.service.ServiceOperationException;
-import xyz.eulix.platform.services.registry.entity.BoxInfoEntity;
+import xyz.eulix.platform.services.provider.ProviderFactory;
+import xyz.eulix.platform.services.provider.inf.RegistryProvider;
 import xyz.eulix.platform.services.token.dto.*;
 import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
-import xyz.eulix.platform.services.registry.repository.BoxInfoEntityRepository;
 import xyz.eulix.platform.services.token.repository.BoxTokenEntityRepository;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -45,40 +42,18 @@ public class TokenService {
     private static final Logger LOG = Logger.getLogger("app.log");
 
     @Inject
-    BoxInfoEntityRepository boxInfoEntityRepository;
-
-    @Inject
     BoxTokenEntityRepository boxTokenEntityRepository;
 
     @Inject
-    OperationUtils operationUtils;
+    ProviderFactory providerFactory;
 
-    public BoxInfoEntity verifySign(TokenInfo tokenInfo) {
-        Optional<BoxInfoEntity> boxInfoEntityOp = boxInfoEntityRepository.findByBoxUUID(tokenInfo.getBoxUUID());
-        if (boxInfoEntityOp.isPresent()) {
-            if (AuthTypeEnum.BOX_UUID.getName().equals(boxInfoEntityOp.get().getAuthType())) {
-                return boxInfoEntityOp.get();
-            }
-            if (CommonUtils.isNullOrEmpty(tokenInfo.getSign())) {
-                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "tokenInfo.sign");
-            }
-            var tokenVerifySignInfo = TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds());
-            boolean verifySignInfo = operationUtils.verifySignUsingBoxPublicKey(operationUtils.objectToJson(tokenVerifySignInfo), tokenInfo.getSign(), boxInfoEntityOp.get().getBoxPubKey());
-
-            if (verifySignInfo) {
-                return boxInfoEntityOp.get();
-            } else {
-                LOG.errorv("failed to verify signature boxUUID :{0}", tokenInfo.getBoxUUID());
-                throw new WebApplicationException("signature verification failed", Response.Status.FORBIDDEN);
-            }
-        } else {
-            LOG.errorv("invalid boxUUID :{0}", tokenInfo.getBoxUUID());
-            throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
-        }
+    public void verifySign(TokenInfo tokenInfo) {
+        RegistryProvider registryProvider = providerFactory.getRegistryProvider();
+        registryProvider.isBoxIllegal(tokenInfo);
     }
 
     @Transactional
-    public ArrayList<TokenResult> createBoxTokens(TokenInfo tokenInfo, BoxInfoEntity boxInfoEntity) {
+    public ArrayList<TokenResult> createBoxTokens(TokenInfo tokenInfo) {
         var result = new ArrayList<TokenResult>();
 
         tokenInfo.getServiceIds().forEach(serviceId -> {
@@ -93,6 +68,11 @@ public class TokenService {
     @Transactional
     public BoxTokenEntity createBoxToken(String boxUUID, ServiceEnum serviceEnum) {
         return createBoxToken(boxUUID, serviceEnum, "brk_" + CommonUtils.createUnifiedRandomCharacters(10));
+    }
+
+    @Transactional
+    public void cleanBoxToken(String boxUUID, ServiceEnum service) {
+        boxTokenEntityRepository.deleteBoxTokenByBoxUUIdAndServiceId(boxUUID, service);
     }
 
     @Transactional

@@ -18,6 +18,7 @@ package xyz.eulix.platform.services.registry.service;
 
 import com.alibaba.excel.EasyExcelFactory;
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.services.provider.inf.RegistryProvider;
 import xyz.eulix.platform.services.registry.dto.registry.MultipartBody;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxInfo;
@@ -36,6 +37,8 @@ import xyz.eulix.platform.common.support.model.PageListResult;
 import xyz.eulix.platform.common.support.serialization.OperationUtils;
 import xyz.eulix.platform.common.support.service.ServiceError;
 import xyz.eulix.platform.common.support.service.ServiceOperationException;
+import xyz.eulix.platform.services.token.dto.TokenInfo;
+import xyz.eulix.platform.services.token.dto.TokenVerifySignInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -232,6 +235,31 @@ public class BoxInfoService {
     public boolean isValidBoxUUID(String boxUUID) {
         Optional<BoxInfoEntity> boxInfoEntityOp = boxInfoEntityRepository.findByBoxUUID(boxUUID);
         return boxInfoEntityOp.isPresent();
+    }
+
+    public void isValidBoxUUID(TokenInfo tokenInfo) {
+        Optional<BoxInfoEntity> boxInfoEntityOp = boxInfoEntityRepository.findByBoxUUID(tokenInfo.getBoxUUID());
+        if (boxInfoEntityOp.isPresent()) {
+            if (AuthTypeEnum.BOX_UUID.getName().equals(boxInfoEntityOp.get().getAuthType())) {
+                LOG.debugv("box is legal, authType:box_uuid, boxUUID:{0}",tokenInfo.getBoxUUID());
+                return;
+            }
+            if (CommonUtils.isNullOrEmpty(tokenInfo.getSign())) {
+                throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "tokenInfo.sign");
+            }
+            var tokenVerifySignInfo = TokenVerifySignInfo.of(tokenInfo.getBoxUUID(), tokenInfo.getServiceIds());
+            boolean verifySignInfo = operationUtils.verifySignUsingBoxPublicKey(operationUtils.objectToJson(tokenVerifySignInfo), tokenInfo.getSign(), boxInfoEntityOp.get().getBoxPubKey());
+
+            if (verifySignInfo) {
+                LOG.debugv("box is legal, authType:box_pub_key, boxUUID:{0}",tokenInfo.getBoxUUID());
+            } else {
+                LOG.errorv("failed to verify signature boxUUID :{0}", tokenInfo.getBoxUUID());
+                throw new WebApplicationException("signature verification failed", Response.Status.FORBIDDEN);
+            }
+        } else {
+            LOG.errorv("invalid boxUUID :{0}", tokenInfo.getBoxUUID());
+            throw new WebApplicationException("invalid box uuid", Response.Status.FORBIDDEN);
+        }
     }
 
     public Response template(String version) {

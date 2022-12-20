@@ -115,6 +115,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-test-keycloak-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-scheduler</artifactId>
+        </dependency>
 
         <!--lombok-->
         <dependency>

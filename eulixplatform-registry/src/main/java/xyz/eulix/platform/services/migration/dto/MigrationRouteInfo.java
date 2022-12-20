@@ -30,6 +30,6 @@ import java.util.List;
 public class MigrationRouteInfo {
     @Valid
     @NotEmpty
-    @Schema(description = "subdomain映射关系")
-    private List<SubdomainRouteInfo> subdomainRoutes;
+    @Schema(description = "userDomain 映射关系")
+    private List<UserDomainRouteInfo> userDomainRouteInfos;
 }

@@ -14,27 +14,32 @@
  * limitations under the License.
  */
 
-package xyz.eulix.platform.services.basic.dto;
+package xyz.eulix.platform.services.cache;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Arrays;
 
 @AllArgsConstructor
-public enum PlatformApiTypeEnum {
-    BASIC_API("basic_api", "空间平台基础api"),
-    EXTENSION_API("extension_api", "空间平台扩展api"),
-    PRODUCT_SERVICE_API("product_service_api", "产品服务api"),
+public enum NSRRedirectStateEnum {
+    NORMAL(1, "重定向正常"),
+    EXPIRED(2, "重定向已过期"),
     ;
 
-    @Getter
-    private final String name;
+    @Setter @Getter
+    private Integer state;
 
-    @Getter
-    private final String desc;
+    @Setter @Getter
+    private String desc;
 
-    public static PlatformApiTypeEnum fromValue(String value) {
-        return Arrays.stream(values()).filter(apiType -> apiType.getName().equals(value)).findFirst().orElseThrow();
+    public static NSRRedirectStateEnum fromValue(Integer value) {
+        return Arrays.stream(values()).filter(state -> {
+            if (state.getState().equals(value)) {
+                return true;
+            }
+            return false;
+        }).findFirst().orElseThrow();
     }
 }

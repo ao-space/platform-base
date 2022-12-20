@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
+import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryDetailInfo;
 import xyz.eulix.platform.services.registry.dto.registry.BoxRegistryInfo;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
@@ -63,7 +64,7 @@ public class RegistryResourceV2 {
                                            @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey) {
         // 验证 box reg key 有效期
         var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxRegistryInfo.getBoxUUID(), boxRegKey);
-        return registryService.registryBoxV2(boxTokenEntity);
+        return registryService.registryBoxV2(boxTokenEntity, CommonUtils.getUUID());
     }
 
     @Logged
@@ -77,8 +78,8 @@ public class RegistryResourceV2 {
                          @PathParam("box_uuid") @NotBlank String boxUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
-        Boolean notRegistered = registryService.hasBoxNotRegistered(boxUUID, boxRegKey);
-        if (notRegistered) {
+        final boolean isExist = registryService.hasBoxRegisteredV2(boxUUID);
+        if (!isExist) {
             LOG.warnv("box uuid had not registered, boxUuid:{0}", boxUUID);
             throw new WebApplicationException("invalid box registry reset info", Status.NOT_FOUND);
         }

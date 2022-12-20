@@ -21,6 +21,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 
+import xyz.eulix.platform.services.token.dto.ServiceEnum;
 import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
 
 @ApplicationScoped
@@ -32,6 +33,7 @@ public class BoxTokenEntityRepository implements PanacheRepository<BoxTokenEntit
     private static final String FIND_BY_BOX_REG_KEY = "box_reg_key=?1";
     // 根据box_uuid、box_reg_key查询资源
     private static final String FIND_BY_BOXUUID_BOX_REG_KEY = "box_uuid=?1 AND box_reg_key=?2";
+    private static final String FIND_BY_BOXUUID_SERVICE = "box_uuid=?1 AND service_id=?2";
 
     public Optional<BoxTokenEntity> findByBoxUUID(String boxUUID) {
         return this.find(FIND_BY_BOXUUID, boxUUID).firstResultOptional();
@@ -43,5 +45,9 @@ public class BoxTokenEntityRepository implements PanacheRepository<BoxTokenEntit
 
     public Optional<BoxTokenEntity> findByBoxUUIDAndRegKey(String boxUUID, String boxRegKey) {
         return this.find(FIND_BY_BOXUUID_BOX_REG_KEY, boxUUID, boxRegKey).firstResultOptional();
+    }
+
+    public void deleteBoxTokenByBoxUUIdAndServiceId(String boxUUID, ServiceEnum serviceEnum) {
+        this.delete(FIND_BY_BOXUUID_SERVICE, boxUUID, serviceEnum.getServiceId());
     }
 }

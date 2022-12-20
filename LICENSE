@@ -185,6 +185,7 @@
     com.aliyun:aliyun-java-sdk-ram 3.0.0 
     com.aliyun:aliyun-java-sdk-sts 3.0.0 
     io.quarkus:quarkus-resteasy-jaxb 2.4.2.Final 
+    io.quarkus:quarkus-scheduler 2.4.2.Final 
 
 ========================================================================
 Apache-2.0 licenses
@@ -550,6 +551,7 @@ http://www.antlr.org/license.html licenses
 http://www.apache.org/licenses/LICENSE-2.0.html licenses
 ========================================================================
 
+    com.cronutils:cron-utils 9.1.5 http://www.apache.org/licenses/LICENSE-2.0.html
     io.agroal:agroal-api 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
     io.agroal:agroal-narayana 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
     io.agroal:agroal-pool 1.12 http://www.apache.org/licenses/LICENSE-2.0.html

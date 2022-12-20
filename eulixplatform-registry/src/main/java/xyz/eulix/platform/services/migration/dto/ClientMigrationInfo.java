@@ -16,6 +16,7 @@
 
 package xyz.eulix.platform.services.migration.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
@@ -27,6 +28,7 @@ import javax.validation.constraints.NotBlank;
  * 客户端割接信息
  */
 @Data
+@AllArgsConstructor(staticName = "of")
 public class ClientMigrationInfo {
     @NotBlank
     @Schema(description = "客户端的 UUID")

@@ -20,6 +20,7 @@ import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -28,8 +29,8 @@ import javax.validation.constraints.Size;
  */
 @Data
 public class SubdomainUpdateInfoV2 {
-    @Schema(description = "子域名，最长100字符")
-    @Size(max = 100)
+    @Schema(description = "子域名，正则表达式：^[a-z0-9-]{1,63}$")
+    @Pattern(regexp = "^[a-z0-9-]{1,63}$")
     @NotBlank
     private String subdomain;
 }
