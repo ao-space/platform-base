@@ -170,21 +170,28 @@ public class MigrationService {
         LOG.infov("[Migration]: execute schedule task: update subdomain state.");
         List<SubdomainEntity> subdomainEntities = subdomainEntityRepository.findByState(SubdomainStateEnum.MIGRATED.getState());
         subdomainEntities.forEach(subdomainEntity -> {
-            if (subdomainEntity.getExpiresAt().isBefore(OffsetDateTime.now())) {
-                // 计算缓存value
-                NSRoute nsRoute = nsrClient.getNSRoute(subdomainEntity.getUserDomain());
-                if (CommonUtils.isNullOrEmpty(nsRoute.getNetworkInfo())) {
-                    LOG.warnv("[Migration]: userdomain route does not exist, boxUUID:{0}, userId:{1}, userDomain:{2}",
-                            subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain());
-                    return;
+            try {
+                if (subdomainEntity.getExpiresAt().isBefore(OffsetDateTime.now())) {
+                    // 计算缓存value
+                    NSRoute nsRoute = nsrClient.getNSRoute(subdomainEntity.getUserDomain());
+                    if (CommonUtils.isNullOrEmpty(nsRoute.getNetworkInfo())) {
+                        subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(),
+                                subdomainEntity.getSubdomain(), SubdomainStateEnum.TEMPORARY.getState());
+                        LOG.warnv("[Migration]: userdomain route does not exist, boxUUID:{0}, userId:{1}, userDomain:{2}",
+                                subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain());
+                        return;
+                    }
+                    NetworkInfo networkInfo = getNetworkInfo(nsRoute.getNetworkInfo());
+                    nsrClient.setRedirect(subdomainEntity.getUserDomain(), networkInfo.getServerAddr(), networkInfo.getClientId(),
+                            networkInfo.getUserDomain(), NSRRedirectStateEnum.EXPIRED);
+                    subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(),
+                            subdomainEntity.getSubdomain(), SubdomainStateEnum.TEMPORARY.getState());
+                    LOG.infov("[Migration]: update userdomain route state succeed, boxUUID:{0}, userId:{1}, userDomain:{2}, redirect:{3}, state:{4}",
+                            subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain(), networkInfo.getUserDomain(), NSRRedirectStateEnum.EXPIRED);
                 }
-                NetworkInfo networkInfo = getNetworkInfo(nsRoute.getNetworkInfo());
-                nsrClient.setRedirect(subdomainEntity.getUserDomain(), networkInfo.getServerAddr(), networkInfo.getClientId(),
-                        networkInfo.getUserDomain(), NSRRedirectStateEnum.EXPIRED);
-                subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(),
-                        subdomainEntity.getUserDomain(), SubdomainStateEnum.TEMPORARY.getState());
-                LOG.infov("[Migration]: update userdomain route state succeed, boxUUID:{0}, userId:{1}, userDomain:{2}, redirect:{3}, state:{4}",
-                        subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain(), networkInfo.getUserDomain(), NSRRedirectStateEnum.EXPIRED);
+            } catch (Exception e) {
+                LOG.warnv(e, "[Migration]: update userdomain route state error, boxUUID:{0}, userId:{1}, userDomain:{2}",
+                        subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain());
             }
         });
     }
