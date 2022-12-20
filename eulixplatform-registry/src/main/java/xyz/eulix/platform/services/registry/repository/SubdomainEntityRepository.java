@@ -102,6 +102,7 @@ public class SubdomainEntityRepository implements PanacheRepository<SubdomainEnt
         this.update(UPDATE_BY_BOXUUID_USERID, subdomain, userDomain, boxUUID, userId);
     }
 
+    @Transactional
     public void updateStateByBoxUUIDAndUserIdAndSubdomain(String boxUUID, String userId, String subdomain, Integer state) {
         this.update(UPDATE_STATE_BY_BOXUUID_USERID_SUBDOMAIN, state, boxUUID, userId, subdomain);
     }
