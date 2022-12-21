@@ -1,6 +1,6 @@
-### 关联 issue/zentao 
+### 关联任务 issue
 
-- Related:  
+- Related:  bp/portal#NNN 
 
 ### 变更类型
 
