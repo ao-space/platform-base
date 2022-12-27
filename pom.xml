@@ -137,6 +137,19 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <configuration>
+                        <nonFilteredFileExtensions>
+                            <!--过滤不转换的格式-->
+                            <nonFilteredFileExtension>xls</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>docx</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>doc</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
@@ -220,16 +233,6 @@
         <!--资源管理 -->
         <!--这个元素描述了项目相关的所有资源路径列表，例如和项目相关的属性文件，这些资源被包含在最终的打包文件里。 -->
         <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <!--打包时先排除掉三个文件夹-->
-                <excludes>
-                    <exclude>**/*.sql</exclude>
-                    <exclude>**/*.yml</exclude>
-                    <exclude>**/*.json</exclude>
-                </excludes>
-            </resource>
             <resource>
                 <!--这里是关键！ 根据不同的环境，把对应文件夹里的配置文件打包-->
                 <directory>src/main/resources/profiles/${environment}</directory>
