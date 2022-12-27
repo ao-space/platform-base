@@ -37,12 +37,6 @@ public interface ApplicationProperties {
     @ConfigProperty(name = "registry.subdomain")
     String getRegistrySubdomain();
 
-    @ConfigProperty(name = "registry.tunnel-server.base-url")
-    String getRegistryTunnelServerBaseUrl();
-
-    @ConfigProperty(name = "registry.tunnel-server.port")
-    int getRegistryTunnelServerPort();
-
     @ConfigProperty(name = "registry.box-uuid-policy")
     String getRegistryBoxUUIDPolicy();
 
