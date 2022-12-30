@@ -50,4 +50,12 @@ public class SubdomainService {
         }
         subdomainEntityRepository.persist(subdomainEntity);
     }
+
+    @Transactional
+    public void updateSubdomainState(String boxUUID, String userId, String subdomain, String subdomainOld) {
+        // 更新旧域名状态为HISTORY
+        subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(boxUUID, userId, subdomainOld, SubdomainStateEnum.HISTORY.getState());
+        // 更新新域名状态为USED
+        subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(boxUUID, userId, subdomain, SubdomainStateEnum.USED.getState());
+    }
 }

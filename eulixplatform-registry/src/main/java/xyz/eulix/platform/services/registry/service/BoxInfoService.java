@@ -228,6 +228,8 @@ public class BoxInfoService {
             if (!CommonUtils.isNullOrEmpty(boxInfoEntity.getExtra())) {
                 boxInfo.setExtra(operationUtils.jsonToObject(boxInfoEntity.getExtra(), Object.class));
             }
+            boxInfo.setAuthType(boxInfoEntity.getAuthType());
+            boxInfo.setBoxPubKey(boxInfoEntity.getBoxPubKey());
         }
         return boxInfo;
     }
@@ -322,6 +324,7 @@ public class BoxInfoService {
                     BoxExcelModelV2.class);
             boxExcelModelV2.setAuthType(boxInfoEntity.getAuthType());
             boxExcelModelV2.setBoxPubKey(boxInfoEntity.getBoxPubKey());
+            boxExcelModelV2.setBoxUuid(boxInfoEntity.getBoxUUID());
             lists.add(boxExcelModelV2);
         }
         Response.ResponseBuilder response = Response.ok((StreamingOutput) output ->

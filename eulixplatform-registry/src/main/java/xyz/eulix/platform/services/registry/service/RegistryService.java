@@ -492,6 +492,21 @@ public class RegistryService {
         }
     }
 
+    public Boolean isSubdomainTemporaryOrHistory(SubdomainEntity subdomainEntity, String boxUUID, String userId) {
+        // 校验是否临时状态
+        if (!SubdomainStateEnum.TEMPORARY.getState().equals(subdomainEntity.getState())
+                && !SubdomainStateEnum.HISTORY.getState().equals(subdomainEntity.getState())) {
+            LOG.warnv("subdomain state is not temporary or history, subdomain:{0}", subdomainEntity.getSubdomain());
+            return false;
+        }
+        // 校验是否属于当前盒子/当前盒子用户
+        if (!subdomainEntity.getBoxUUID().equals(boxUUID) || !subdomainEntity.getUserId().equals(userId)) {
+            LOG.warnv("subdomain does not belong to user, subdomain:{0}, boxUUID:{1}, userId:{2}", subdomainEntity.getSubdomain(), boxUUID, userId);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 校验用户是否已注册
      *
@@ -717,24 +732,51 @@ public class RegistryService {
      */
     public SubdomainUpdateResult subdomainUpdate(String boxUUID, String userId, String subdomain) {
         SubdomainUpdateResult updateResult = new SubdomainUpdateResult();
-        // 合法性校验，历史域名是否已使用
+        // 合法性校验
         Optional<SubdomainEntity> subdomainEntityOld = subdomainEntityRepository.findByBoxUUIDAndUserIdAndState(boxUUID, userId, SubdomainStateEnum.USED.getState());
         if (subdomainEntityOld.isEmpty()) {
-            LOG.warnv("user's subdomain is not in use, boxUUID:{0}, userId:{1}", boxUUID, userId);
+            LOG.warnv("user has no subdomain in use, boxUUID:{0}, userId:{1}", boxUUID, userId);
             throw new ServiceOperationException(ServiceError.SUBDOMAIN_NOT_IN_USER);
         }
         String subdomainOld = subdomainEntityOld.get().getSubdomain();
-        // 唯一性校验 & 幂等设计，防止数据库、redis数据不一致，建议client失败重试3次
         Optional<SubdomainEntity> subdomainEntityOp = subdomainEntityRepository.findBySubdomain(subdomain);
-        if (subdomainEntityOp.isPresent() && !subdomainOld.equals(subdomain)) {
-            LOG.warnv("subdomain already exist, subdomain:{0}", subdomain);
-            updateResult.setSuccess(false);
-            updateResult.setCode(ServiceError.SUBDOMAIN_ALREADY_EXIST.getCode());
-            updateResult.setError(ServiceError.SUBDOMAIN_ALREADY_EXIST.getMessage());
-            List<String> recommends = new ArrayList<>();
-            recommendSubdomains(subdomain, recommends);
-            updateResult.setRecommends(recommends);
+        // 幂等设计，防止数据库、redis数据不一致
+        if (subdomainEntityOp.isPresent() && subdomainOld.equals(subdomain)) {
+            String userDomain = subdomain + "." + properties.getRegistrySubdomain();
+            // 添加用户面路由：用户域名 - network server 地址 & network client id
+            networkService.cacheNSRoute(userDomain, boxUUID);
+            LOG.infov("subdomain is in use, update route directly, boxUUID:{0}, userId:{1}, subdomain:{2}", boxUUID, userId, subdomain);
+            updateResult.setSuccess(true);
+            updateResult.setBoxUUID(boxUUID);
+            updateResult.setUserId(userId);
+            updateResult.setSubdomain(subdomain);
             return updateResult;
+        }
+        // 唯一性校验(历史域名是否已使用)
+        if (subdomainEntityOp.isPresent()) {
+            if (isSubdomainTemporaryOrHistory(subdomainEntityOp.get(), boxUUID, userId)) {
+                LOG.infov("subdomain is in temporary or history, update subdomain state, boxUUID:{0}, userId:{1}, subdomain:{2}", boxUUID, userId, subdomain);
+                // 更新域名
+                String userDomain = subdomain + "." + properties.getRegistrySubdomain();
+                subdomainService.updateSubdomainState(boxUUID, userId, subdomain, subdomainOld);
+                // 添加用户面路由：用户域名 - network server 地址 & network client id
+                networkService.cacheNSRoute(userDomain, boxUUID);
+                LOG.infov("subdomain update succeed, from:{0} to:{1}", subdomainOld, subdomain);
+                updateResult.setSuccess(true);
+                updateResult.setBoxUUID(boxUUID);
+                updateResult.setUserId(userId);
+                updateResult.setSubdomain(subdomain);
+                return updateResult;
+            } else {
+                LOG.warnv("subdomain already exist, subdomain:{0}", subdomain);
+                updateResult.setSuccess(false);
+                updateResult.setCode(ServiceError.SUBDOMAIN_ALREADY_EXIST.getCode());
+                updateResult.setError(ServiceError.SUBDOMAIN_ALREADY_EXIST.getMessage());
+                List<String> recommends = new ArrayList<>();
+                recommendSubdomains(subdomain, recommends);
+                updateResult.setRecommends(recommends);
+                return updateResult;
+            }
         }
         // 黑名单校验
         RegistryProvider registryProvider = providerFactory.getRegistryProvider();
@@ -750,9 +792,7 @@ public class RegistryService {
         LOG.infov("subdomain update begin, from:{0} to:{1}", subdomainOld, subdomain);
         // 更新域名
         String userDomain = subdomain + "." + properties.getRegistrySubdomain();
-        if (!subdomainOld.equals(subdomain)) {
-            subdomainService.updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
-        }
+        subdomainService.updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
         // 添加用户面路由：用户域名 - network server 地址 & network client id
         networkService.cacheNSRoute(userDomain, boxUUID);
         LOG.infov("subdomain update succeed, from:{0} to:{1}", subdomainOld, subdomain);

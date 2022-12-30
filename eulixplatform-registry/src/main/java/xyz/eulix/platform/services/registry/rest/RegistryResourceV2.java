@@ -192,7 +192,7 @@ public class RegistryResourceV2 {
     @Path("/boxes/{box_uuid}/users/{user_id}/subdomain")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "更新用户subdomain。幂等设计，建议client失败重试3次")
+    @Operation(description = "更新用户subdomain。幂等设计")
     public SubdomainUpdateResult subdomainUpdate(@Valid SubdomainUpdateInfoV2 subdomainUpdateInfo,
                                                  @HeaderParam("Request-Id") @NotBlank String reqId,
                                                  @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
