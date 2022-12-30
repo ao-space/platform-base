@@ -25,6 +25,7 @@ import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.serialization.OperationUtils;
 import xyz.eulix.platform.services.registry.dto.registry.BoxFailureInfo;
 import xyz.eulix.platform.services.registry.entity.BoxExcelModelV2;
+import xyz.eulix.platform.services.token.dto.AuthTypeEnum;
 
 public class BoxExcelListenerV2 implements ReadListener<BoxExcelModelV2> {
     private static final Logger LOG = Logger.getLogger("app.log");
@@ -63,24 +64,29 @@ public class BoxExcelListenerV2 implements ReadListener<BoxExcelModelV2> {
             BoxExcelModelV2 model = excelList.get(number);
             if (model.isNUllOrEmpty()) {
                 continue;
-            } else if (CommonUtils.isNotNull(model.getCpuId()) && model.getCpuId()
-                .matches("[0-9a-fA-F]+")) {
-                String boxUUID = operationUtils.string2SHA256(
-                    "eulixspace-productid-" + model.getCpuId());
-                String btid = operationUtils.string2SHA256("eulixspace-btid-" + model.getCpuId())
-                    .substring(0, 16);
-                model.setOther(model.getOther() == null ? "" : model.getOther());
+            } else if (CommonUtils.isNotNull(model.getCpuId()) && model.getCpuId().matches("[0-9a-fA-F]+")) {
+                String boxUUID = operationUtils.string2SHA256("eulixspace-productid-" + model.getCpuId());
+                String btid = operationUtils.string2SHA256("eulixspace-btid-" + model.getCpuId()).substring(0, 16);
+                String boxqrcode = "https://ao.space/?sn=" + model.getSnNumber();
+                String btidHash = operationUtils.string2SHA256("eulixspace-" + btid);
                 model.setBoxUuid(boxUUID);
                 model.setBtid(btid);
-                model.setBoxqrcode("https://ao.space/?btid=" + btid);
-                model.setBtidHash(operationUtils.string2SHA256("eulixspace-" + btid));
-                var boxPubKey = model.getBoxPubKey();
-                model.setBoxPubKey(null);
-                if (!boxInfoService.upsertBoxInfoV2(boxUUID, null, model, model.getAuthType(),
-                    boxPubKey, success, failure)) {
+                model.setBoxqrcode(boxqrcode);
+                model.setBtidHash(btidHash);
+                String boxPubKey = model.getBoxPubKey();
+                String authType;
+                if (CommonUtils.isNullOrEmpty(boxPubKey)) {
+                    authType = AuthTypeEnum.BOX_UUID.name();
+                } else {
+                    authType = AuthTypeEnum.BOX_PUB_KEY.name();
+                    model.setBoxPubKey(null);
+                }
+                if (!boxInfoService.upsertBoxInfoV2(boxUUID, null, model, authType, boxPubKey,
+                        success, failure)) {
                     fail.add(BoxFailureInfo.of(String.valueOf(number), boxUUID));
                 }
             } else {
+                LOG.warnv("cpuid is invalid, rowNum:{0}, cpuid:{1}", number, model.getCpuId());
                 fail.add(BoxFailureInfo.of(String.valueOf(number), ""));
             }
         }
