@@ -76,9 +76,9 @@ public class BoxExcelListenerV2 implements ReadListener<BoxExcelModelV2> {
                 String boxPubKey = model.getBoxPubKey();
                 String authType;
                 if (CommonUtils.isNullOrEmpty(boxPubKey)) {
-                    authType = AuthTypeEnum.BOX_UUID.name();
+                    authType = AuthTypeEnum.BOX_UUID.getName();
                 } else {
-                    authType = AuthTypeEnum.BOX_PUB_KEY.name();
+                    authType = AuthTypeEnum.BOX_PUB_KEY.getName();
                     model.setBoxPubKey(null);
                 }
                 if (!boxInfoService.upsertBoxInfoV2(boxUUID, null, model, authType, boxPubKey,
