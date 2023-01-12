@@ -66,13 +66,15 @@ public class BoxExcelListenerV2 implements ReadListener<BoxExcelModelV2> {
                 continue;
             } else if (CommonUtils.isNotNull(model.getCpuId()) && model.getCpuId().matches("[0-9a-fA-F]+")) {
                 String boxUUID = operationUtils.string2SHA256("eulixspace-productid-" + model.getCpuId());
-                String btid = operationUtils.string2SHA256(model.getSnNumber()).substring(0, 16);
-                String boxqrcode = "https://ao.space/?sn=" + model.getSnNumber();
-                String btidHash = operationUtils.string2SHA256("eulixspace-" + btid);
                 model.setBoxUuid(boxUUID);
-                model.setBtid(btid);
-                model.setBoxqrcode(boxqrcode);
-                model.setBtidHash(btidHash);
+                if (!CommonUtils.isNullOrEmpty(model.getSnNumber())) {
+                    String btid = operationUtils.string2SHA256(model.getSnNumber()).substring(0, 16);
+                    String boxqrcode = "https://ao.space/?sn=" + model.getSnNumber();
+                    String btidHash = operationUtils.string2SHA256("eulixspace-" + btid);
+                    model.setBtid(btid);
+                    model.setBoxqrcode(boxqrcode);
+                    model.setBtidHash(btidHash);
+                }
                 String boxPubKey = model.getBoxPubKey();
                 String authType;
                 if (CommonUtils.isNullOrEmpty(boxPubKey)) {
