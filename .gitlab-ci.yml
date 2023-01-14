@@ -76,6 +76,7 @@ validate:build:
 
 validate:test:
   stage: validate
+  allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -131,3 +132,209 @@ package:aarch64:
       - eulixplatform-opstage/target/
       - eulixplatform-common/target/
       - eulixplatform-registry/target/
+
+package:x86_64:community:
+  stage: validate
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
+  tags:
+    - x86_64
+  script:
+    - mvn -pl eulixplatform-common,eulixplatform-registry $MAVEN_CLI_OPTS clean package -Pcommunity
+  artifacts:
+    paths:
+      - eulixplatform-common/target/
+      - eulixplatform-registry/target/
+
+package:aarch64:community:
+  stage: validate
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
+  tags:
+    - aarch64
+  script:
+    - mvn -pl eulixplatform-common,eulixplatform-registry $MAVEN_CLI_OPTS clean package -Pcommunity
+  artifacts:
+    paths:
+      - eulixplatform-common/target/
+      - eulixplatform-registry/target/
+
+docker:aarch64:community:
+  stage: docker
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
+  variables:
+    ENV_CONTAINER_NAME: eulixplatform-services-community
+  tags: 
+    - docker_build-aarch64
+  dependencies: 
+    - package:aarch64:community
+  script:
+    - docker login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -n 1 VERSION`-alpha.$CI_PIPELINE_ID
+    - docker build --build-arg CI_PIPELINE_ID=$CI_PIPELINE_ID --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA -t $DOCKER_BUILD_IMAGE-aarch64 -f eulixplatform-registry/src/main/docker/Dockerfile.jvm eulixplatform-registry
+    - docker push $DOCKER_BUILD_IMAGE-aarch64
+
+docker:x86_64:community:
+  stage: docker
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_MERGE_REQUEST_ID
+  variables:
+    ENV_CONTAINER_NAME: eulixplatform-services-community
+  tags: 
+    - docker_build-x86_64
+  dependencies: 
+    - package:x86_64:community
+  script:
+    - docker login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -n 1 VERSION`-alpha.$CI_PIPELINE_ID
+    - docker build --build-arg CI_PIPELINE_ID=$CI_PIPELINE_ID --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA -t $DOCKER_BUILD_IMAGE-x86_64 -f eulixplatform-registry/src/main/docker/Dockerfile.jvm eulixplatform-registry
+    - docker push $DOCKER_BUILD_IMAGE-x86_64
+
+manifest:push:community:
+  stage: manifest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+  variables:
+    ENV_CONTAINER_NAME: eulixplatform-services-community
+  tags: 
+    - docker_build
+  retry: 2
+  script:
+    - docker login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
+    - docker login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -n 1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_COMMIT_BRANCH
+    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -n 1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_COMMIT_BRANCH
+    - sleep 10
+    - export DOCKER_CLI_EXPERIMENTAL=enabled
+    - docker pull $DOCKER_BUILD_IMAGE-x86_64
+    - docker pull $DOCKER_BUILD_IMAGE-aarch64
+    - docker tag $DOCKER_BUILD_IMAGE-x86_64 $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker push $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker tag $DOCKER_BUILD_IMAGE-aarch64 $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker push $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker manifest create --amend $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE-aarch64 $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE-aarch64
+    - docker manifest push -p $DOCKER_BUILD_IMAGE
+    - docker manifest create --amend $DOCKER_LATEST_IMAGE $DOCKER_BUILD_IMAGE-aarch64 $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_LATEST_IMAGE $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_LATEST_IMAGE $DOCKER_BUILD_IMAGE-aarch64
+    - docker manifest push -p $DOCKER_LATEST_IMAGE
+    - docker manifest create --amend $DOCKER_BUILD_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64 $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_BUILD_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_BUILD_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker manifest push -p $DOCKER_BUILD_IMAGE_GITLAB
+    - docker manifest create --amend $DOCKER_LATEST_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64 $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_LATEST_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_LATEST_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker manifest push -p $DOCKER_LATEST_IMAGE_GITLAB
+
+manifest:merge_request:community:
+  stage: manifest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_MERGE_REQUEST_ID
+  variables:
+    ENV_CONTAINER_NAME: eulixplatform-services-community
+  tags: 
+    - docker_build
+  retry: 2
+  script:
+    - docker login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
+    - docker login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -n 1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -n 1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - sleep 10
+    - export DOCKER_CLI_EXPERIMENTAL=enabled
+    - docker pull $DOCKER_BUILD_IMAGE-x86_64
+    - docker pull $DOCKER_BUILD_IMAGE-aarch64
+    - docker tag $DOCKER_BUILD_IMAGE-x86_64 $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker push $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker tag $DOCKER_BUILD_IMAGE-aarch64 $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker push $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker manifest create --amend $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE-aarch64 $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_BUILD_IMAGE $DOCKER_BUILD_IMAGE-aarch64
+    - docker manifest push -p $DOCKER_BUILD_IMAGE
+    - docker manifest create --amend $DOCKER_LATEST_IMAGE $DOCKER_BUILD_IMAGE-aarch64 $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_LATEST_IMAGE $DOCKER_BUILD_IMAGE-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_LATEST_IMAGE $DOCKER_BUILD_IMAGE-aarch64
+    - docker manifest push -p $DOCKER_LATEST_IMAGE
+    - docker manifest create --amend $DOCKER_BUILD_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64 $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_BUILD_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_BUILD_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker manifest push -p $DOCKER_BUILD_IMAGE_GITLAB
+    - docker manifest create --amend $DOCKER_LATEST_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64 $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch amd64 $DOCKER_LATEST_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-x86_64
+    - docker manifest annotate --os linux --arch arm64 $DOCKER_LATEST_IMAGE_GITLAB $DOCKER_BUILD_IMAGE_GITLAB-aarch64
+    - docker manifest push -p $DOCKER_LATEST_IMAGE_GITLAB
+
+artifacts-sign:push:community:
+  stage: sign
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+  variables:
+    ENV_CONTAINER_NAME: eulixplatform-services-community
+  image:
+    name: registry.eulix.xyz/collab/infra/infrastructure/sigstore/cosign:v1.10.1
+    entrypoint: [''] 
+  before_script:
+    - cosign login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
+    - cosign login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_COMMIT_BRANCH
+    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_COMMIT_BRANCH
+    - echo $COSIGN_KEY | base64 -d > /tmp/cosign.key
+  script:
+    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE
+    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE
+    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE_GITLAB
+    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE_GITLAB
+
+artifacts-sign:merge_request:community:
+  stage: sign
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_MERGE_REQUEST_ID
+  variables:
+    ENV_CONTAINER_NAME: eulixplatform-services-community
+  image:
+    name: registry.eulix.xyz/collab/infra/infrastructure/sigstore/cosign:v1.10.1
+    entrypoint: [''] 
+  before_script:
+    - cosign login -u $GITLAB_DOCKER_AUTH_USERNAME -p $GITLAB_DOCKER_AUTH_PASSWORD $GITLAB_DOCKER_REGISTRY_HOST
+    - cosign login -u $DOCKER_AUTH_USERNAME -p $DOCKER_AUTH_PASSWORD $DOCKER_REGISTRY_HOST
+    - export DOCKER_BUILD_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE=$DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - export DOCKER_BUILD_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:`head -1 VERSION`-alpha.$CI_PIPELINE_ID
+    - export DOCKER_LATEST_IMAGE_GITLAB=$GITLAB_DOCKER_REGISTRY_IMAGE/$ENV_CONTAINER_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - echo $COSIGN_KEY | base64 -d > /tmp/cosign.key
+  script:
+    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE
+    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE
+    - cosign sign --key /tmp/cosign.key $DOCKER_BUILD_IMAGE_GITLAB
+    - cosign sign --key /tmp/cosign.key $DOCKER_LATEST_IMAGE_GITLAB

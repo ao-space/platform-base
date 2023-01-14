@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "community-1.0.0",
   "services": {
     "eulixplatform-registry-service": {
       "registry_box_post": {
@@ -397,73 +397,6 @@
         ],
         "type": "base_api",
         "desc": "校验box_reg_key有效性"
-      },
-
-
-      "push_message_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/push/message",
-        "briefUri": "push/message",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "extension_api",
-        "desc": "发送通知"
-      },
-      "push_device_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/push/device",
-        "briefUri": "push/device",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "extension_api",
-        "desc": "注册 device token"
-      },
-
-      "stun_server_detail_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/stun/server/detail",
-        "briefUri": "stun/server/detail",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "extension_api",
-        "desc": "查询相应 stun server 信息"
-      },
-      "servers_stun_detail_get": {
-        "method": "get",
-        "uri": "/v2/platform/servers/stun/detail",
-        "briefUri": "servers/stun/detail",
-        "compatibleVersions": [
-          1,
-          2
-        ],
-        "type": "extension_api",
-        "desc": "查询相应 stun server 信息"
-      },
-
-      "device_register_post": {
-        "method": "post",
-        "uri": "/v2/platform/device/register",
-        "briefUri": "device/register",
-        "compatibleVersions": [
-          1,
-          2
-        ],
-        "type": "extension_api",
-        "desc": "注册 device token"
-      },
-      "message_push_post": {
-        "method": "post",
-        "uri": "/v2/platform/message/push",
-        "briefUri": "message/push",
-        "compatibleVersions": [
-          1,
-          2
-        ],
-        "type": "extension_api",
-        "desc": "发送通知"
       }
     }
   }

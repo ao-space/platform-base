@@ -137,6 +137,19 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <configuration>
+                        <nonFilteredFileExtensions>
+                            <!--过滤不转换的格式-->
+                            <nonFilteredFileExtension>xls</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>docx</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>doc</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
@@ -216,6 +229,16 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <!--资源管理 -->
+        <!--这个元素描述了项目相关的所有资源路径列表，例如和项目相关的属性文件，这些资源被包含在最终的打包文件里。 -->
+        <resources>
+            <resource>
+                <!--这里是关键！ 根据不同的环境，把对应文件夹里的配置文件打包-->
+                <directory>src/main/resources/profiles/${environment}</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
     <profiles>
@@ -230,6 +253,27 @@
                 <skipITs>false</skipITs>
                 <quarkus.package.type>native</quarkus.package.type>
             </properties>
+        </profile>
+
+        <profile>
+            <!--不同环境Profile的唯一id-->
+            <id>community</id>
+            <properties>
+                <!--environment是自定义的字段，自定义字段可以有多个-->
+                <environment>community</environment>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>prod</id>
+            <properties>
+                <environment>prod</environment>
+            </properties>
+            <!--activation用来指定激活方式，可以根据jdk环境，环境变量，文件的存在或缺失-->
+            <activation>
+                <!--这个字段表示默认激活-->
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
     </profiles>
 </project>
