@@ -157,7 +157,7 @@ public class BoxInfoResourceV2 {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/boxinfos/export")
+    @Path("/boxinfos/file/export")
     @Operation(description = "盒子出厂信息导出")
     public Response export(@NotBlank @HeaderParam("Request-Id") String requestId,
                            @Valid @Size(min = 1, max = 1000) @QueryParam("box_uuids") List<@NotBlank String> boxUUIDs) {
