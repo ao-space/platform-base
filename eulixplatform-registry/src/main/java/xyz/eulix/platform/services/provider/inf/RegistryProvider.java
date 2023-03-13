@@ -25,14 +25,6 @@ public interface RegistryProvider {
     /**
      * 盒子身份认证
      *
-     * @param boxUUID boxUUID
-     * @return 是否合法
-     */
-    Boolean isBoxIllegal(String boxUUID);
-
-    /**
-     * 盒子身份认证
-     *
      * @param tokenInfo tokenInfo
      */
     void isBoxIllegal(TokenInfo tokenInfo);

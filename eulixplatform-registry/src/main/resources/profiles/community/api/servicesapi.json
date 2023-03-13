@@ -2,16 +2,6 @@
   "version": "community-1.0.0",
   "services": {
     "eulixplatform-registry-service": {
-      "registry_box_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/registry/box",
-        "briefUri": "registry/box",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "注册盒子，成功后返回盒子的注册码，以及network client信息。"
-      },
       "boxes_post": {
         "method": "post",
         "uri": "/v2/platform/boxes",
@@ -22,17 +12,6 @@
         ],
         "type": "base_api",
         "desc": "注册盒子，成功后返回network client等信息"
-      },
-
-      "registry_user_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/registry/user",
-        "briefUri": "registry/user",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "获取注册用户信息"
       },
       "boxes_{box_uuid}_users_post": {
         "method": "post",
@@ -45,17 +24,6 @@
         "type": "base_api",
         "desc": "注册用户，同步注册绑定客户端"
       },
-
-      "registry_client_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/registry/client",
-        "briefUri": "registry/client",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "获取注册客户端信息"
-      },
       "boxes_{box_uuid}_users_{user_id}_clients_post": {
         "method": "post",
         "uri": "/v2/platform/boxes/{box_uuid}/users/{user_id}/clients",
@@ -66,17 +34,6 @@
         ],
         "type": "base_api",
         "desc": "注册客户端"
-      },
-
-      "registry_reset_box_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/registry/reset/box",
-        "briefUri": "registry/reset/box",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。"
       },
       "boxes_{box_uuid}_delete": {
         "method": "delete",
@@ -89,17 +46,6 @@
         "type": "base_api",
         "desc": "删除盒子注册信息"
       },
-
-      "registry_reset_user_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/registry/reset/user",
-        "briefUri": "registry/reset/user",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。"
-      },
       "boxes_{box_uuid}_users_{user_id}_delete": {
         "method": "delete",
         "uri": "/v2/platform/boxes/{box_uuid}/users/{user_id}",
@@ -110,17 +56,6 @@
         ],
         "type": "base_api",
         "desc": "删除用户注册信息"
-      },
-
-      "registry_reset_client_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/registry/reset/client",
-        "briefUri": "registry/reset/client",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "重置客户端绑定关系，重置后可以为客户端重新注册绑定关系。"
       },
       "boxes_{box_uuid}_users_{user_id}_clients_{client_uuid}_delete": {
         "method": "delete",
@@ -133,50 +68,6 @@
         "type": "base_api",
         "desc": "删除客户端注册信息"
       },
-
-      "registry_verify_box_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/registry/verify/box",
-        "briefUri": "registry/verify/box",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "校验盒子合法性。"
-      },
-
-      "registry_verify_user_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/registry/verify/user",
-        "briefUri": "registry/verify/user",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "校验用户合法性。"
-      },
-
-      "registry_verify_client_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/registry/verify/client",
-        "briefUri": "registry/verify/client",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "校验客户端合法性。"
-      },
-
-      "subdomain_gen_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/subdomain/gen",
-        "briefUri": "subdomain/gen",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "分发全局唯一的subdomain。"
-      },
       "boxes_{box_uuid}_subdomains_post": {
         "method": "post",
         "uri": "/v2/platform/boxes/{box_uuid}/subdomains",
@@ -187,17 +78,6 @@
         ],
         "type": "base_api",
         "desc": "申请subdomain，平台保证全局唯一性"
-      },
-
-      "subdomain_update_put": {
-        "method": "put",
-        "uri": "/platform/v1/api/subdomain/update",
-        "briefUri": "subdomain/update",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "更新subdomain。幂等设计，建议client失败重试3次。"
       },
       "boxes_{box_uuid}_users_{user_id}_subdomain_put": {
         "method": "put",
@@ -210,17 +90,6 @@
         "type": "base_api",
         "desc": "更新用户subdomain。幂等设计，建议client失败重试3次"
       },
-
-      "auth_pkey_gen_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/auth/pkey/gen",
-        "briefUri": "auth/pkey/gen",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "Generate pkey for new client."
-      },
       "pkeys_post": {
         "method": "post",
         "uri": "/v2/platform/pkeys",
@@ -231,17 +100,6 @@
         ],
         "type": "base_api",
         "desc": "生成pkey，被授权端调用"
-      },
-
-      "auth_pkey_boxinfo_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/auth/pkey/boxinfo",
-        "briefUri": "auth/pkey/boxinfo",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "Receive box info from app(old client)."
       },
       "pkeys_{pkey}_boxinfo_post": {
         "method": "post",
@@ -254,17 +112,6 @@
         "type": "base_api",
         "desc": "发送盒子公钥，授权端调用"
       },
-
-      "auth_pkey_poll_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/auth/pkey/poll",
-        "briefUri": "auth/pkey/poll",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "Poll box info by new client."
-      },
       "pkeys_{pkey}_boxinfo_get": {
         "method": "get",
         "uri": "/v2/platform/pkeys/{pkey}/boxinfo",
@@ -275,17 +122,6 @@
         ],
         "type": "base_api",
         "desc": "获取盒子公钥，被授权端调用"
-      },
-
-      "network_server_detail_get": {
-        "method": "get",
-        "uri": "/platform/v1/api/network/server/detail",
-        "briefUri": "network/server/detail",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "查询最新 network server 信息"
       },
       "servers_network_detail_get": {
         "method": "get",
@@ -298,17 +134,6 @@
         "type": "base_api",
         "desc": "查询最新 network server 信息"
       },
-
-      "network_client_auth_post": {
-        "method": "post",
-        "uri": "/platform/v1/api/network/client/auth",
-        "briefUri": "network/client/auth",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "认证 network client 身份"
-      },
       "clients_network_auth_post": {
         "method": "post",
         "uri": "/v2/platform/clients/network/auth",
@@ -320,7 +145,6 @@
         "type": "base_api",
         "desc": "认证 network client 身份"
       },
-
       "status_get": {
         "method": "get",
         "uri": "/v2/platform/status",
@@ -332,17 +156,6 @@
         "type": "base_api",
         "desc": "查询空间平台状态"
       },
-      "platform_status_get": {
-        "method": "get",
-        "uri": "/platform/status",
-        "briefUri": "platform/status",
-        "compatibleVersions": [
-          1
-        ],
-        "type": "base_api",
-        "desc": "Try to fetch the current status of server."
-      },
-
       "ability_get": {
         "method": "get",
         "uri": "/v2/platform/ability",

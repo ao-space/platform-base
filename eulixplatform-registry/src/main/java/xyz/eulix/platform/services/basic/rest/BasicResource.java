@@ -18,32 +18,54 @@ package xyz.eulix.platform.services.basic.rest;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import xyz.eulix.platform.services.basic.dto.PlatformApiResults;
+import xyz.eulix.platform.services.basic.dto.PlatformApis;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.common.support.log.Logged;
 import xyz.eulix.platform.common.support.model.StatusResult;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequestScoped
-@Path("/platform")
-@Tag(name = "Platform Basic Service", description = "Basic APIs.")
+@Path("/v2/platform")
+@Tag(name = "Platform Basic Service", description = "基础APIv2.")
 public class BasicResource {
 
     @Inject
     ApplicationProperties properties;
+    @Inject
+    PlatformApis platformApis;
+
+    @Logged
+    @GET
+    @Path("/ability")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "查询空间平台能力")
+    public PlatformApiResults ability(@NotBlank @HeaderParam("Request-Id") String requestId) {
+        List<PlatformApis.PlatformApi> platformApiResult = new ArrayList<>();
+
+        for (var services : platformApis.getServices().entrySet()) {
+            for (var api :services.getValue().entrySet()) {
+                platformApiResult.add(api.getValue());
+            }
+        }
+        return PlatformApiResults.of(platformApiResult);
+    }
+
     @Logged
     @GET
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Try to fetch the current status of server.")
-    public StatusResult status() {
+    @Operation(description = "查询空间平台状态")
+    public StatusResult status(@NotBlank @HeaderParam("Request-Id") String requestId) {
         return StatusResult.of("ok", properties.getVersion());
     }
 }

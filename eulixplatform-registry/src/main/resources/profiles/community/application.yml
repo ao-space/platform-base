@@ -1,0 +1,96 @@
+# Copyright (c) 2022 Institute of Software Chinese Academy of Sciences (ISCAS)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Configuration file
+# Ref: https://quarkus.io/guides/config-reference
+
+quarkus:
+  log: # 日志级别
+    min-level: INFO
+    level: INFO
+    console:
+      enable: true
+  http:
+    root-path: /
+    read-timeout: 10M
+    limits:
+      max-body-size: 1G
+  websocket:
+    dispatch-to-worker: true
+  datasource:
+    db-kind: mysql
+    username: root
+    password: 123456
+    jdbc:
+      url: jdbc:mysql://127.0.0.1:3306/community?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=GMT%2B8
+  flyway:
+    migrate-at-start: true # 应用程序启动时自动执行 Flyway
+    clean-at-start: false # true 在应用程序启动时自动执行 Flyway clean 命令，否则为 false
+  redis:
+    hosts: redis://localhost:6379
+    password: 123456
+  swagger-ui:
+    path: /platform/q/swagger-ui
+    always-include: true
+    title: platform-swagger-ui
+  smallrye-openapi:
+    path: /platform/q/openapi
+
+"%test":
+  quarkus:
+    datasource:
+      db-kind: h2
+      jdbc:
+        url: jdbc:h2:mem:myDB;MODE=MYSQL
+
+mp: # Swagger信息
+  openapi:
+    extensions:
+      smallrye:
+        operationIdStrategy: METHOD
+        info:
+          title: EulixOS Platform Server API
+          version: 0.1.0
+          description: Platform open APIs
+          contact:
+            email: dev-support@eulixos.com
+            name: EulixOS Support
+            url: https://eulixos.com/contact
+          license:
+            name: Apache 2.0
+            url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+app: # 应用程序配置项
+  version: community-2.0 # api版本号
+  display:
+    mach: 3
+    unit:
+      name: "mph"
+      factor: 2.23694
+  registry:
+    subdomain: XXXX # 主域名
+  register:
+    provider:
+      name: default
+  api-resources:
+    location: api/servicesapi.json
+  lock:
+    expire-time: 30 # 分布式锁超时时间，单位s
+  migration:
+    route:
+      subdomain:
+        expire-time: 259200 #空间平台切换用户域名重定向有效期，单位min
+  schedule:
+    migration:
+      cron-expr: 0 0 0 * * ? # 每日凌晨

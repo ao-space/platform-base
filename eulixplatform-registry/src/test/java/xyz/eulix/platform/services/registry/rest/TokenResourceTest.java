@@ -26,9 +26,6 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import xyz.eulix.platform.common.support.serialization.OperationUtils;
-import xyz.eulix.platform.services.registry.dto.registry.BoxInfo;
-import xyz.eulix.platform.services.registry.dto.registry.BoxInfosReq;
-import xyz.eulix.platform.services.registry.service.BoxInfoService;
 import xyz.eulix.platform.services.token.dto.TokenInfo;
 import xyz.eulix.platform.services.token.dto.TokenResults;
 import xyz.eulix.platform.services.token.dto.TokenVerifySignInfo;
@@ -76,27 +73,12 @@ public class TokenResourceTest {
       + "-----END PRIVATE KEY-----";
 
   @Inject
-  BoxInfoService boxInfoService;
-
-  @Inject
   OperationUtils utils;
 
   @Test
   void createTokensTest() {
     final var boxUUID = "364b553c01dabb2764b2f2c0e721c1e860e308b1c7daed2671507d21434060ed";
     final var requestId = UUID.randomUUID().toString();
-    var boxInfo = new BoxInfo();
-    boxInfo.setBoxUUID(boxUUID);
-    boxInfo.setAuthType("box_pub_key");
-    boxInfo.setBoxPubKey(publicKey);
-    var list = new ArrayList<BoxInfo>();
-    list.add(boxInfo);
-    var infosReq = new BoxInfosReq();
-    infosReq.setBoxInfos(list);
-    final var boxInfos = boxInfoService.saveBoxInfosV2(infosReq);
-    var result = boxInfos.getBoxUUIDs();
-    Assertions.assertTrue(result.contains(boxUUID));
-
     var info = new TokenInfo();
 
     info.setBoxUUID(boxUUID);

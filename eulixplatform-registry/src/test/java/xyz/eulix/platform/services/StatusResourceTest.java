@@ -22,6 +22,8 @@ import xyz.eulix.platform.services.config.ApplicationProperties;
 
 import javax.inject.Inject;
 
+import java.util.UUID;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -33,9 +35,12 @@ class StatusResourceTest {
 
   @Test
   void testStatusEndpoint() {
+    final var requestId = UUID.randomUUID().toString();
+
     given()
+        .header("Request-Id", requestId)
         .when()
-        .get("/platform/status")
+        .get("/v2/platform/status")
         .then()
         .statusCode(200)
         .body("status", is("ok"))

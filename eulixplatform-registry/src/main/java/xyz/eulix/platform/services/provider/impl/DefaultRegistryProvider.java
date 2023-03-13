@@ -42,11 +42,6 @@ public class DefaultRegistryProvider implements RegistryProvider {
     }
 
     @Override
-    public Boolean isBoxIllegal(String boxUUID) {
-        return true;
-    }
-
-    @Override
     public void isBoxIllegal(TokenInfo tokenInfo) {
         return;
     }

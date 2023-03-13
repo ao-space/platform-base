@@ -19,7 +19,6 @@ package xyz.eulix.platform.services.auth.service;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.auth.dto.PollPkeyRsp;
 import xyz.eulix.platform.services.auth.dto.TransBoxInfoReq;
-import xyz.eulix.platform.services.auth.dto.v2.TransBoxInfoReqV2;
 import xyz.eulix.platform.services.auth.entity.PkeyAuthEntity;
 import xyz.eulix.platform.services.auth.repository.PkeyAuthEntityRepository;
 import xyz.eulix.platform.common.support.service.ServiceError;
@@ -47,12 +46,7 @@ public class AuthService {
      * @param boxInfoReq box info
      */
     @Transactional
-    public void savePkeyAuth(TransBoxInfoReq boxInfoReq) {
-        savePkeyAuth(boxInfoReq.getPkey(), boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
-    }
-
-    @Transactional
-    public PollPkeyRsp savePkeyAuth(String pkey, TransBoxInfoReqV2 boxInfoReq) {
+    public PollPkeyRsp savePkeyAuth(String pkey, TransBoxInfoReq boxInfoReq) {
         savePkeyAuth(pkey, boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
         return PollPkeyRsp.of(pkey, boxInfoReq.getBkey(), boxInfoReq.getUserDomain(), boxInfoReq.getBoxPubKey());
     }

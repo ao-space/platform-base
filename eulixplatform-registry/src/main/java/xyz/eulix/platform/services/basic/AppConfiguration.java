@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package xyz.eulix.platform.services.registry.dto.registry;
+package xyz.eulix.platform.services.basic;
 
-import lombok.Data;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import xyz.eulix.platform.services.registry.dto.registry.NetworkClient;
+import io.quarkus.runtime.Startup;
+import org.jboss.logging.Logger;
 
-/**
- * Used to define a data transfer object as REST response for holding related result
- * of activation result.
- */
-@Data(staticConstructor = "of")
-public class BoxRegistryResult {
-    @Schema(description = "盒子的 UUID")
-    private final String boxUUID;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 
-    @Schema(description = "为盒子分配的 network client 信息")
-    private final NetworkClient networkClient;
+@Startup
+@ApplicationScoped
+public class AppConfiguration {
+    private static final Logger LOG = Logger.getLogger("app.log");
+
+    @PostConstruct
+    void init() {
+        LOG.infov("Application init begin...");
+        LOG.infov("Application init succeed!");
+    }
 }

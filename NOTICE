@@ -1,4 +1,4 @@
---EulixPlatfrom-Services--
+--Platform-Registry--
 Copyright (c) 2022 Institute of Software, Chinese Academy of Sciences (ISCAS)
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 --Third Party Software Notices--
-EulixPlatfrom-Services use software provided by third parties, including open source software. The following copyright statements and licenses apply to various components that are distributed with EulixPlatfrom-Services. The EulixPlatfrom-Services that includes this file does not necessarily use all of the third party software components referred to below.
+Platform-Registry use software provided by third parties, including open source software. The following copyright statements and licenses apply to various components that are distributed with Platform-Registry. The Platform-Registry that includes this file does not necessarily use all of the third party software components referred to below.
 
-Licensee must fully agree and comply with these license terms or must not use these components. The third party license terms apply only to the respective software to which the license pertains, and the third party license terms do not apply to the EulixPlatfrom-Services.
+Licensee must fully agree and comply with these license terms or must not use these components. The third party license terms apply only to the respective software to which the license pertains, and the third party license terms do not apply to the Platform-Registry.

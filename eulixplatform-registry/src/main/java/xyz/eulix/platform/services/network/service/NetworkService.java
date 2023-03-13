@@ -18,7 +18,6 @@ package xyz.eulix.platform.services.network.service;
 
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.cache.NSRClient;
-import xyz.eulix.platform.services.network.dto.NetworkAuthReq;
 import xyz.eulix.platform.services.network.dto.NetworkServerExtraInfo;
 import xyz.eulix.platform.services.network.dto.NetworkServerRes;
 import xyz.eulix.platform.services.network.dto.StunServerRes;
@@ -121,10 +120,6 @@ public class NetworkService {
      * @param networkAuthReq networkAuthReq
      * @return 是否通过
      */
-    public Boolean networkClientAuth(NetworkAuthReq networkAuthReq) {
-        return networkClientAuth(networkAuthReq.getClientId(), networkAuthReq.getSecretKey());
-    }
-
     public Boolean networkClientAuth(String clientId, String secretKey) {
         return registryService.networkClientAuth(clientId, secretKey);
     }

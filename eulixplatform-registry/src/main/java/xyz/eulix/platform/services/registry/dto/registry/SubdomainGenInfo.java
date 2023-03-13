@@ -19,9 +19,10 @@ package xyz.eulix.platform.services.registry.dto.registry;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.time.OffsetDateTime;
+import javax.validation.constraints.Max;
 
 /**
  * Used to define a data transfer object as REST response for holding related result
@@ -29,13 +30,9 @@ import java.time.OffsetDateTime;
  */
 @Data
 @AllArgsConstructor(staticName = "of")
-public class SubdomainGenResult {
-    @Schema(description = "盒子的 UUID")
-    private String boxUUID;
-
-    @Schema(description = "全局唯一的 subdomain")
-    private String subdomain;
-
-    @Schema(description = "subdomain过期时间")
-    private OffsetDateTime expiresAt;
+@NoArgsConstructor
+public class SubdomainGenInfo {
+    @Schema(description = "有效期，单位秒，最长7天")
+    @Max(604800)
+    private Integer effectiveTime;
 }

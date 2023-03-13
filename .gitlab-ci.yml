@@ -25,7 +25,9 @@ image: registry.eulix.xyz/collab/infra/public-service/maven:3.6.3-openjdk-11
 stages:
   - license_check
   - license_fix
+  - secret
   - validate
+  - package
   - docker
   - manifest
   - sign
@@ -41,20 +43,17 @@ include:
     file: '/license.yml'
   - project: 'bp/ams-ci-template'
     ref: main
-    file: '/container.yml'
-  - project: 'bp/ams-ci-template'
-    ref: main
-    file: '/sign.yml'
-  - project: 'bp/ams-ci-template'
-    ref: main
     file: '/cloc.yml'
+  - project: 'bp/ams-ci-template'
+    ref: main
+    file: '/secret-detection.yml'
 
 variables:
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
   ENV_SONARQUBE_TYPE: maven
   ENV_LICENSE_TYPE: maven
-  ENV_CONTAINER_NAME: eulixplatform-services
+  ENV_CONTAINER_NAME: platform-registry
   LM_JAVA_VERSION: 11
 
 cache:
@@ -63,7 +62,7 @@ cache:
     - .m2/repository
     - .sonar/cache
 
-validate:build:
+validate:compile:
   stage: validate
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
@@ -85,56 +84,9 @@ validate:test:
     - x86_64
   script:
     - mvn $MAVEN_CLI_OPTS verify
-    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/eulixplatform-common/target/site/jacoco/index.html"
-    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/eulixplatform-opstage/target/site/jacoco/index.html"
-    - echo "The Jacoco Report URL：https://bp.pages.eulix.xyz/-/platform/eulixplatform-services/-/jobs/${CI_JOB_ID}/artifacts/eulixplatform-registry/target/site/jacoco/index.html"
-  artifacts:
-    paths:
-      - target/
-      - eulixplatform-opstage/target/
-      - eulixplatform-common/target/
-      - eulixplatform-registry/target/
-
-package:x86_64:
-  stage: validate
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH
-    - if: $CI_MERGE_REQUEST_ID
-  tags:
-    - x86_64
-  script:
-    - mvn $MAVEN_CLI_OPTS package
-    - wget https://gosspublic.alicdn.com/ossutil/1.7.13/ossutil64 -O /usr/bin/ossutil64 && chmod +x /usr/bin/ossutil64
-    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-opstage/target/eulixplatform-opstage-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-services/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
-    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-common/target/eulixplatform-common-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-common/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
-    - ossutil64 -i $OSS_CI_EULIX_RES_ACCESS_ID -k $OSS_CI_EULIX_RES_ACCESS_KEY -e $OSS_CI_EULIX_RES_ENDPOINT cp eulixplatform-registry/target/eulixplatform-registry-*.jar -f $OSS_CI_EULIX_RES_BUCKET_DIR/eulixplatform-registry/`head -1 VERSION`-alpha.$CI_PIPELINE_ID.jar
-  artifacts:
-    paths:
-      - eulixplatform-opstage/target/
-      - eulixplatform-common/target/
-      - eulixplatform-registry/target/
-
-package:aarch64:
-  stage: validate
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH
-    - if: $CI_MERGE_REQUEST_ID
-  tags:
-    - aarch64
-  script:
-    - mvn $MAVEN_CLI_OPTS package
-  artifacts:
-    paths:
-      - eulixplatform-opstage/target/
-      - eulixplatform-common/target/
-      - eulixplatform-registry/target/
 
 package:x86_64:community:
-  stage: validate
+  stage: package
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -150,7 +102,7 @@ package:x86_64:community:
       - eulixplatform-registry/target/
 
 package:aarch64:community:
-  stage: validate
+  stage: package
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -172,8 +124,6 @@ docker:aarch64:community:
       when: never
     - if: $CI_COMMIT_BRANCH
     - if: $CI_MERGE_REQUEST_ID
-  variables:
-    ENV_CONTAINER_NAME: eulixplatform-services-community
   tags: 
     - docker_build-aarch64
   dependencies: 
@@ -191,8 +141,6 @@ docker:x86_64:community:
       when: never
     - if: $CI_COMMIT_BRANCH
     - if: $CI_MERGE_REQUEST_ID
-  variables:
-    ENV_CONTAINER_NAME: eulixplatform-services-community
   tags: 
     - docker_build-x86_64
   dependencies: 
@@ -209,8 +157,6 @@ manifest:push:community:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH
-  variables:
-    ENV_CONTAINER_NAME: eulixplatform-services-community
   tags: 
     - docker_build
   retry: 2
@@ -252,8 +198,6 @@ manifest:merge_request:community:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_MERGE_REQUEST_ID
-  variables:
-    ENV_CONTAINER_NAME: eulixplatform-services-community
   tags: 
     - docker_build
   retry: 2
@@ -295,8 +239,6 @@ artifacts-sign:push:community:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH
-  variables:
-    ENV_CONTAINER_NAME: eulixplatform-services-community
   image:
     name: registry.eulix.xyz/collab/infra/infrastructure/sigstore/cosign:v1.10.1
     entrypoint: [''] 
@@ -320,8 +262,6 @@ artifacts-sign:merge_request:community:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_MERGE_REQUEST_ID
-  variables:
-    ENV_CONTAINER_NAME: eulixplatform-services-community
   image:
     name: registry.eulix.xyz/collab/infra/infrastructure/sigstore/cosign:v1.10.1
     entrypoint: [''] 

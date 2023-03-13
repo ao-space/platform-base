@@ -22,11 +22,10 @@
     <groupId>xyz.eulix.platform.services</groupId>
     <artifactId>eulixplatform-services</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.13</version>
+    <version>1.8.0</version>
 
     <modules>
         <module>eulixplatform-common</module>
-        <module>eulixplatform-opstage</module>
         <module>eulixplatform-registry</module>
     </modules>
 
@@ -261,13 +260,6 @@
             <properties>
                 <!--environment是自定义的字段，自定义字段可以有多个-->
                 <environment>community</environment>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>prod</id>
-            <properties>
-                <environment>prod</environment>
             </properties>
             <!--activation用来指定激活方式，可以根据jdk环境，环境变量，文件的存在或缺失-->
             <activation>

@@ -1,1 +1,0 @@
-License: {Name: BSD Licence 3, URL: http://opensource.org/licenses/BSD-3-Clause, Distribution: , Comments: , }

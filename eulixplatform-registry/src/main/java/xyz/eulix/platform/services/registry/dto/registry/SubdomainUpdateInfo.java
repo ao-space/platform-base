@@ -16,26 +16,21 @@
 
 package xyz.eulix.platform.services.registry.dto.registry;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.time.OffsetDateTime;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * Used to define a data transfer object as REST response for holding related result
  * of activation result.
  */
 @Data
-@AllArgsConstructor(staticName = "of")
-public class SubdomainGenResult {
-    @Schema(description = "盒子的 UUID")
-    private String boxUUID;
-
-    @Schema(description = "全局唯一的 subdomain")
+public class SubdomainUpdateInfo {
+    @Schema(description = "子域名，正则表达式：^[a-z0-9-]{1,63}$")
+    @Pattern(regexp = "^[a-z0-9-]{1,63}$")
+    @NotBlank
     private String subdomain;
-
-    @Schema(description = "subdomain过期时间")
-    private OffsetDateTime expiresAt;
 }

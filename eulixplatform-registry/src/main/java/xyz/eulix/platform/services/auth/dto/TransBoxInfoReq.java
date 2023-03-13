@@ -20,17 +20,10 @@ import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
 public class TransBoxInfoReq {
-    // 二维码pkey值
-    @NotBlank
-    @Pattern(regexp = "[a-zA-Z0-9-]{36}")
-    @Schema(pattern = "[a-zA-Z0-9-]{36}", description = "二维码pkey值")
-    private String pkey;
-
     // 登录box端的key
     @NotBlank
     @Size(max = 128)

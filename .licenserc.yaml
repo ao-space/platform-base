@@ -16,7 +16,7 @@ header:
   license:
     spdx-id: Apache-2.0
     copyright-owner: ISCAS
-    software-name: eulixplatform-services
+    software-name: platform-services
     content: |
       Copyright (c) 2022 Institute of Software Chinese Academy of Sciences (ISCAS)
       

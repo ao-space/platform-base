@@ -16,34 +16,30 @@
 
 package xyz.eulix.platform.services.registry.rest;
 
+import javax.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.registry.dto.registry.*;
-import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
-import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
-import xyz.eulix.platform.services.registry.service.RegistryService;
 import xyz.eulix.platform.common.support.CommonUtils;
+import xyz.eulix.platform.services.registry.dto.registry.*;
 import xyz.eulix.platform.common.support.log.Logged;
-import xyz.eulix.platform.common.support.service.ServiceError;
-import xyz.eulix.platform.common.support.service.ServiceOperationException;
 
-import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
+import xyz.eulix.platform.services.registry.dto.registry.ClientRegistryResult;
+import xyz.eulix.platform.services.registry.entity.RegistryClientEntity;
+import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
+import xyz.eulix.platform.services.registry.service.RegistryService;
 import xyz.eulix.platform.services.token.service.TokenService;
 
 @RequestScoped
-@Path("/platform/v1/api")
-@Tag(name = "Platform Registry Service", description = "Provides related APIs.")
+@Path("/v2/platform")
+@Tag(name = "Platform Registry Service", description = "注册APIv2，包括网络资源管控、域名管理等")
 public class RegistryResource {
     private static final Logger LOG = Logger.getLogger("app.log");
 
@@ -55,289 +51,153 @@ public class RegistryResource {
 
     @Logged
     @POST
-    @Path("/registry/box")
+    @Path("/boxes")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "注册盒子，成功后返回盒子的注册码，以及network client信息。")
+    @Operation(description = "注册盒子，成功后返回network client等信息")
     public BoxRegistryResult registryBox(@Valid BoxRegistryInfo boxRegistryInfo,
-                                         @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        // 校验boxUUID合法性
-        registryService.isValidBoxUUIDThrowEx(boxRegistryInfo.getBoxUUID());
-        // 校验盒子是否已注册
-        registryService.hasBoxRegistered(boxRegistryInfo.getBoxUUID());
-        // 注册&路由
-        return registryService.registryBox(boxRegistryInfo);
+                                         @HeaderParam("Request-Id") @NotBlank String reqId,
+                                         @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey) {
+        // 验证 box reg key 有效期
+        var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxRegistryInfo.getBoxUUID(), boxRegKey);
+        return registryService.registryBox(boxTokenEntity, CommonUtils.getUUID());
     }
 
     @Logged
-    @POST
-    @Path("/registry/user")
+    @DELETE
+    @Path("/boxes/{box_uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "注册用户，同步注册客户端，成功后返回用户、客户端的注册码。")
-    public UserRegistryResult registryUser(@Valid UserRegistryInfo userRegistryInfo,
-                                           @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        // 参数校验
-        RegistryTypeEnum userType = RegistryTypeEnum.fromValue(userRegistryInfo.getUserType());
-        if (!RegistryTypeEnum.USER_ADMIN.equals(userType) && !RegistryTypeEnum.USER_MEMBER.equals(userType)) {
-            throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "userRegistryInfo.userType");
-        }
-        // 校验盒子是否未注册
-        registryService.hasBoxNotRegisteredThrow(userRegistryInfo.getBoxUUID(), userRegistryInfo.getBoxRegKey());
-        // 校验用户是否已注册
-        registryService.hasUserRegistered(userRegistryInfo.getBoxUUID(), userRegistryInfo.getUserId());
-        SubdomainEntity subdomainEntity;
-        if (CommonUtils.isNullOrEmpty(userRegistryInfo.getSubdomain())) {
-            // 申请subdomain
-            subdomainEntity = registryService.subdomainGen(userRegistryInfo.getBoxUUID());
-            userRegistryInfo.setSubdomain(subdomainEntity.getSubdomain());
-        } else {
-            // 校验subdomain是否不存在，或者已使用，或者不属于当前盒子/当前盒子用户
-            subdomainEntity = registryService.isSubdomainNotExistOrUsed(userRegistryInfo.getSubdomain(), userRegistryInfo.getBoxUUID(),
-                    userRegistryInfo.getUserId());
-        }
-        // 注册
-        return registryService.registryUser(userRegistryInfo, subdomainEntity.getUserDomain());
-    }
-
-    @Logged
-    @POST
-    @Path("/registry/client")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "注册新客户端，成功后返回客户端的注册码。")
-    public ClientRegistryResult registryClient(@Valid ClientRegistryInfo clientInfo,
-                                               @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        // 参数校验
-        RegistryTypeEnum clientType = RegistryTypeEnum.fromValue(clientInfo.getClientType());
-        if (!RegistryTypeEnum.CLIENT_BIND.equals(clientType) && !RegistryTypeEnum.CLIENT_AUTH.equals(clientType)) {
-            throw new ServiceOperationException(ServiceError.INPUT_PARAMETER_ERROR, "clientRegistryInfo.clientType");
-        }
-        // 校验用户是否未注册
-        registryService.hasUserNotRegistered(clientInfo.getBoxUUID(), clientInfo.getUserId(), clientInfo.getUserRegKey());
-        // 校验client是否已注册
-        registryService.hasClientRegistered(clientInfo.getBoxUUID(), clientInfo.getUserId(), clientInfo.getClientUUID());
-        // 注册
-        RegistryClientEntity clientEntity = registryService.registryClient(clientInfo.getBoxUUID(), clientInfo.getUserId(), clientInfo.getClientUUID(),
-                RegistryTypeEnum.fromValue(clientInfo.getClientType()));
-        return ClientRegistryResult.of(clientEntity.getClientRegKey());
-    }
-
-    @Logged
-    @POST
-    @Path("/registry/reset/box")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。")
-    public BoxRegistryResetResult resetBox(@Valid BoxRegistryResetInfo boxResetInfo,
-                                           @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        Boolean notRegistered = registryService.hasBoxNotRegistered(boxResetInfo.getBoxUUID(), boxResetInfo.getBoxRegKey());
-        if (notRegistered) {
-            LOG.warnv("box uuid had not registered, boxUuid:{0}", boxResetInfo.getBoxUUID());
-            throw new WebApplicationException("invalid box registry reset info", Response.Status.FORBIDDEN);
-        }
-        registryService.resetBox(boxResetInfo.getBoxUUID());
-        return BoxRegistryResetResult.of(boxResetInfo.getBoxUUID());
-    }
-
-    @Logged
-    @POST
-    @Path("/registry/reset/user")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "重置盒子绑定关系，重置后可以为盒子重新注册绑定关系。")
-    public UserRegistryResetResult resetUser(@Valid UserRegistryResetInfo userResetInfo,
-                                         @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        final boolean match = registryService.verifyUser(userResetInfo.getUserRegKey(), userResetInfo.getBoxUUID(), userResetInfo.getUserId());
-        if (!match) {
-            LOG.warnv("user id had not registered, boxUuid:{0}, userId:{1}",userResetInfo.getBoxUUID(), userResetInfo.getUserId());
-            throw new WebApplicationException("invalid user registry reset info", Response.Status.FORBIDDEN);
-        }
-        registryService.resetUser(userResetInfo.getBoxUUID(), userResetInfo.getUserId());
-        return UserRegistryResetResult.of(userResetInfo.getBoxUUID(), userResetInfo.getUserId());
-    }
-
-    @Logged
-    @POST
-    @Path("/registry/reset/client")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "重置客户端绑定关系，重置后可以为客户端重新注册绑定关系。")
-    public ClientRegistryResetResult resetClient(@Valid ClientRegistryResetInfo clientResetInfo,
-                                                 @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        final boolean isExist = registryService.verifyClient(clientResetInfo.getClientRegKey(), clientResetInfo.getBoxUUID(),
-                clientResetInfo.getUserId(), clientResetInfo.getClientUUID());
+    @Operation(description = "删除盒子注册信息")
+    public void resetBox(@HeaderParam("Request-Id") @NotBlank String reqId,
+                         @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                         @PathParam("box_uuid") @NotBlank String boxUUID) {
+        // 验证 box reg key 有效期
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
+        final boolean isExist = registryService.hasBoxRegistered(boxUUID);
         if (!isExist) {
-            LOG.warnv("client uuid had not registered, boxUuid:{0}, userId:{1}, clientUuid:{2}", clientResetInfo.getBoxUUID(),
-                    clientResetInfo.getUserId(), clientResetInfo.getClientUUID());
-            throw new WebApplicationException("invalid client registry reset info", Response.Status.FORBIDDEN);
+            LOG.warnv("box uuid had not registered, boxUuid:{0}", boxUUID);
+            throw new WebApplicationException("invalid box registry reset info", Status.NOT_FOUND);
         }
-        registryService.deleteClientByClientUUID(clientResetInfo.getBoxUUID(), clientResetInfo.getUserId(), clientResetInfo.getClientUUID());
-        return ClientRegistryResetResult.of(clientResetInfo.getBoxUUID(), clientResetInfo.getUserId(), clientResetInfo.getClientUUID());
+        registryService.resetBox(boxUUID);
     }
 
-    @RolesAllowed("admin")
     @Logged
     @POST
-    @Path("/registry/reset/force")
+    @Path("/boxes/{box_uuid}/users")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "强制重置盒子绑定关系，需管理员权限。")
-    public BoxRegistryResetResult resetForce(@Valid BoxRegistryForceReset resetInfo,
-                                             @Valid @HeaderParam("Request-Id") @NotBlank String reqId) {
-        LOG.warnv("reset box forcely, boxUuid:{0}", resetInfo.getBoxUUID());
-        registryService.resetBox(resetInfo.getBoxUUID());
-        return BoxRegistryResetResult.of(resetInfo.getBoxUUID());
-    }
-
-    @Logged
-    @GET
-    @Path("/registry/verify/box")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "校验盒子合法性。")
-    public Response verifyBox(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
-                              @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey) {
-        Boolean notRegistered = registryService.hasBoxNotRegistered(boxUUID, boxRegKey);
-        if (notRegistered) {
-            LOG.warnv("invalid registry box verify info, boxUuid:{0}", boxUUID);
-            throw new WebApplicationException("invalid registry box verify info", Response.Status.FORBIDDEN);
-        }
-        return Response.ok().build();
-    }
-
-    @Logged
-    @GET
-    @Path("/registry/verify/user")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "校验用户合法性。")
-    public Response verifyUser(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
-                               @NotBlank @QueryParam("user_id") @Schema(description = "用户的 id。") String userId,
-                               @NotBlank @QueryParam("user_reg_key") @Schema(description = "用户的注册 key。") String userRegKey) {
-        final boolean match = registryService.verifyUser(userRegKey, boxUUID, userId);
-        if (!match) {
-            LOG.warnv("invalid registry box verify info, boxUuid:{0}", boxUUID);
-            throw new WebApplicationException("invalid registry box verify info", Response.Status.FORBIDDEN);
-        }
-        return Response.ok().build();
-    }
-
-    @Logged
-    @GET
-    @Path("/registry/verify/client")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "校验客户端合法性。")
-    public Response verifyClient(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
-                                 @NotBlank @QueryParam("user_id") @Schema(description = "用户的 id。") String userId,
-                                 @NotBlank @QueryParam("client_uuid") @Schema(description = "客户端的 uuid。") String clientUUID,
-                                 @NotBlank @QueryParam("client_reg_key") @Schema(description = "客户端的注册 key。") String clientRegKey) {
-        final boolean match = registryService.verifyClient(clientRegKey, boxUUID, userId, clientUUID);
-        if (!match) {
-            LOG.warnv("invalid registry client verify info, boxUuid:{0}, userId:{1}, clientUuid:{2}", boxUUID, userId, clientUUID);
-            throw new WebApplicationException("invalid registry client verify info", Response.Status.FORBIDDEN);
-        }
-        return Response.ok().build();
-    }
-
-    @Logged
-    @GET
-    @Path("/subdomain/gen")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "分发全局唯一的subdomain。")
-    public SubdomainGenResult subdomainGen(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
-                                       @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey,
-                                       @QueryParam("effective_time") @Max(604800) @Schema(description = "有效期，单位秒，最长7天") Integer effectiveTime) {
-        // 校验 box 身份
-        registryService.hasBoxNotRegisteredThrow(boxUUID, boxRegKey);
-        // 校验数量上限
-        registryService.reachUpperLimit(boxUUID);
-        // 生成
-        SubdomainEntity subdomainEntity = registryService.subdomainGen(boxUUID, effectiveTime);
-        return SubdomainGenResult.of(boxUUID, subdomainEntity.getSubdomain());
-    }
-
-    @Logged
-    @PUT
-    @Path("/subdomain/update")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "更新subdomain。幂等设计，建议client失败重试3次。")
-    public SubdomainUpdateResult subdomainUpdate(@NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
-                                           @NotBlank @QueryParam("user_id") @Schema(description = "用户的 id。") String userId,
-                                           @NotBlank @QueryParam("user_reg_key") @Schema(description = "用户的注册 key。") String userRegKey,
-                                           @NotBlank @QueryParam("subdomain") @Size(max = 100) @Schema(description = "子域名，最长100字符") String subdomain) {
-        // 校验用户是否未注册
-        registryService.hasUserNotRegistered(boxUUID, userId, userRegKey);
-        // 更新域名
-        return registryService.subdomainUpdate(boxUUID, userId, subdomain);
-    }
-
-    @RolesAllowed("admin")
-    @Logged
-    @GET
-    @Path("/subdomain/detail")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "查询用户域名")
-    public SubdomainGetResult getSubdomain(@HeaderParam("Request-Id") @NotBlank String reqId,
+    @Operation(description = "注册用户，同步注册绑定客户端")
+    public UserRegistryResult registryUser(@Valid UserRegistryInfo userRegistryInfo,
+                                           @HeaderParam("Request-Id") @NotBlank String reqId,
                                            @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
-                                           @QueryParam("user_domain") @NotBlank String userDomain) {
-        return SubdomainGetResult.of("boxUUID", "userId", "subdomain", "userDomain", 0, null);
-    }
-
-    @RolesAllowed("admin")
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/registry/boxinfo")
-    @Operation(description = "已注册信息查询")
-    public BoxRegistryDetailInfo registriesBoxInfos(@Valid @NotBlank @HeaderParam("Request-Id") String requestId,
-                                                          @NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID) {
-        return registryService.boxRegistryBindUserAndClientInfo(boxUUID);
+                                           @PathParam("box_uuid") @NotBlank String boxUUID) {
+        // 验证 box reg key 有效期
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
+        // 校检盒子
+        registryService.hasBoxNotRegisteredThrow(boxUUID);
+        // 注册
+        return registryService.registryUser(userRegistryInfo, boxUUID);
     }
 
     @Logged
-    @GET
-    @Path("/registry/user")
+    @DELETE
+    @Path("/boxes/{box_uuid}/users/{user_id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "获取注册用户信息")
-    public UserRegistryDetail getRegistryUser(@HeaderParam("Request-Id") @NotBlank String reqId,
-        @NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
-        @NotBlank @QueryParam("user_id") @Schema(description = "用户的 id。") String userId,
-        @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey) {
+    @Operation(description = "删除用户注册信息")
+    public void resetUser(@HeaderParam("Request-Id") @NotBlank String reqId,
+                          @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                          @PathParam("box_uuid") @NotBlank String boxUUID,
+                          @PathParam("user_id") @NotBlank String userId) {
+        // 验证 box reg key 有效期
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
+        final boolean match = registryService.verifyUser(boxUUID, userId);
+        if (!match) {
+            LOG.warnv("user id had not registered, boxUuid:{0}, userId:{1}",boxUUID, userId);
+            throw new WebApplicationException("invalid user registry reset info", Status.NOT_FOUND);
+        }
+        registryService.resetUser(boxUUID, userId);
+    }
+
+    @Logged
+    @POST
+    @Path("/boxes/{box_uuid}/users/{user_id}/clients")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "注册客户端")
+    public ClientRegistryResult registryClient(@Valid ClientRegistryInfo clientInfo,
+                                               @HeaderParam("Request-Id") @NotBlank String reqId,
+                                               @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                               @PathParam("box_uuid") @NotBlank String boxUUID,
+                                               @PathParam("user_id") @NotBlank String userId) {
         // 验证 box reg key 有效期
         tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
         // 校检用户
         registryService.hasUserNotRegistered(boxUUID, userId);
-        var registryUserEntity = registryService.getRegistryUserEntity(boxUUID, userId);
-        var subdomainEntity = registryService.getSubdomainEntity(boxUUID, userId);
-
-        return  UserRegistryDetail.of(subdomainEntity.getSubdomain(), registryUserEntity.getUserRegKey());
+        RegistryClientEntity clientEntity = registryService.registryClient(boxUUID, userId, clientInfo.getClientUUID(),
+                RegistryTypeEnum.fromValue(clientInfo.getClientType()));
+        return ClientRegistryResult.of(clientEntity.getBoxUUID(), clientEntity.getUserId(),
+                clientEntity.getClientUUID(), clientEntity.getRegistryType());
     }
 
     @Logged
-    @GET
-    @Path("/registry/client")
+    @DELETE
+    @Path("/boxes/{box_uuid}/users/{user_id}/clients/{client_uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "获取注册客户端信息")
-    public ClientRegistryDetail getRegistryClient(@HeaderParam("Request-Id") @NotBlank String reqId,
-        @NotBlank @QueryParam("box_uuid") @Schema(description = "盒子的 uuid。") String boxUUID,
-        @NotBlank @QueryParam("user_id") @Schema(description = "用户的 id。") String userId,
-        @NotBlank @QueryParam("client_uuid") @Schema(description = "客户端的 uuid。") String clientUUID,
-        @NotBlank @QueryParam("box_reg_key") @Schema(description = "盒子的注册 key。") String boxRegKey) {
+    @Operation(description = "删除客户端注册信息")
+    public void resetClient(@HeaderParam("Request-Id") @NotBlank String reqId,
+                            @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                            @PathParam("box_uuid") @NotBlank String boxUUID,
+                            @PathParam("user_id") @NotBlank String userId,
+                            @PathParam("client_uuid") @NotBlank String clientUUID) {
         // 验证 box reg key 有效期
         tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
-        // 校检 client
-        registryService.hasClientNotRegistered(boxUUID, userId, clientUUID);
+        final boolean isExist = registryService.verifyClient(boxUUID, userId, clientUUID);
+        if (!isExist) {
+            LOG.warnv("client uuid had not registered, boxUuid:{0}, userId:{1}, clientUuid:{2}", boxUUID, userId, clientUUID);
+            throw new WebApplicationException("invalid client registry reset info", Status.NOT_FOUND);
+        }
+        registryService.deleteClientByClientUUID(boxUUID, userId, clientUUID);
+    }
 
-        var registryClientEntity = registryService.getRegistryClientEntity(boxUUID,
-            userId, clientUUID);
+    @Logged
+    @POST
+    @Path("boxes/{box_uuid}/subdomains")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "申请subdomain，平台保证全局唯一性")
+    public SubdomainGenResult subdomainGen(@Valid SubdomainGenInfo subdomainGenInfo,
+                                           @HeaderParam("Request-Id") @NotBlank String reqId,
+                                           @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                           @PathParam("box_uuid") @NotBlank String boxUUID) {
+        // 验证 box reg key 有效期
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
+        // 校验 box 身份
+        registryService.hasBoxNotRegisteredThrow(boxUUID);
+        // 校验数量上限
+        registryService.reachUpperLimit(boxUUID);
 
-        return ClientRegistryDetail.of(registryClientEntity.getClientRegKey());
+        SubdomainEntity subdomainEntity = registryService.subdomainGen(boxUUID, subdomainGenInfo.getEffectiveTime());
+        return SubdomainGenResult.of(boxUUID, subdomainEntity.getSubdomain(), subdomainEntity.getExpiresAt());
+    }
+
+    @Logged
+    @PUT
+    @Path("/boxes/{box_uuid}/users/{user_id}/subdomain")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "更新用户subdomain。幂等设计")
+    public SubdomainUpdateResult subdomainUpdate(@Valid SubdomainUpdateInfo subdomainUpdateInfo,
+                                                 @HeaderParam("Request-Id") @NotBlank String reqId,
+                                                 @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
+                                                 @PathParam("box_uuid") @NotBlank String boxUUID,
+                                                 @PathParam("user_id") @NotBlank String userId) {
+        // 验证 box reg key 有效期
+        tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
+        // 校验用户是否未注册
+        registryService.hasUserNotRegistered(boxUUID, userId);
+        return registryService.subdomainUpdate(boxUUID, userId, subdomainUpdateInfo.getSubdomain());
     }
 }

@@ -21,20 +21,15 @@ import io.quarkus.scheduler.ScheduledExecution;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.log.Logged;
-import xyz.eulix.platform.common.support.service.ServiceError;
-import xyz.eulix.platform.common.support.service.ServiceOperationException;
 import xyz.eulix.platform.services.cache.NSRClient;
 import xyz.eulix.platform.services.cache.NSRRedirectStateEnum;
 import xyz.eulix.platform.services.cache.NSRoute;
 import xyz.eulix.platform.services.migration.dto.*;
-import xyz.eulix.platform.services.network.entity.NetworkServerEntity;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
 import xyz.eulix.platform.services.registry.dto.registry.SubdomainStateEnum;
-import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 import xyz.eulix.platform.services.registry.entity.RegistryUserEntity;
 import xyz.eulix.platform.services.registry.entity.SubdomainEntity;
-import xyz.eulix.platform.services.registry.repository.RegistryUserEntityRepository;
 import xyz.eulix.platform.services.registry.repository.SubdomainEntityRepository;
 import xyz.eulix.platform.services.registry.service.RegistryService;
 import xyz.eulix.platform.services.token.entity.BoxTokenEntity;
@@ -66,7 +61,7 @@ public class MigrationService {
         registryService.resetBox(boxTokenEntity.getBoxUUID());
         LOG.infov("[Migration]: reset box info before migration succeed, boxUUID:{0}", boxTokenEntity.getBoxUUID());
 
-        var boxRegistryResult = registryService.registryBoxV2(boxTokenEntity, boxMigrationInfo.getNetworkClientId());
+        var boxRegistryResult = registryService.registryBox(boxTokenEntity, boxMigrationInfo.getNetworkClientId());
         LOG.infov("[Migration]: registry box succeed, boxUUID:{0}", boxTokenEntity.getBoxUUID());
 
         List<UserMigrationInfo> userInfos = new ArrayList<>();
@@ -117,7 +112,7 @@ public class MigrationService {
     public List<ClientMigrationInfo> clientMigration(List<ClientMigrationInfo> clientMigrationInfos, String boxUUID, String userId) {
         List<ClientMigrationInfo> clientMigrationResults = new ArrayList<>();
         for (ClientMigrationInfo clientMigrationInfo : clientMigrationInfos) {
-            var registryClientEntity = registryService.registryClientV2(boxUUID, userId,
+            var registryClientEntity = registryService.registryClient(boxUUID, userId,
                     clientMigrationInfo.getClientUUID(), RegistryTypeEnum.fromValue(clientMigrationInfo.getClientType()));
             clientMigrationResults.add(ClientMigrationInfo.of(registryClientEntity.getClientUUID(), registryClientEntity.getRegistryType()));
             LOG.infov("[Migration]: registry client succeed, boxUUID:{0}, userId:{1}, clientUUID:{2}", boxUUID, userId,
