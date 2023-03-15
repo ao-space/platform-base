@@ -35,7 +35,7 @@
 # docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" eulix/eulixplatform-services-jvm
 #
 ###
-FROM registry.eulix.xyz/collab/infra/infrastructure/ubi8/ubi-minimal:8.3
+FROM redhat/ubi8-minimal:8.7-1085
 
 ARG CI_COMMIT_SHA
 ARG CI_PIPELINE_ID

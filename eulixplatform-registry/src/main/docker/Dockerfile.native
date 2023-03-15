@@ -28,7 +28,7 @@
 # docker run -i --rm -p 8080:8080 eulix/eulixplatform-services
 #
 ###
-FROM registry.eulix.xyz/collab/infra/infrastructure/ubi8/ubi-minimal:8.3
+FROM redhat/ubi8-minimal:8.7-1085
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
