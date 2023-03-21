@@ -174,3 +174,358 @@
       incurred by, or claims asserted against, such Contributor by reason
       of your accepting any such warranty or additional liability.
 
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+========================================================================
+ licenses
+========================================================================
+
+    io.quarkus:quarkus-resteasy-jaxb 2.4.2.Final 
+    io.quarkus:quarkus-scheduler 2.4.2.Final 
+
+========================================================================
+Apache-2.0 licenses
+========================================================================
+
+    cglib:cglib 3.3.0 Apache-2.0
+    com.alibaba:easyexcel 3.0.2 Apache-2.0
+    com.fasterxml.jackson.core:jackson-annotations 2.12.5 Apache-2.0
+    com.fasterxml.jackson.core:jackson-core 2.12.5 Apache-2.0
+    com.fasterxml.jackson.core:jackson-databind 2.12.5 Apache-2.0
+    com.fasterxml.jackson.dataformat:jackson-dataformat-yaml 2.12.5 Apache-2.0
+    com.fasterxml.jackson.datatype:jackson-datatype-jdk8 2.12.5 Apache-2.0
+    com.fasterxml.jackson.datatype:jackson-datatype-jsr310 2.12.5 Apache-2.0
+    com.fasterxml.jackson.jaxrs:jackson-jaxrs-base 2.12.5 Apache-2.0
+    com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider 2.12.5 Apache-2.0
+    com.fasterxml.jackson.module:jackson-module-jaxb-annotations 2.12.5 Apache-2.0
+    com.fasterxml.jackson.module:jackson-module-parameter-names 2.12.5 Apache-2.0
+    com.fasterxml:classmate 1.5.1 Apache-2.0
+    com.github.ben-manes.caffeine:caffeine 2.9.2 Apache-2.0
+    com.google.code.findbugs:jsr305 3.0.2 Apache-2.0
+    com.google.errorprone:error_prone_annotations 2.2.0 Apache-2.0
+    com.google.guava:failureaccess 1.0.1 Apache-2.0
+    com.google.guava:guava 30.1.1-jre Apache-2.0
+    com.google.j2objc:j2objc-annotations 1.3 Apache-2.0
+    com.ibm.async:asyncutil 0.1.0 Apache-2.0
+    com.squareup.okhttp3:okhttp 3.14.9 Apache-2.0
+    com.squareup.okio:okio 1.17.2 Apache-2.0
+    com.zaxxer:SparseBitSet 1.2 Apache-2.0
+    commons-codec:commons-codec 1.15 Apache-2.0
+    commons-io:commons-io 2.11.0 Apache-2.0
+    io.netty:netty-buffer 4.1.68.Final Apache-2.0
+    io.netty:netty-codec 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-dns 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-haproxy 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-http 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-http2 4.1.68.Final Apache-2.0
+    io.netty:netty-codec-socks 4.1.68.Final Apache-2.0
+    io.netty:netty-common 4.1.68.Final Apache-2.0
+    io.netty:netty-handler 4.1.68.Final Apache-2.0
+    io.netty:netty-handler-proxy 4.1.68.Final Apache-2.0
+    io.netty:netty-resolver 4.1.68.Final Apache-2.0
+    io.netty:netty-resolver-dns 4.1.68.Final Apache-2.0
+    io.netty:netty-transport 4.1.68.Final Apache-2.0
+    io.quarkus.arc:arc 2.4.2.Final Apache-2.0
+    io.quarkus.security:quarkus-security 1.1.4.Final Apache-2.0
+    io.quarkus:quarkus-agroal 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-apache-httpclient 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-arc 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-bootstrap-runner 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-caffeine 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-config-yaml 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-core 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-credentials 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-datasource 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-datasource-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-development-mode-spi 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-flyway 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-orm 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-orm-panache 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-orm-panache-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-hibernate-validator 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-ide-launcher 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jackson 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jaxb 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jaxp 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jdbc-h2 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-jdbc-mysql 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-mutiny 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-narayana-jta 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-netty 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-panache-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-panache-hibernate-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-redis-client 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-rest-client 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-rest-client-config 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-rest-client-jackson 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy-jackson 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-resteasy-server-common 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-security-runtime-spi 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-smallrye-context-propagation 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-smallrye-openapi 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-swagger-ui 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-vertx 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-vertx-http 2.4.2.Final Apache-2.0
+    io.quarkus:quarkus-vertx-http-dev-console-runtime-spi 2.4.2.Final Apache-2.0
+    io.smallrye.common:smallrye-common-annotation 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-classloader 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-constraint 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-expression 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-function 1.6.0 Apache-2.0
+    io.smallrye.common:smallrye-common-io 1.6.0 Apache-2.0
+    io.smallrye.config:smallrye-config 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-common 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-core 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-source-yaml 2.5.1 Apache-2.0
+    io.smallrye.config:smallrye-config-validator 2.5.1 Apache-2.0
+    io.smallrye.reactive:mutiny 1.1.2 Apache-2.0
+    io.smallrye.reactive:mutiny-smallrye-context-propagation 1.1.2 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-auth-common 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-bridge-common 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-core 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-redis-client 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-runtime 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-web 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-mutiny-vertx-web-common 2.14.1 Apache-2.0
+    io.smallrye.reactive:smallrye-reactive-converter-api 2.6.0 Apache-2.0
+    io.smallrye.reactive:smallrye-reactive-converter-mutiny 2.6.0 Apache-2.0
+    io.smallrye.reactive:vertx-mutiny-generator 2.14.1 Apache-2.0
+    io.smallrye:smallrye-context-propagation 1.2.2 Apache-2.0
+    io.smallrye:smallrye-context-propagation-api 1.2.2 Apache-2.0
+    io.smallrye:smallrye-context-propagation-jta 1.2.2 Apache-2.0
+    io.smallrye:smallrye-context-propagation-storage 1.2.2 Apache-2.0
+    io.smallrye:smallrye-fault-tolerance-vertx 5.2.1 Apache-2.0
+    io.smallrye:smallrye-open-api-core 2.1.15 Apache-2.0
+    io.vertx:vertx-auth-common 4.1.5 Apache-2.0
+    io.vertx:vertx-bridge-common 4.1.5 Apache-2.0
+    io.vertx:vertx-codegen 4.1.5 Apache-2.0
+    io.vertx:vertx-redis-client 4.1.5 Apache-2.0
+    io.vertx:vertx-web-common 4.1.5 Apache-2.0
+    jakarta.inject:jakarta.inject-api 1.0 Apache-2.0
+    jakarta.validation:jakarta.validation-api 2.0.2 Apache-2.0
+    net.bytebuddy:byte-buddy 1.11.20 Apache-2.0
+    org.apache.commons:commons-collections4 4.4 Apache-2.0
+    org.apache.commons:commons-compress 1.21 Apache-2.0
+    org.apache.commons:commons-csv 1.8 Apache-2.0
+    org.apache.httpcomponents:httpasyncclient 4.1.4 Apache-2.0
+    org.apache.httpcomponents:httpclient 4.5.13 Apache-2.0
+    org.apache.httpcomponents:httpcore 4.4.14 Apache-2.0
+    org.apache.httpcomponents:httpcore-nio 4.4.14 Apache-2.0
+    org.apache.james:apache-mime4j-core 0.8.3 Apache-2.0
+    org.apache.james:apache-mime4j-dom 0.8.3 Apache-2.0
+    org.apache.james:apache-mime4j-storage 0.8.3 Apache-2.0
+    org.apache.xmlbeans:xmlbeans 3.1.0 Apache-2.0
+    org.eclipse.microprofile.config:microprofile-config-api 2.0 Apache-2.0
+    org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api 1.2 Apache-2.0
+    org.eclipse.microprofile.openapi:microprofile-openapi-api 2.0.1-RC1 Apache-2.0
+    org.eclipse.microprofile.rest.client:microprofile-rest-client-api 2.0 Apache-2.0
+    org.ehcache:ehcache 3.8.1 Apache-2.0
+    org.flywaydb:flyway-core 7.15.0 Apache-2.0
+    org.hibernate.validator:hibernate-validator 6.2.0.Final Apache-2.0
+    org.hibernate:quarkus-local-cache 0.1.0 Apache-2.0
+    org.jboss.logging:jboss-logging 3.4.2.Final Apache-2.0
+    org.jboss.logging:jboss-logging-annotations 2.2.1.Final Apache-2.0
+    org.jboss.narayana.jta:narayana-jta 5.12.0.Final Apache-2.0
+    org.jboss.narayana.jts:narayana-jts-integration 5.12.0.Final Apache-2.0
+    org.jboss.resteasy:resteasy-cdi 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client-api 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client-microprofile 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-client-microprofile-base 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-core 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-core-spi 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-jackson2-provider 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-jaxb-provider 4.7.3.Final Apache-2.0
+    org.jboss.resteasy:resteasy-multipart-provider 4.7.3.Final Apache-2.0
+    org.jboss.threads:jboss-threads 3.4.2.Final Apache-2.0
+    org.jboss:jandex 2.4.1.Final Apache-2.0
+    org.jboss:jboss-transaction-spi 7.6.0.Final Apache-2.0
+    org.slf4j:slf4j-api 1.7.30 Apache-2.0
+    org.yaml:snakeyaml 1.29 Apache-2.0
+    xyz.eulix.platform.services:eulixplatform-common 1.8.0 Apache-2.0
+
+========================================================================
+Apache-2.0 and BSD-2-Clause and BSD-3-Clause licenses
+========================================================================
+
+    org.apache.commons:commons-math3 3.6.1 Apache-2.0 and BSD-2-Clause and BSD-3-Clause
+
+========================================================================
+Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause licenses
+========================================================================
+
+    org.apache.poi:poi 4.1.2 Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause
+    org.apache.poi:poi-ooxml 4.1.2 Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause
+    org.apache.poi:poi-ooxml-schemas 4.1.2 Apache-2.0 and MIT and EPL-1.0 and BSD-3-Clause
+
+========================================================================
+Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html licenses
+========================================================================
+
+    io.vertx:vertx-core 4.1.5 Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html
+    io.vertx:vertx-web 4.1.5 Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html
+
+========================================================================
+Apache-2.0 | 9999.0-empty-to-avoid-conflict-with-guava licenses
+========================================================================
+
+    com.google.guava:listenablefuture 9999.0-empty-to-avoid-conflict-with-guava Apache-2.0 | 9999.0-empty-to-avoid-conflict-with-guava
+
+========================================================================
+BSD-3-Clause licenses
+========================================================================
+
+    com.github.virtuald:curvesapi 1.06 BSD-3-Clause
+    com.sun.activation:jakarta.activation 1.2.1 BSD-3-Clause
+    com.sun.istack:istack-commons-runtime 3.0.10 BSD-3-Clause
+    jakarta.activation:jakarta.activation-api 1.2.1 BSD-3-Clause
+    org.glassfish.jaxb:jaxb-runtime 2.3.3-b02 BSD-3-Clause
+    org.glassfish.jaxb:txw2 2.3.3-b02 BSD-3-Clause
+    org.jboss.spec.javax.xml.bind:jboss-jaxb-api_2.3_spec 2.0.0.Final BSD-3-Clause
+
+========================================================================
+CC0-1.0 licenses
+========================================================================
+
+    org.reactivestreams:reactive-streams 1.0.3 CC0-1.0
+
+========================================================================
+EPL-2.0 and GPL-2.0 licenses
+========================================================================
+
+    com.sun.mail:jakarta.mail 1.6.6 EPL-2.0 and GPL-2.0
+    jakarta.annotation:jakarta.annotation-api 1.3.5 EPL-2.0 and GPL-2.0
+    jakarta.el:jakarta.el-api 3.0.3 EPL-2.0 and GPL-2.0
+    jakarta.interceptor:jakarta.interceptor-api 1.2.5 EPL-2.0 and GPL-2.0
+    org.glassfish:jakarta.el 3.0.4 EPL-2.0 and GPL-2.0
+    org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec 2.0.1.Final EPL-2.0 and GPL-2.0
+
+========================================================================
+GPL-2.0 licenses
+========================================================================
+
+    org.jboss.spec.javax.resource:jboss-connector-api_1.7_spec 1.0.0.Final GPL-2.0
+
+========================================================================
+GPL-2.0 and LGPL-2.1 and EPL-1.0 and BSD-3-Clause and EPL-2.0 and MIT and Apache-2.0 licenses
+========================================================================
+
+    mysql:mysql-connector-java 8.0.26 GPL-2.0 and LGPL-2.1 and EPL-1.0 and BSD-3-Clause and EPL-2.0 and MIT and Apache-2.0
+
+========================================================================
+LGPL-2.1 licenses
+========================================================================
+
+    org.hibernate.common:hibernate-commons-annotations 5.1.2.Final LGPL-2.1
+    org.hibernate:hibernate-core 5.6.1.Final LGPL-2.1
+    org.hibernate:hibernate-graalvm 5.6.1.Final LGPL-2.1
+
+========================================================================
+MIT licenses
+========================================================================
+
+    org.checkerframework:checker-qual 2.5.2 MIT
+
+========================================================================
+UPL-1.0 licenses
+========================================================================
+
+    org.graalvm.sdk:graal-sdk 21.2.0 UPL-1.0
+
+========================================================================
+http://repository.jboss.org/licenses/apache-2.0.txt licenses
+========================================================================
+
+    org.jboss.logging:commons-logging-jboss-logging 1.0.0.Final http://repository.jboss.org/licenses/apache-2.0.txt
+    org.jboss.logmanager:jboss-logmanager-embedded 1.0.9 http://repository.jboss.org/licenses/apache-2.0.txt
+    org.jboss.slf4j:slf4j-jboss-logmanager 1.1.0.Final http://repository.jboss.org/licenses/apache-2.0.txt
+    org.wildfly.common:wildfly-common 1.5.4.Final-format-001 http://repository.jboss.org/licenses/apache-2.0.txt
+
+========================================================================
+http://www.antlr.org/license.html licenses
+========================================================================
+
+    antlr:antlr 2.7.7 http://www.antlr.org/license.html
+
+========================================================================
+http://www.apache.org/licenses/LICENSE-2.0.html licenses
+========================================================================
+
+    com.cronutils:cron-utils 9.1.5 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.agroal:agroal-api 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.agroal:agroal-narayana 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
+    io.agroal:agroal-pool 1.12 http://www.apache.org/licenses/LICENSE-2.0.html
+
+========================================================================
+http://www.eclipse.org/legal/epl-2.0, http://www.eclipse.org/org/documents/edl-v10.php licenses
+========================================================================
+
+    jakarta.persistence:jakarta.persistence-api 2.2.3 http://www.eclipse.org/legal/epl-2.0, http://www.eclipse.org/org/documents/edl-v10.php
+
+========================================================================
+http://www.eclipse.org/legal/epl-2.0, https://www.gnu.org/software/classpath/license.html licenses
+========================================================================
+
+    jakarta.transaction:jakarta.transaction-api 1.3.3 http://www.eclipse.org/legal/epl-2.0, https://www.gnu.org/software/classpath/license.html
+
+========================================================================
+http://www.gnu.org/licenses/lgpl.html and Apache-2.0 licenses
+========================================================================
+
+    com.github.java-json-tools:btf 1.3 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+    com.github.java-json-tools:jackson-coreutils 2.0 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+    com.github.java-json-tools:json-patch 1.13 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+    com.github.java-json-tools:msg-simple 1.2 http://www.gnu.org/licenses/lgpl.html and Apache-2.0
+
+========================================================================
+http://www.h2database.com/html/license.html licenses
+========================================================================
+
+    com.h2database:h2 1.4.197 http://www.h2database.com/html/license.html
+
+========================================================================
+https://asm.ow2.io/LICENSE.txt licenses
+========================================================================
+
+    org.ow2.asm:asm 9.2 https://asm.ow2.io/LICENSE.txt
+
+========================================================================
+https://github.com/locationtech/jts/blob/master/LICENSE_EPLv1.txt, https://github.com/locationtech/jts/blob/master/LICENSE_EDLv1.txt licenses
+========================================================================
+
+    org.locationtech.jts:jts-core 1.15.0 https://github.com/locationtech/jts/blob/master/LICENSE_EPLv1.txt, https://github.com/locationtech/jts/blob/master/LICENSE_EDLv1.txt
+
+========================================================================
+https://repository.jboss.org/licenses/apache-2.0.txt licenses
+========================================================================
+
+    jakarta.enterprise:jakarta.enterprise.cdi-api 2.0.2 https://repository.jboss.org/licenses/apache-2.0.txt
+
