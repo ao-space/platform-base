@@ -1,23 +1,36 @@
-# Platform-Registry
+# Platform-Base 介绍
+
+- [简介](#简介)
+- [系统架构](#系统架构)
+    - [傲空间空间平台](#傲空间空间平台)
+    - [Platform-Base](#platform-base)
+- [环境变量](#环境变量)
+- [构建和运行应用程序](#构建和运行应用程序)
+- [使用 OpenAPI 和 Swagger UI](#使用-OpenAPI-和-Swagger UI)
+- [A1. Document Revision History 文档修订记录](#a1.-document-revision-history-文档修订记录)
 
 ## 简介
 
-傲空间空间平台提供，可以说仅仅提供网络资源（域名、通信信道）的协调和管理，所以数据存放个人设备，属于私人所有。同时空间平台核心功能将逐步开源，可私有部署，个人设备可不再依赖官方平台。Platform-Registry 则是傲空间空间平台的管理面服务。
+傲空间空间平台提供，可以说仅仅提供网络资源（域名、通信信道）的协调和管理，所以数据存放个人设备，属于私人所有。同时空间平台核心功能将逐步开源，可私有部署，个人设备可不再依赖官方平台。Platform-Base 则是傲空间空间平台的管理面服务。
 
 ## 系统架构
 
-![空间平台&Platform-Registry架构.png](docs/zn/asserts/空间平台&Platform-Registry架构.png)
+![空间平台&Platform-Base架构.png](docs/zn/asserts/空间平台&Platform-Base架构.png)
 
-傲空间空间平台的职责是为个人设备建立透明的通信信道。包含转发代理服务（Proxy Service）、中继转发服务器（Network Transit Server）、注册服务（Registry Service）。
+### 傲空间空间平台
+
+傲空间空间平台的职责是为个人设备建立透明的通信信道。包含转发代理服务（Plarform Proxy）、中继转发服务器（Network Transit Server）、管理面服务（Platform-Base）。
 
 1. 用户面：作用是将傲空间用户域名流量（来自Clients）转发至傲空间盒子。
-- 转发代理服务（Proxy Service）：为傲空间用户域名流量提供高可用转发和横向扩容的支持。
+- 转发代理服务（Plarform Proxy）：为傲空间用户域名流量提供高可用转发和横向扩容的支持。
 - 中继转发服务器（Network Transit Server）提供通过中继转发的方式穿透 NAT 访问盒子的网络支持服务。 
 2. 管理面作用是提供傲空间盒子的注册服务，以及协调和管理平台网络资源（域名，Network Server通信信道等）。
 
 > **_注意：_** 完整的傲空间空间平台部署指南，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002) 。
 
-Platform-Registry是傲空间空间平台管理面的实现，主要提供如下功能：
+### Platform-Base
+
+Platform-Base 是傲空间空间平台管理面的实现，主要提供如下功能：
 
 1. 认证傲空间盒子身份
 2. 提供傲空间盒子、用户、客户端注册功能
@@ -61,14 +74,16 @@ app:
     subdomain: XXXX # 傲空间盒子的根域名
 ```
 
-## 手动构建和运行 jvm docker 镜像
+## 构建和运行应用程序
+
+### 手动构建和运行 jvm docker 镜像
 
 1. `./mvnw package`
 2. `cd /eulixplatform-registry`
-3. `docker build --pull -f src/main/docker/Dockerfile.jvm -t platform-registry-jvm-community:latest .`
-4. `docker run -itd --name platform-registry -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN="傲空间盒子的根域名" platform-registry-jvm-community:latest`
+3. `docker build --pull -f src/main/docker/Dockerfile.jvm -t platform-base-jvm-community:latest .`
+4. `docker run -itd --name platform-base -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN="傲空间盒子的根域名" platform-base-jvm-community:latest`
 
-## 在开发模式下运行应用程序
+### 在开发模式下运行应用程序
 
 您可以在开发模式下运行应用程序，该模式支持实时编码，使用：
 
@@ -78,7 +93,7 @@ app:
 
 > **_注意：_** Quarkus现在附带一个开发UI，该UI仅在开发模式下可用：`http://localhost:8080/q/dev/`
 
-## 打包并运行应用程序
+### 打包并运行应用程序
 
 应用程序可以使用以下方式打包：
 
@@ -103,3 +118,7 @@ java -jar target/quarkus-app/quarkus-run.jar
 OpenAPI 描述符和 Swagger UI 前端来测试 REST 端点，访问地址：`http://localhost:8080/platform/q/swagger-ui/`
 
 有关OpenAPI扩展的更多详细信息，请参阅 [使用OpenAPI和Swagger UI](https://quarkus.io/guides/openapi-swaggerui)
+
+## A1. Document Revision History 文档修订记录
+
+- 2023/03/21：API参考
