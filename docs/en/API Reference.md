@@ -1,11 +1,11 @@
 #API Reference
 
-- [API Overview](#API Overview)
-- [How to Call API](#How to call API)
-- [Interface Description](#Interface Description)
-- [Appendix](#Appendix)
-    - [Status Code](#Status Code)
-    - [Error Code](#Error Code)
+- [API Overview](#api-overview)
+- [How to Call API](#how-to-call-api)
+- [Interface Description](#interface-description)
+- [Appendix](#appendix)
+    - [Status Code](#status-code)
+    - [Error Code](#error-code)
 - [A1. Document Revision History](#a1-document-revision-history)
 
 ## API Overview
@@ -14,33 +14,33 @@ Table 1 Box Identity Authentication Interface
 
 | Interface | Interface Description |
 | --------- | ---------------------- |
-| [Obtain Box_Reg_Key](#Obtain Box_Reg_Key) | Used to authenticate the identity of the box on the space platform and generate box_reg_keys |
+| [Obtain Box_Reg_Key](#obtain-box_reg_key) | Used to authenticate the identity of the box on the space platform and generate box_reg_keys |
 
 Table 2 Registration Interface
 
 | Interface | Interface Description |
 | --------- | ---------------------- |
-| [Register Box](#Register Box) | Register the AO Space Box, and the space platform assigns network client information to it |
-| [Delete Box](#Delete Box) | Delete AO Space Box registration information, including user registration information, client registration information, network resources, etc |
-| [Register User](#Register User) | Register User, including the binding client of the registered user |
-| [Generate User Domain Name](#Generate User Domain Name) | Generate the user's subdomain name, and the subdomain name is unique globally |
-| [Modify User Domain Name](#Modify User Domain Name) | Modify the user's subdomain name, still retaining the user's historical subdomain name |
-| [Delete User](#Delete User) | Delete user registration information, including client registration information, etc |
-| [Register Client](#Register Client) | Register Client |
-| [Delete Client](#Delete Client) | Delete client registration information |
+| [Register Box](#register-box) | Register the AO Space Box, and the space platform assigns network client information to it |
+| [Delete Box](#delete-box) | Delete AO Space Box registration information, including user registration information, client registration information, network resources, etc |
+| [Register User](#register-user) | Register User, including the binding client of the registered user |
+| [Generate User Domain Name](#generate-user-domain-name) | Generate the user's subdomain name, and the subdomain name is unique globally |
+| [Modify User Domain Name](#modify-user-domain-name) | Modify the user's subdomain name, still retaining the user's historical subdomain name |
+| [Delete User](#delete-user) | Delete user registration information, including client registration information, etc |
+| [Register Client](#register-client) | Register Client |
+| [Delete Client](#delete-client) | Delete client registration information |
 
 Table 3 Network Resource Management Interface
 
 | Interface | Interface Description |
 | --------- | ---------------------- |
-|[Query Network Server Information](#Query Network Server Information) | Used by network clients to query the latest network server information |
+|[Query Network Server Information](#query-network-server-information) | Used by network clients to query the latest network server information |
 
 Table 4 Space Platform Switching Interface
 
 | Interface | Interface Description |
 | --------- | ---------------------- |
-| [Space Platform Migration](#Space Platform Migration) | Used to migrate AO Space Box data to the new space platform |
-| [Space Platform Migration Out](#Space Platform Migration Out) | Used for domain name redirection on old space platform |
+| [Space Platform Migration](#space-platform-migration) | Used to migrate AO Space Box data to the new space platform |
+| [Space Platform Migration Out](#space-platform-migration-out) | Used for domain name redirection on old space platform |
 
 ## How to call API
 

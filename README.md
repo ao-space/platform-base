@@ -1,12 +1,12 @@
 # Platform-Base Introduction
 
-- [Brief Introduction](#Brief Introduction)
-- [System Architecture](#System Architecture)
-    - [The SSP of AO.space](#The SSP of AO.space)
+- [Brief Introduction](#brief-introduction)
+- [System Architecture](#system-architecture)
+    - [The SSP of AO.space](#The-SSP-of-AO.space)
     - [Platform-Base](#platform-base)
-- [Environment Variables](#Environment Variables)
-- [Build and Run Application](#Build and Run Application)
-- [Using OpenAPI and Swagger UI](#Using OpenAPI and Swagger UI)
+- [Environment Variables](#environment-variables)
+- [Build and Run Application](#build-and-run-application)
+- [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
 - [A1. Document Revision History](#a1-document-revision-history)
 
 ## Brief Introduction
@@ -27,7 +27,7 @@ The responsibility of SSP is to establish a transparent communication channel fo
 
 2. The role of the management-side service is to provide the registration service of AO.space, and coordinate and manage the platform network resources (domain name, communication channel, etc.).
 
-> **_ Note:_** For a complete deployment guide of the SSP, please refer to [AOPlatform Community Deployment Guide]（ https://ao.space/open/documentation/104002 ).
+> **_ Note:_** For a complete deployment guide of the SSP, please refer to [AOPlatform Community Deployment Guide](https://ao.space/open/documentation/104002).
 
 ### Platform-Base
 

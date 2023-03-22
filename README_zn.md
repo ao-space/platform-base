@@ -6,7 +6,7 @@
     - [Platform-Base](#platform-base)
 - [环境变量](#环境变量)
 - [构建和运行应用程序](#构建和运行应用程序)
-- [使用 OpenAPI 和 Swagger UI](#使用-OpenAPI-和-Swagger UI)
+- [使用 OpenAPI 和 Swagger UI](#使用-openapi-和-swagger-ui)
 - [A1. Document Revision History 文档修订记录](#a1.-document-revision-history-文档修订记录)
 
 ## 简介

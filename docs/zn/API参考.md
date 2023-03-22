@@ -33,7 +33,7 @@
 
 | 接口 | 接口说明 |
 | --------- | ---------------------- |
-| [查询最新network server信息](#查询最新network server信息) | 用于 network client 查询最新的 network server 信息 |
+| [查询最新network server信息](#查询最新network-server信息) | 用于 network client 查询最新的 network server 信息 |
 
 表4 空间平台切换接口
 
