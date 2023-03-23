@@ -11,7 +11,7 @@
 
 ## Brief Introduction
 
-It can be said that the Space Service Platform of AO.space(SSP of AO.space) only provides the coordination and management of network resources (domain name, communication channel), so the data storage personal equipment belongs to private ownership. At the same time, the core functions of the SSP will be gradually open source and can be deployed privately. Personal devices can no longer rely on the official platform. Platform-Base is responsible to manage the SSP of AO.space.
+Platform Base is an open source project incubated and operated by the AO.space team (affiliated to the Intelligent Software Research Center of the Software Research Institute of the Chinese Academy of Sciences), with the goal of protecting the ownership of personal data and creating a personal centric digital space operating system. The AO.space platform only provides coordination and management of network resources (domain names, communication channels). The platform does not acquire or store any account data and user data, truly achieving that data is stored only in personal devices and fully owned by individuals. Platform-Base is the management side service of AO.space Platform. Meanwhile, the core functions of the space platform will gradually become open source and can be deployed privately, without relying on the official platform.
 
 ## System Architecture
 
@@ -34,7 +34,7 @@ The responsibility of SSP is to establish a transparent communication channel fo
 Platform-Base is the implementation of management-side service, which mainly provides the following functions:
 
 1. Authenticate the identity of AO.space
-2. Provide the registration function of box, user and client
+2. Provide the registration function of device, user and client
 3. Coordinate and manage platform network resources (domain name, communication channel, etc.)
 4. SSP switching
 
@@ -58,7 +58,7 @@ All application configuration properties can be set by the file: application.yml
 
 ### Application
 
-- APP_REGISTRY_SUBDOMAIN : used to set the "Root Domain" of box, and it's also part of space endpoint.(You need to add configuration for the root domain name on DNS and Nignx, please refer [AOPlatform-Community Deployment Guide](https://ao.space/en/open/documentation/104002))
+- APP_REGISTRY_SUBDOMAIN : used to set the "Root Domain" of device, and it's also part of space endpoint.(You need to add configuration for the root domain name on DNS and Nignx, please refer [AOPlatform-Community Deployment Guide](https://ao.space/en/open/documentation/104002))
 
 For naming conversion rules between name of config and name of environment variables, please refer [The Conversion Rules](https://github.com/eclipse/microprofile-config/blob/master/spec/src/main/asciidoc/configsources.asciidoc#default-configsources). Below are all the default values of above variables that comes from `application.yml` :
 
@@ -75,7 +75,7 @@ quarkus:
     password: 123456
 app:
   registry:
-    subdomain: XXXX # root domain of box
+    subdomain: XXXX # root domain of device
 ```
 
 ## Build and Run Application
@@ -85,7 +85,7 @@ app:
 1. `./mvnw package`
 2. `cd /eulixplatform-registry`
 3. `docker build --pull -f src/main/docker/Dockerfile.jvm -t platform-base-jvm-community:latest .`
-4. `docker run -itd --name platform-base -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN="root domain of box" platform-base-jvm-community:latest`
+4. `docker run -itd --name platform-base -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN="root domain of device" platform-base-jvm-community:latest`
 
 ### Running the application in dev mode
 
@@ -125,4 +125,5 @@ For more details about the OpenAPI extension, please refer [Using OpenAPI and Sw
 
 ## A1. Document Revision History
 
-- 2023/03/21: API Reference
+- 2023/03/23: Modify brief introduction
+- 2023/03/21: First draft

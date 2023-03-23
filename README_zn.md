@@ -11,7 +11,7 @@
 
 ## 简介
 
-傲空间空间平台提供，可以说仅仅提供网络资源（域名、通信信道）的协调和管理，所以数据存放个人设备，属于私人所有。同时空间平台核心功能将逐步开源，可私有部署，个人设备可不再依赖官方平台。Platform-Base 则是傲空间空间平台的管理面服务。
+Platform-Base 是由傲空间团队（隶属于中国科学院软件研究所智能软件研究中心）孵化及运营的开源项目，目标是保护个人数据所有权，打造以个人为中心的数字空间操作系统。傲空间空间平台仅提供网络资源（域名、通信信道）的协调和管理，平台不获取、不存储任何账号数据和用户数据，真正做到数据仅存放于个人设备里，完全属于个人所有。Platform-Base 是傲空间空间平台的管理面服务，同时空间平台核心功能将逐步开源，可私有部署，不再依赖官方平台。
 
 ## 系统架构
 
@@ -21,19 +21,19 @@
 
 傲空间空间平台的职责是为个人设备建立透明的通信信道。包含转发代理服务（Plarform Proxy）、中继转发服务器（Network Transit Server）、管理面服务（Platform-Base）。
 
-1. 用户面：作用是将傲空间用户域名流量（来自Clients）转发至傲空间盒子。
+1. 用户面作用是将傲空间用户域名流量（来自Clients）转发至傲空间设备。
 - 转发代理服务（Plarform Proxy）：为傲空间用户域名流量提供高可用转发和横向扩容的支持。
-- 中继转发服务器（Network Transit Server）提供通过中继转发的方式穿透 NAT 访问盒子的网络支持服务。 
-2. 管理面作用是提供傲空间盒子的注册服务，以及协调和管理平台网络资源（域名，Network Server通信信道等）。
+- 中继转发服务器（Network Transit Server）提供通过中继转发的方式穿透 NAT 访问设备的网络支持服务。 
+2. 管理面作用是提供傲空间设备的注册服务，以及协调和管理平台网络资源（域名，Network Server通信信道等）。
 
 > **_注意：_** 完整的傲空间空间平台部署指南，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002) 。
 
 ### Platform-Base
 
-Platform-Base 是傲空间空间平台管理面的实现，主要提供如下功能：
+Platform-Base 是傲空间空间平台管理面的实现，主要提供以下功能：
 
-1. 认证傲空间盒子身份
-2. 提供傲空间盒子、用户、客户端注册功能
+1. 认证傲空间设备身份
+2. 提供傲空间设备、用户、客户端注册功能
 3. 协调和管理平台网络资源（域名，Network Transit Server通信信道等）
 4. 空间平台切换
 
@@ -54,7 +54,7 @@ Platform-Base 是傲空间空间平台管理面的实现，主要提供如下功
 - QUARKUS_REDIS_PASSWORD：用于设置 redis 的密码。
 
 ### 应用程序
-- APP_REGISTRY_SUBDOMAIN：用于设置傲空间盒子的“根域名”，也是傲空间用户域名的一部分。您需要在 DNS 和 Nignx 上配置根域名，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002)
+- APP_REGISTRY_SUBDOMAIN：用于设置傲空间设备的“根域名”，也是傲空间用户域名的一部分。您需要在 DNS 和 Nignx 上配置根域名，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002)
 
 有关配置名称和环境变量名称之间的命名转换规则，请参阅 [转换规则](https://github.com/eclipse/microprofile-config/blob/master/spec/src/main/asciidoc/configsources.asciidoc#default-configsources )。以下是来自 “application.yml” 的上述变量的所有默认值：
 
@@ -71,7 +71,7 @@ quarkus:
     password: 123456
 app:
   registry:
-    subdomain: XXXX # 傲空间盒子的根域名
+    subdomain: XXXX # 傲空设备的根域名
 ```
 
 ## 构建和运行应用程序
@@ -81,7 +81,7 @@ app:
 1. `./mvnw package`
 2. `cd /eulixplatform-registry`
 3. `docker build --pull -f src/main/docker/Dockerfile.jvm -t platform-base-jvm-community:latest .`
-4. `docker run -itd --name platform-base -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN="傲空间盒子的根域名" platform-base-jvm-community:latest`
+4. `docker run -itd --name platform-base -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN="傲空间设备的根域名" platform-base-jvm-community:latest`
 
 ### 在开发模式下运行应用程序
 
@@ -121,4 +121,5 @@ OpenAPI 描述符和 Swagger UI 前端来测试 REST 端点，访问地址：`ht
 
 ## A1. Document Revision History 文档修订记录
 
-- 2023/03/21：API参考
+- 2023/03/23：优化简介
+- 2023/03/21：readme初稿
