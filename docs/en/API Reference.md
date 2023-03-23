@@ -10,18 +10,18 @@
 
 ## API Overview
 
-Table 1 Box Identity Authentication Interface
+Table 1 Device Identity Authentication Interface
 
 | Interface | Interface Description |
 | --------- | ---------------------- |
-| [Obtain Box_Reg_Key](#obtain-box_reg_key) | Used to authenticate the identity of the box on the space platform and generate box_reg_keys |
+| [Obtain Box_Reg_Key](#obtain-box_reg_key) | Used to authenticate the identity of the device on the space platform and generate box_reg_keys |
 
 Table 2 Registration Interface
 
 | Interface | Interface Description |
 | --------- | ---------------------- |
-| [Register Box](#register-box) | Register the AO Space Box, and the space platform assigns network client information to it |
-| [Delete Box](#delete-box) | Delete AO Space Box registration information, including user registration information, client registration information, network resources, etc |
+| [Register Device](#register-device) | Register the AO.space device, and the space platform assigns network client information to it |
+| [Delete Device](#delete-device) | Delete AO.space device registration information, including user registration information, client registration information, network resources, etc |
 | [Register User](#register-user) | Register User, including the binding client of the registered user |
 | [Generate User Domain Name](#generate-user-domain-name) | Generate the user's subdomain name, and the subdomain name is unique globally |
 | [Modify User Domain Name](#modify-user-domain-name) | Modify the user's subdomain name, still retaining the user's historical subdomain name |
@@ -39,12 +39,12 @@ Table 4 Space Platform Switching Interface
 
 | Interface | Interface Description |
 | --------- | ---------------------- |
-| [Space Platform Migration](#space-platform-migration) | Used to migrate AO Space Box data to the new space platform |
+| [Space Platform Migration](#space-platform-migration) | Used to migrate AO.space device data to the new space platform |
 | [Space Platform Migration Out](#space-platform-migration-out) | Used for domain name redirection on old space platform |
 
 ## How to call API
 
-This section describes the composition of REST API requests, and takes "Obtain Box_Reg_Key" as an example to illustrate how to call the API, which obtains the box of the box_reg_key，box_reg_key can be used to authenticate when calling other APIs.
+This section describes the composition of REST API requests, and takes "Obtain Box_Reg_Key" as an example to illustrate how to call the API, which obtains the device of the box_reg_key，box_reg_key can be used to authenticate when calling other APIs.
 
 ### Request URI
 
@@ -73,7 +73,7 @@ Table 6 Public Request Message Headers
 | --- | ------- | ------- | --- |
 | Content-Type | No | Type (format) of the message body. It is recommended that users use the default value application/json. If there are other values, they will be specifically described in the specific interface | application/json |
 | Request-Id | Yes | The request id of the request, used to track the execution of the request | e9993fc787d94b6c886cbaa340f9c0f4 |
-| Box-Reg-Key| No, this field is required when using box authentication | Box_Reg_Key is the response value for calling the "Obtain Box_Reg_Key" interface, which is a few interfaces that do not require authentication| brk_ YVj29IJAD3 |
+| Box-Reg-Key| No, this field is required when using device authentication | Box_Reg_Key is the response value for calling the "Obtain Box_Reg_Key" interface, which is a few interfaces that do not require authentication| brk_ YVj29IJAD3 |
 
 You can use curl, Postman, or directly write code to send requests to invoke the API.
 
@@ -101,7 +101,7 @@ Where error represents the error code and message represents the error descripti
 ### Obtain Box_Reg_Key
 
 Function Introduction
-- Used to authenticate the identity of the box on the space platform and generate box_reg_keys.
+- Used to authenticate the identity of the device on the space platform and generate box_reg_keys.
 
 URI
 - POST /v2/platform/auth/box_reg_keys
@@ -114,9 +114,9 @@ This operation message header is the same as a normal request. Please refer to "
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| boxUUID | Yes | String | UUID of the box |
+| boxUUID | Yes | String | UUID of the device |
 | serviceIds | Yes | String | Platform id: Space Platform (serviceId=10001) |
-| sign | No | String | Signature, required when using the public key to verify the identity of the box |
+| sign | No | String | Signature, required when using the public key to verify the identity of the device |
 
 #### Response parameters
 
@@ -124,21 +124,21 @@ Status code: 200
 
 |Parameter | Parameter Type | Description |
 | --- | ------- | --- |
-| boxUUID | String | The UUID of the box |
-| tokenResults | Array of [TokenResult](#TokenResult) | The access token for the box |
+| boxUUID | String | The UUID of the device |
+| tokenResults | Array of [TokenResult](#TokenResult) | The access token for the device |
 
 #### TokenResult
 
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
 | serviceId | String | Platform ID |
-| boxRegKey | String | The access token of the box |
+| boxRegKey | String | The access token of the device |
 | expiresAt | OffsetDateTime | Token validity time |
 
-### Register Box
+### Register Device
 
 Function Introduction
-- Register AO Space Box, and the space platform assigns network client information to it
+- Register AO.space device, and the space platform assigns network client information to it
 
 URI
 - POST /v2/platform/boxes
@@ -151,7 +151,7 @@ This operation message header is the same as a normal request. Please refer to "
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| boxUUID | Yes | String | UUID of the box |
+| boxUUID | Yes | String | UUID of the device |
 
 #### Response parameters
 
@@ -159,7 +159,7 @@ Status code: 200
 
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
-| boxUUID | String | The UUID of the box |
+| boxUUID | String | The UUID of the device |
 | networkClient | [NetworkClient](#NetworkClient) | Assign network client information to it |
 
 #### NetworkClient
@@ -169,10 +169,10 @@ Status code: 200
 | clientId | String | The client ID of the network |
 | secretKey | String | Access key |
 
-### Delete Box
+### Delete Device
 
 Function Introduction
-- Delete the registration information of AO Space Box, including user registration information, client registration information, network resources, etc
+- Delete the registration information of AO.space device, including user registration information, client registration information, network resources, etc
 
 URI
 - DELETE /v2/platform/boxes/{box_uuid}
@@ -181,7 +181,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 
 #### Request Message Header
 
@@ -207,7 +207,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 
 #### Request Message Header
 
@@ -228,9 +228,9 @@ Status code: 200
 
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
-| boxUUID | String | The UUID of the box |
+| boxUUID | String | The UUID of the device |
 | userId | String | The ID of the user |
-| userDomain | String | The user domain name assigned to the user, which can be used for subsequent box access |
+| userDomain | String | The user domain name assigned to the user, which can be used for subsequent device access |
 | userType | String | User type (administrator, member) |
 | clientUUID | String | The UUID of the client |
 
@@ -246,7 +246,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 
 #### Request Message Header
 
@@ -264,7 +264,7 @@ Status code: 200
 
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
-| boxUUID | String | The UUID of the box |
+| boxUUID | String | The UUID of the device |
 | subdomain | String | The specified subdomain name of the user |
 | expiresAt | OffsetDateTime | Validity |
 
@@ -280,7 +280,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 | user_id | Yes | String | User ID |
 
 #### Request Message Header
@@ -300,7 +300,7 @@ Status code: 200
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
 | success | Boolean | Whether successful or not |
-| boxUUID | String | The UUID of the box, returned when success is true |
+| boxUUID | String | The UUID of the device, returned when success is true |
 | userId | String | The ID of the user. Returned when success is true |
 | subdomain | String | The new subdomain name specified by the user. Returns when success is true |
 | code | String | Error code, returned when success is false |
@@ -319,7 +319,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 | user_id | Yes | String | User ID |
 
 #### Request Message Header
@@ -346,7 +346,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 | user_id | Yes | String | User ID |
 
 #### Request Message Header
@@ -366,7 +366,7 @@ Status code: 200
 
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
-| boxUUID | String | The UUID of the box |
+| boxUUID | String | The UUID of the device |
 | userId | String | The ID of the user |
 | clientUUID | String | The UUID of the client |
 | clientType | String | Client type (binding, scanning authorization) |
@@ -383,7 +383,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 | user_id | Yes | String | User ID |
 | client_uuid | Yes | String | UUID of the client |
 
@@ -432,7 +432,7 @@ Status code: 200
 ### Space Platform Migration
 
 Function Introduction
-- Used to migrate Ao Space Box data to the new space platform
+- Used to migrate AO.space device data to the new space platform
 
 URI
 - POST /v2/platform/boxes/{box_uuid}/migration
@@ -441,7 +441,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_Uuid | Yes | String | UUID of the box |
+| box_Uuid | Yes | String | UUID of the device |
 
 #### Request Message Header
 
@@ -476,8 +476,8 @@ Status code: 200
 
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
-| boxUUID | String | The UUID of the box |
-| networkClient | [NetworkClient](#NetworkClient) | Network client information assigned to the box |
+| boxUUID | String | The UUID of the device |
+| networkClient | [NetworkClient](#NetworkClient) | Network client information assigned to the device |
 | userInfos | Array of [UserMigrationInfo](#UserMigrationInfo) | User list |
 
 ### Space Platform Migration Out
@@ -492,7 +492,7 @@ Path parameter
 
 | Parameter | Required | Parameter Type | Description |
 | --- | ------- | ------- | --- |
-| box_uuid | Yes | String | UUID of the box |
+| box_uuid | Yes | String | UUID of the device |
 
 #### Request Message Header
 
@@ -517,7 +517,7 @@ Status code: 200
 
 | Parameter | Parameter Type | Description |
 | --- | ------- | --- |
-| boxUUID | String | The UUID of the box |
+| boxUUID | String | The UUID of the device |
 | userDomainRouteInfos | [UserDomainRouteInfo](#UserDomainRouteInfo) | User domain name mapping relationship |
 
 ## Appendix
@@ -552,8 +552,8 @@ Status code: 200
 | 400 | SSP-2018 | Subdomain already exists | Subdomain already exists |
 | 400 | SSP-2019 | Subdomain already used | Subdomain already used |
 | 400 | SSP-2020 | reach subdomain upper limit | The number of subdomains has reached the upper limit |
-| 400 | SSP-2021 | box uuid has already registered | Box uuid has already registered |
-| 400 | SSP-2022 | box uuid had not registered | Box uuid not registered |
+| 400 | SSP-2021 | device uuid has already registered | Device uuid has already registered |
+| 400 | SSP-2022 | device uuid had not registered | Device uuid not registered |
 | 400 | SSP-2023 | user id has already registered | User id has already registered |
 | 400 | SSP-2024 | user id has not registered | User id is not registered |
 | 400 | SSP-2025 | client uuid has already registered | Client uuid has already registered |
@@ -567,4 +567,5 @@ Status code: 200
 
 ## A1. Document Revision History
 
+- 2023/03/23: Change "box" to "device"
 - 2023/03/21: API Reference

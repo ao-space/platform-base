@@ -10,18 +10,18 @@
 
 ## API概览
 
-表1 盒子身份认证接口
+表1 设备身份认证接口
 
 | 接口 | 接口说明 |
 | --------- | ---------------------- |
-| [获取访问令牌](#获取访问令牌) | 用于空间平台认证盒子身份，并生成访问令牌 box_reg_key |
+| [获取访问令牌](#获取访问令牌) | 用于空间平台认证设备身份，并生成访问令牌 box_reg_key |
 
 表2 注册接口
 
 | 接口 | 接口说明 |
 | --------- | ---------------------- |
-| [注册盒子](#注册盒子) | 注册傲空间盒子，空间平台为其分配 network client 信息 |
-| [删除盒子](#删除盒子) | 删除傲空间盒子注册信息，包含用户注册信息、Client注册信息、网络资源等 |
+| [注册设备](#注册设备) | 注册傲空间设备，空间平台为其分配 network client 信息 |
+| [删除设备](#删除设备) | 删除傲空间设备注册信息，包含用户注册信息、Client注册信息、网络资源等 |
 | [注册用户](#注册用户) | 注册用户，同步注册用户的绑定客户端 |
 | [申请用户域名](#申请用户域名) | 申请用户的子域名，子域名全局唯一性 |
 | [修改用户域名](#修改用户域名) | 修改用户的子域名，仍然保留用户的历史域名 |
@@ -39,12 +39,12 @@
 
 | 接口 | 接口说明 |
 | --------- | ---------------------- |
-| [空间平台迁入](#空间平台迁入) | 用于向新空间平台迁入傲空间盒子数据 |
+| [空间平台迁入](#空间平台迁入) | 用于向新空间平台迁入傲空间设备数据 |
 | [空间平台迁出](#空间平台迁出) | 用于旧空间平台进行域名重定向 |
 
 ## 如何调用API
 
-本节介绍 REST API 请求的组成，并以“获取访问令牌”为例来说明如何调用 API，该 API 获取盒子的 box_reg_key，box_reg_key 可以用于调用其他 API 时鉴权。
+本节介绍 REST API 请求的组成，并以“获取访问令牌”为例来说明如何调用 API，该 API 获取设备的 box_reg_key，box_reg_key 可以用于调用其他 API 时鉴权。
 
 ### 请求URI
 
@@ -73,7 +73,7 @@
 | --- | ------- | ------- | --- |
 | Content-Type | 否 | 消息体的类型（格式）。推荐用户使用默认值application/json，有其他取值时会在具体接口中专门说明 | application/json |
 | Request-Id | 是 | 请求的 request id，用于追踪请求的执行情况 | e9993fc787d94b6c886cbaa340f9c0f4 |
-| Box-Reg-Key | 否，使用盒子身份认证时该字段必选 | Box-Reg-Key也就是调用“获取访问令牌” 接口的响应值，该接口是少数不需要认证的接口。 | brk_YVj29IJAD3 |
+| Box-Reg-Key | 否，使用设备身份认证时该字段必选 | Box-Reg-Key也就是调用“获取访问令牌” 接口的响应值，该接口是少数不需要认证的接口。 | brk_YVj29IJAD3 |
 
 您可以使用curl、Postman或直接编写代码等方式发送请求调用API。
 
@@ -101,7 +101,7 @@
 ### 获取访问令牌
 
 功能介绍
-- 用于空间平台认证盒子身份，并生成访问令牌 box_reg_key
+- 用于空间平台认证设备身份，并生成访问令牌 box_reg_key
 
 URI
 - POST /v2/platform/auth/box_reg_keys
@@ -114,9 +114,9 @@ URI
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| boxUUID | 是 | String | 盒子的 UUID |
+| boxUUID | 是 | String | 设备的 UUID |
 | serviceIds | 是 | String | 平台id：空间平台（serviceId=10001） |
-| sign | 否 | String | 签名，使用公钥验证盒子身份时必传 |
+| sign | 否 | String | 签名，使用公钥验证设备身份时必传 |
 
 #### 响应参数
 
@@ -124,21 +124,21 @@ URI
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
-| boxUUID | String | 盒子的 UUID |
-| tokenResults | Array of [TokenResult](#TokenResult) | 盒子的访问令牌 |
+| boxUUID | String | 设备的 UUID |
+| tokenResults | Array of [TokenResult](#TokenResult) | 设备的访问令牌 |
 
 #### TokenResult
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
 | serviceId | String | 平台id |
-| boxRegKey | String | 盒子的访问令牌 |
+| boxRegKey | String | 设备的访问令牌 |
 | expiresAt | OffsetDateTime | 令牌有效时间 |
 
-### 注册盒子
+### 注册设备
 
 功能介绍
-- 注册傲空间盒子，空间平台为其分配 network client 信息
+- 注册傲空间设备，空间平台为其分配 network client 信息
 
 URI
 - POST /v2/platform/boxes
@@ -151,7 +151,7 @@ URI
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| boxUUID | 是 | String | 盒子的 UUID |
+| boxUUID | 是 | String | 设备的 UUID |
 
 #### 响应参数
 
@@ -159,7 +159,7 @@ URI
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
-| boxUUID | String | 盒子的 UUID |
+| boxUUID | String | 设备的 UUID |
 | networkClient | [NetworkClient](#NetworkClient) | 为其分配 network client 信息 |
 
 #### NetworkClient
@@ -169,10 +169,10 @@ URI
 | clientId | String | network 的客户端 ID |
 | secretKey | String | 访问密钥 |
 
-### 删除盒子
+### 删除设备
 
 功能介绍
-- 删除傲空间盒子注册信息，包含用户注册信息、Client注册信息、网络资源等
+- 删除傲空间设备注册信息，包含用户注册信息、Client注册信息、网络资源等
 
 URI
 - DELETE /v2/platform/boxes/{box_uuid}
@@ -181,7 +181,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 
 #### 请求消息头
 
@@ -207,7 +207,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 
 #### 请求消息头
 
@@ -228,7 +228,7 @@ Path参数
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
-| boxUUID | String | 盒子的 UUID |
+| boxUUID | String | 设备的 UUID |
 | userId | String | 用户的 ID |
 | userDomain | String | 为用户分配的用户域名，该域名可以用于后续的业务访问 |
 | userType | String | 用户类型（管理员、普通成员） |
@@ -246,7 +246,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 
 #### 请求消息头
 
@@ -264,7 +264,7 @@ Path参数
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
-| boxUUID | String | 盒子的 UUID |
+| boxUUID | String | 设备的 UUID |
 | subdomain | String | 用户被指定的子域名 |
 | expiresAt | OffsetDateTime | 有效期 |
 
@@ -280,7 +280,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 | user_id | 是 | String | 用户的 ID |
 
 #### 请求消息头
@@ -300,7 +300,7 @@ Path参数
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
 | success | Boolean | 是否成功 |
-| boxUUID | String | 盒子的 UUID, success 为 true 时返回 |
+| boxUUID | String | 设备的 UUID, success 为 true 时返回 |
 | userId | String | 用户的 ID, success 为 true 时返回 |
 | subdomain | String | 用户指定的新的子域名, success 为 true 时返回 |
 | code | String | 错误码, success 为 false 时返回 |
@@ -319,7 +319,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 | user_id | 是 | String | 用户的 ID |
 
 #### 请求消息头
@@ -346,7 +346,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 | user_id | 是 | String | 用户的 ID |
 
 #### 请求消息头
@@ -366,7 +366,7 @@ Path参数
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
-| boxUUID | String | 盒子的 UUID |
+| boxUUID | String | 设备的 UUID |
 | userId | String | 用户的 ID |
 | clientUUID | String | 客户端的 UUID |
 | clientType | String | 客户端类型（绑定、扫码授权） |
@@ -383,7 +383,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 | user_id | 是 | String | 用户的 ID |
 | client_uuid | 是 | String | 客户端的 UUID |
 
@@ -432,7 +432,7 @@ Query参数
 ### 空间平台迁入
 
 功能介绍
-- 用于向新空间平台迁入傲空间盒子数据
+- 用于向新空间平台迁入傲空间设备数据
 
 URI
 - POST /v2/platform/boxes/{box_uuid}/migration
@@ -441,7 +441,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 
 #### 请求消息头
 
@@ -476,8 +476,8 @@ Path参数
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
-| boxUUID | String | 盒子的 UUID |
-| networkClient | [NetworkClient](#NetworkClient) | 为盒子分配的 network client 信息 |
+| boxUUID | String | 设备的 UUID |
+| networkClient | [NetworkClient](#NetworkClient) | 为设备分配的 network client 信息 |
 | userInfos | Array of [UserMigrationInfo](#UserMigrationInfo) | 用户列表 |
 
 ### 空间平台迁出
@@ -492,7 +492,7 @@ Path参数
 
 | 参数 | 是否必选 | 参数类型 | 说明 |
 | --- | ------- | ------- | --- |
-| box_uuid | 是 | String | 盒子的 UUID |
+| box_uuid | 是 | String | 设备的 UUID |
 
 #### 请求消息头
 
@@ -517,7 +517,7 @@ Path参数
 
 | 参数 | 参数类型 | 说明 |
 | --- | ------- | --- |
-| boxUUID | String | 盒子的 UUID |
+| boxUUID | String | 设备的 UUID |
 | userDomainRouteInfos | [UserDomainRouteInfo](#UserDomainRouteInfo) | 用户域名映射关系 |
 
 ## 附录
