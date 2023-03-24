@@ -7,11 +7,11 @@
 - [环境变量](#环境变量)
 - [构建和运行应用程序](#构建和运行应用程序)
 - [使用 OpenAPI 和 Swagger UI](#使用-openapi-和-swagger-ui)
-- [A1. Document Revision History 文档修订记录](#a1.-document-revision-history-文档修订记录)
+- [English Documents](/README.md)
 
 ## 简介
 
-Platform-Base 是由傲空间团队（隶属于中国科学院软件研究所智能软件研究中心）孵化及运营的开源项目，目标是保护个人数据所有权，打造以个人为中心的数字空间操作系统。傲空间空间平台仅提供网络资源（域名、通信信道）的协调和管理，平台不获取、不存储任何账号数据和用户数据，真正做到数据仅存放于个人设备里，完全属于个人所有。Platform-Base 是傲空间空间平台的管理面服务，同时空间平台核心功能将逐步开源，可私有部署，不再依赖官方平台。
+AO.space Platform 是由傲空间团队（隶属于中国科学院软件研究所智能软件研究中心）孵化及运营的开源项目，目标是保护个人数据所有权，打造以个人为中心的数字空间操作系统。傲空间空间平台仅提供网络资源（域名、通信信道）的协调和管理，平台不获取、不存储任何账号数据和用户数据，真正做到数据仅存放于个人设备里，完全属于个人所有。Platform-Base 是傲空间空间平台的管理面服务，同时空间平台核心功能将逐步开源，可私有部署，不再依赖官方平台。
 
 ## 系统架构
 
@@ -118,8 +118,3 @@ java -jar target/quarkus-app/quarkus-run.jar
 OpenAPI 描述符和 Swagger UI 前端来测试 REST 端点，访问地址：`http://localhost:8080/platform/q/swagger-ui/`
 
 有关OpenAPI扩展的更多详细信息，请参阅 [使用OpenAPI和Swagger UI](https://quarkus.io/guides/openapi-swaggerui)
-
-## A1. Document Revision History 文档修订记录
-
-- 2023/03/23：优化简介
-- 2023/03/21：readme初稿

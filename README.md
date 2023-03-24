@@ -7,11 +7,11 @@
 - [Environment Variables](#environment-variables)
 - [Build and Run Application](#build-and-run-application)
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
-- [A1. Document Revision History](#a1-document-revision-history)
+- [中文文档](/README_zn.md)
 
 ## Brief Introduction
 
-Platform Base is an open source project incubated and operated by the AO.space team (affiliated to the Intelligent Software Research Center of the Software Research Institute of the Chinese Academy of Sciences), with the goal of protecting the ownership of personal data and creating a personal centric digital space operating system. The AO.space platform only provides coordination and management of network resources (domain names, communication channels). The platform does not acquire or store any account data and user data, truly achieving that data is stored only in personal devices and fully owned by individuals. Platform-Base is the management side service of AO.space Platform. Meanwhile, the core functions of the space platform will gradually become open source and can be deployed privately, without relying on the official platform.
+AO.space Platform is an open source project incubated and operated by the AO.space team (affiliated to the Intelligent Software Research Center of the Software Research Institute of the Chinese Academy of Sciences), with the goal of protecting the ownership of personal data and creating a personal centric digital space operating system. The AO.space platform only provides coordination and management of network resources (domain names, communication channels). The platform does not acquire or store any account data and user data, truly achieving that data is stored only in personal devices and fully owned by individuals. Platform-Base is the management side service of AO.space Platform. Meanwhile, the core functions of the space platform will gradually become open source and can be deployed privately, without relying on the official platform.
 
 ## System Architecture
 
@@ -122,8 +122,3 @@ java -jar target/quarkus-app/quarkus-run.jar
 OpenAPI descriptor and Swagger UI frontend to test your REST endpoints: `http://localhost:8080/platform/q/swagger-ui/`
 
 For more details about the OpenAPI extension, please refer [Using OpenAPI and Swagger UI](https://quarkus.io/guides/openapi-swaggerui).
-
-## A1. Document Revision History
-
-- 2023/03/23: Modify brief introduction
-- 2023/03/21: First draft
