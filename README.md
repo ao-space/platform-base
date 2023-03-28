@@ -2,7 +2,7 @@
 
 - [Brief Introduction](#brief-introduction)
 - [System Architecture](#system-architecture)
-    - [The SSP of AO.space](#The-SSP-of-AO.space)
+    - [AO.space Platform](#ao.space-platform)
     - [Platform-Base](#platform-base)
 - [Environment Variables](#environment-variables)
 - [Build and Run Application](#build-and-run-application)
@@ -11,15 +11,15 @@
 
 ## Brief Introduction
 
-AO.space Platform is an open source project incubated and operated by the AO.space team (affiliated to the Intelligent Software Research Center of the Software Research Institute of the Chinese Academy of Sciences), with the goal of protecting the ownership of personal data and creating a personal centric digital space operating system. The AO.space platform only provides coordination and management of network resources (domain names, communication channels). The platform does not acquire or store any account data and user data, truly achieving that data is stored only in personal devices and fully owned by individuals. Platform-Base is the management side service of AO.space Platform. Meanwhile, the core functions of the space platform will gradually become open source and can be deployed privately, without relying on the official platform.
+AO.space Platform is an open source project incubated and operated by the AO.space team, with the goal of protecting personal data ownership and creating a personal centric digital space operating system. The AO.space Platform only provides coordination and management of network resources (domain names, communication channels). The platform does not acquire or store any account data and user data, truly achieving that data is stored only in personal devices and fully owned by individuals. 
 
 ## System Architecture
 
 ![SSP&Platform-Base Arch.png](docs/en/asserts/SSP&Platform-Base%20Arch.png)
 
-### The SSP of AO.space
+### AO.space Platform
 
-The responsibility of SSP is to establish a transparent communication channel for personal equipment. It includes the Platform Proxy Service, the Network Transit Server, and the Platform Base Service.
+The responsibility of AO.space Platform is to establish a transparent communication channel for personal equipment. It includes the Platform Proxy Service, the Network Transit Server, and the Platform Base Service.
 
 1. User-side Services: It is used to forward the requests from clients to AO.space.
 - Plarform Proxy Service: provide high-availability forwarding and horizontal expansion support for the requests from clients.
@@ -27,7 +27,7 @@ The responsibility of SSP is to establish a transparent communication channel fo
 
 2. The role of the management-side service is to provide the registration service of AO.space, and coordinate and manage the platform network resources (domain name, communication channel, etc.).
 
-> **_ Note:_** For a complete deployment guide of the SSP, please refer to [AOPlatform Community Deployment Guide](https://ao.space/open/documentation/104002).
+> **_Note:_** For a complete deployment guide of AO.space Platform, please refer to [AOPlatform Community Deployment Guide](https://ao.space/open/documentation/104002).
 
 ### Platform-Base
 
@@ -36,7 +36,7 @@ Platform-Base is the implementation of management-side service, which mainly pro
 1. Authenticate the identity of AO.space
 2. Provide the registration function of device, user and client
 3. Coordinate and manage platform network resources (domain name, communication channel, etc.)
-4. SSP switching
+4. Switch self-hosted AO.space Platform
 
 > **_NOTE:_** This project uses Quarkus, the Supersonic Subatomic Java Framework. If you want to learn more about Quarkus, please visit its website: [QUARKUS](https://quarkus.io/) .
 
