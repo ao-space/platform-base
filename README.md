@@ -1,9 +1,9 @@
-# Platform-Base Introduction
+# Platform Base Service Introduction
 
 - [Brief Introduction](#brief-introduction)
 - [System Architecture](#system-architecture)
     - [AO.space Platform](#ao.space-platform)
-    - [Platform-Base](#platform-base)
+    - [Base Service](#base-service)
 - [Environment Variables](#environment-variables)
 - [Build and Run Application](#build-and-run-application)
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
@@ -15,23 +15,21 @@ AO.space Platform is an open source project incubated and operated by the AO.spa
 
 ## System Architecture
 
-![SSP&Platform-Base Arch.png](docs/en/asserts/SSP&Platform-Base%20Arch.png)
+![AO.space Platform&BaseService Arch.png](docs/en/asserts/AO.space%20Platform&BaseService%20Arch.png)
 
 ### AO.space Platform
 
-The responsibility of AO.space Platform is to establish a transparent communication channel for personal equipment. It includes the Platform Proxy Service, the Network Transit Server, and the Platform Base Service.
+The responsibility of AO.space Platform is to establish a transparent communication channel for personal equipment. It includes the Platform Base Service, the Platform Proxy Service, and the Network Transit Server.
 
-1. User-side Services: It is used to forward the requests from clients to AO.space.
+- Platform Base Service: provide the registration service of AO.space, and coordinate and manage the platform network resources (domain name, communication channel, etc.).
 - Plarform Proxy Service: provide high-availability forwarding and horizontal expansion support for the requests from clients.
-- Network Transit Server: provides network support services that penetrate NAT access AO.space through relay forwarding.
-
-2. The role of the management-side service is to provide the registration service of AO.space, and coordinate and manage the platform network resources (domain name, communication channel, etc.).
+- Network Transit Server: provides network support services that penetrate NAT access AO.space through relay forwarding. It is used to forward the requests from clients to AO.space.
 
 > **_Note:_** For a complete deployment guide of AO.space Platform, please refer to [AOPlatform Community Deployment Guide](https://ao.space/open/documentation/104002).
 
-### Platform-Base
+### Base Service
 
-Platform-Base is the implementation of management-side service, which mainly provides the following functions:
+Base Service is the implementation of management-side service, which mainly provides the following functions:
 
 1. Authenticate the identity of AO.space
 2. Provide the registration function of device, user and client
