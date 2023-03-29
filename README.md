@@ -7,11 +7,15 @@
 - [Environment Variables](#environment-variables)
 - [Build and Run Application](#build-and-run-application)
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
-- [中文文档](/README_zn.md)
+- [切换中文文档](/README_zn.md)
 
 ## Brief Introduction
 
-The AO.space project is a complete solution for personal data security on the embedded device running the Euler system. It has the characteristics of "device only you can manage", "account only you can control", "data only you can access" and so on . Combined with the current popular cloud-native technology, security is achieved through hardware-level design and development, end-to-end encryption, and network protection; through forwarding, P2P channels, and LAN direct connection technologies to achieve extremely fast access anytime, anywhere; through open source communities, free installation of docker , Application market to build an open ecology.
+AO.space is a solution that focuses on protecting personal data security and privacy. Utilizing end-to-end encryption and device-based authentication, users have complete control over their personal accounts and data. AO.space also employs various technologies, including transparent platform forwarding, peer-to-peer acceleration, and LAN direct connection, to enable fast access to personal data from anywhere at any time. Leveraging Progressive Web App and cloud-native technology, AO.space has developed an integrated application ecosystem that could include both front-end and back-end components.
+
+AO.space is composed of three parts: server-side, client-side, and platform. The server-side and client-side run on personal devices and establish encrypted communication channels with public key authentication. The server-side supports x86_64 and aarch64 architectures and can run on personal servers, computers, or other similar devices. The client-side supports Android, iOS, and web platforms, providing users with the convenience of using AO.space anywhere and anytime.
+
+AO.space Platform provides personal devices with transparent communication channel services and secure protection for Internet access. AO.space platform can also be privately deployed. Differing from other solutions, personal account authentication and authorization in AO.space are managed solely by the server running on the personal device. The AO.space platform cannot manage or parse any personal data, and personal account authentication and authorization in AO.space are managed solely by the server-side running on the personal device, ensuring complete control of user data in personal devices.
 
 ## System Architecture
 
