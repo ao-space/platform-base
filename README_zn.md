@@ -1,9 +1,9 @@
-# Platform-Base 介绍
+# Platform Base Service 介绍
 
 - [简介](#简介)
 - [系统架构](#系统架构)
-    - [傲空间空间平台](#傲空间空间平台)
-    - [Platform-Base](#platform-base)
+    - [傲空间平台](#傲空间平台)
+    - [Base Service](#base-service)
 - [环境变量](#环境变量)
 - [构建和运行应用程序](#构建和运行应用程序)
 - [使用 OpenAPI 和 Swagger UI](#使用-openapi-和-swagger-ui)
@@ -15,27 +15,26 @@
 
 ## 系统架构
 
-![空间平台&Platform-Base架构.png](docs/zn/asserts/空间平台&Platform-Base架构.png)
+![傲空间平台&Platform Base架构.png](docs/zn/asserts/傲空间平台&Platform%20Base架构.png)
 
-### 傲空间空间平台
+### 傲空间平台
 
-傲空间空间平台的职责是为个人设备建立透明的通信信道。包含转发代理服务（Plarform Proxy）、中继转发服务器（Network Transit Server）、管理面服务（Platform-Base）。
+傲空间平台的职责是为个人设备建立透明的通信信道。包含基础服务（Platform Base Service）、转发代理服务（Plarform Proxy Service）、中继转发服务器（Network Transit Server）。
 
-1. 用户面作用是将傲空间用户域名流量（来自Clients）转发至傲空间设备。
+- 基础服务（Platform Base Service）：为傲空间设备提供注册服务，以及协调和管理平台网络资源（域名，Network Server通信信道等）。
 - 转发代理服务（Plarform Proxy）：为傲空间用户域名流量提供高可用转发和横向扩容的支持。
-- 中继转发服务器（Network Transit Server）提供通过中继转发的方式穿透 NAT 访问设备的网络支持服务。 
-2. 管理面作用是提供傲空间设备的注册服务，以及协调和管理平台网络资源（域名，Network Server通信信道等）。
+- 中继转发服务器（Network Transit Server）提供通过中继转发的方式穿透 NAT 访问设备的网络支持服务。将来自 Clients 的流量转发至傲空间设备。
 
-> **_注意：_** 完整的傲空间空间平台部署指南，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002) 。
+> **_注意：_** 完整的傲空间平台部署指南，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002) 。
 
-### Platform-Base
+### Base Service
 
-Platform-Base 是傲空间空间平台管理面的实现，主要提供以下功能：
+Base Service 是傲空间平台管理面的实现，主要提供以下功能：
 
 1. 认证傲空间设备身份
 2. 提供傲空间设备、用户、客户端注册功能
 3. 协调和管理平台网络资源（域名，Network Transit Server通信信道等）
-4. 空间平台切换
+4. 傲空间平台切换
 
 > **_注意：_** 项目使用了 Quarkus，它是一个 Red Hat 公司开源的云原生 Java 框架。如果您想了解有关Quarkus的更多信息，请访问其网站：[QUARKUS](https://quarkus.io/) 。
 
