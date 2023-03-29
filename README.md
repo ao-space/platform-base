@@ -11,7 +11,7 @@
 
 ## Brief Introduction
 
-AO.space Platform is an open source project incubated and operated by the AO.space team, with the goal of protecting personal data ownership and creating a personal centric digital space operating system. The AO.space Platform only provides coordination and management of network resources (domain names, communication channels). The platform does not acquire or store any account data and user data, truly achieving that data is stored only in personal devices and fully owned by individuals. 
+The AO.space project is a complete solution for personal data security on the embedded device running the Euler system. It has the characteristics of "device only you can manage", "account only you can control", "data only you can access" and so on . Combined with the current popular cloud-native technology, security is achieved through hardware-level design and development, end-to-end encryption, and network protection; through forwarding, P2P channels, and LAN direct connection technologies to achieve extremely fast access anytime, anywhere; through open source communities, free installation of docker , Application market to build an open ecology.
 
 ## System Architecture
 
@@ -25,7 +25,7 @@ The responsibility of AO.space Platform is to establish a transparent communicat
 - Plarform Proxy Service: provide high-availability forwarding and horizontal expansion support for the requests from clients.
 - Network Transit Server: provides network support services that penetrate NAT access AO.space through relay forwarding. It is used to forward the requests from clients to AO.space.
 
-> **_Note:_** For a complete deployment guide of AO.space Platform, please refer to [AOPlatform Community Deployment Guide](https://ao.space/open/documentation/104002).
+> **_Note:_** For a complete deployment guide of AO.space Platform, please refer to [AOPlatform Community Deployment Guide](https://ao.space/en/open/documentation/104002).
 
 ### Base Service
 
