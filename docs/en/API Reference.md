@@ -65,7 +65,7 @@ Table 5 Parameter Description in URI
 
 ### Request Message Header
 
-Additional request header fields, such as those required by the specified URI and HTTP method. For example, define the request header "Content Type" of the message body type, request authentication information, and so on. See Table 6 for detailed public request header fields.
+Additional request header fields, such as those required by the specified URI and HTTP method. For example, define the request header "Content-Type" of the message body type, request authentication information, and so on. See Table 6 for detailed public request header fields.
 
 Table 6 Public Request Message Headers
 
