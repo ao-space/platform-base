@@ -7,6 +7,8 @@
 - [环境变量](#环境变量)
 - [构建和运行应用程序](#构建和运行应用程序)
 - [使用 OpenAPI 和 Swagger UI](#使用-openapi-和-swagger-ui)
+- [演进计划](#演进计划)
+- [贡献指南](#贡献指南)
 - [English Documents](/README.md)
 
 ## 简介
