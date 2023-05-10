@@ -7,6 +7,7 @@
 - [Environment Variables](#environment-variables)
 - [Build and Run Application](#build-and-run-application)
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
+- [Contribution Guidelines](#Contribution Guidelines)
 - [切换中文文档](/README_zn.md)
 
 ## Brief Introduction
@@ -127,8 +128,9 @@ For more details about the OpenAPI extension, please refer [Using OpenAPI and Sw
 
 ## TODO
 
-- Open source Plarform Proxy Service
-- Message Push & Ecurity Control will be gradually open sourced
+- Plarform Proxy Service
+- Message Push 
+- Ecurity Control
 
 ## Contribution Guidelines
 
