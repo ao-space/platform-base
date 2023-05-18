@@ -7,6 +7,7 @@
 - [Environment Variables](#environment-variables)
 - [Build and Run Application](#build-and-run-application)
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
+- [Evolution Plan](#evolution-plan)
 - [Contribution Guidelines](#contribution-guidelines)
 - [切换中文文档](/README_zn.md)
 
@@ -125,6 +126,14 @@ java -jar target/quarkus-app/quarkus-run.jar
 OpenAPI descriptor and Swagger UI frontend to test your REST endpoints: `http://localhost:8080/platform/q/swagger-ui/`
 
 For more details about the OpenAPI extension, please refer [Using OpenAPI and Swagger UI](https://quarkus.io/guides/openapi-swaggerui).
+
+## Evolution Plan
+
+- Provide LAN IP direct connection domain name resolution service
+- Forwarding proxy service (Platform Proxy Service)
+- Java language SDK for basic services on the platform side
+- golang language SDK for basic services on the platform side
+- Distributed locks based on common middleware such as Mysql and Redis
 
 ## Contribution Guidelines
 

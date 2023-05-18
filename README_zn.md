@@ -7,6 +7,7 @@
 - [环境变量](#环境变量)
 - [构建和运行应用程序](#构建和运行应用程序)
 - [使用 OpenAPI 和 Swagger UI](#使用-openapi-和-swagger-ui)
+- [演进计划](#演进计划)
 - [贡献指南](#贡献指南)
 - [English Documents](/README.md)
 
@@ -122,6 +123,14 @@ java -jar target/quarkus-app/quarkus-run.jar
 OpenAPI 描述符和 Swagger UI 前端来测试 REST 端点，访问地址：`http://localhost:8080/platform/q/swagger-ui/`
 
 有关OpenAPI扩展的更多详细信息，请参阅 [使用OpenAPI和Swagger UI](https://quarkus.io/guides/openapi-swaggerui)
+
+## 演进计划
+
+- 提供局域网 IP 直连域名解析服务
+- 转发代理服务（Platform Proxy Service）
+- 平台侧基础服务的 Java 语言 SDK
+- 平台侧基础服务的 golang 语言 SDK
+- 基于 Mysql、Redis 等常用中间件的分布式锁
 
 ## 贡献指南
 
