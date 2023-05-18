@@ -9,7 +9,7 @@
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
 - [Evolution Plan](#evolution-plan)
 - [Contribution Guidelines](#contribution-guidelines)
-- [切换中文文档](/README_zn.md)
+- [切换中文文档](/README_zh.md)
 
 ## Brief Introduction
 
