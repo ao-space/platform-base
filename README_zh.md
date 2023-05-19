@@ -21,7 +21,7 @@ AO.space Platform（即傲空间平台），则为个人设备提供透明通信
 
 ## 系统架构
 
-![傲空间平台&Platform Base架构.png](docs/zn/asserts/傲空间平台&Platform%20Base架构.png)
+![傲空间平台&Platform Base架构.png](docs/zh/asserts/傲空间平台&Platform%20Base架构.png)
 
 ### 傲空间平台
 
