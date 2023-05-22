@@ -84,6 +84,14 @@ app:
 
 ## Build and Run Application
 
+### Build Maven Multi Module Project
+
+There are multiple modules in this project, and there are dependencies between them. In the Maven multi module project, each module can be built independently or uniformly through the parent project. If you want to build the entire project, simply execute the 'mvn clean install' command in the root directory of the parent project. Maven will automatically build based on dependency relationships. The following commands can also be executed under this project:
+
+```shell script
+./mvnw clean install
+```
+
 ### Manually build and run jvm docker image
 
 1. `./mvnw package`
