@@ -92,8 +92,8 @@ public class NetworkService {
     /**
      * 添加用户面路由：用户域名 - network server 地址 & network client id
      *
-     * @param userDomain
-     * @param boxUUID
+     * @param userDomain 用户域名
+     * @param boxUUID boxUUID
      */
     public void cacheNSRoute(String userDomain, String boxUUID) {
         // 查询 networkClientId（box 注册信息）
@@ -117,7 +117,8 @@ public class NetworkService {
     /**
      * 认证 network client 身份
      *
-     * @param networkAuthReq networkAuthReq
+     * @param clientId network client id
+     * @param secretKey network client secret key
      * @return 是否通过
      */
     public Boolean networkClientAuth(String clientId, String secretKey) {
