@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  EULIX_REGISTRY: ${{ secrets.EULIX_REGISTRY }}
+  EULIX_REGISTRY: hub.eulix.xyz
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -72,6 +72,29 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        builder: ${{ steps.buildx.outputs.name }}
+        platforms: linux/amd64,linux/arm64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        file: Dockerfile
+
+    - name: Extract Docker metadata
+      id: meta-opensource
+      uses: docker/metadata-action@v2
+      with:
+        images: |
+          ${{ env.EULIX_REGISTRY }}/cicada-private/aoplatform-services
+        flavor: |
+          prefix=opensource-
+
+    - name: Build and push Docker image
+      id: build-and-push-opensource
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-opensource.outputs.tags }}
+        labels: ${{ steps.meta-opensource.outputs.labels }}
         builder: ${{ steps.buildx.outputs.name }}
         platforms: linux/amd64,linux/arm64
         cache-from: type=gha
