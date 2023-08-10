@@ -9,9 +9,11 @@ import xyz.eulix.platform.services.lock.repository.ReentrantLockRepository;
 import xyz.eulix.platform.services.lock.service.ReentrantLockService;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author VvV
@@ -72,7 +74,7 @@ public class MySQLReentrantLockTest {
         lock.setLockValue(lockValue);
         lock.setExpiresAt(new Timestamp(System.currentTimeMillis() - 1000)); // 设置过去的时间作为过期时间
         lock.setReentrantCount(0);
-        lockService.saveLock(lock);
+        lockService.saveEntity(lock);
 
         // 等待一段时间，确保锁已经过期
         Thread.sleep(2000);
@@ -117,39 +119,6 @@ public class MySQLReentrantLockTest {
 
     }
 
-    /**
-     * 测试当前锁已经存在其他线程持有 当前线程是否会加锁失败
-     */
-    @Test
-    void testConcurrent() throws InterruptedException {
-        String lockKey = "testKey_concurrent";
-        String thread1UUID = UUID.randomUUID().toString();
-        String thread2UUID = UUID.randomUUID().toString();
-        int timeout = 30 * 1000; // 30s
-
-        // 确保测试锁不存在 不会发生插入冲突
-        lockService.deleteLock(lockKey);
-
-        // 创建一个锁并保存
-        ReentrantLockEntity lock = new ReentrantLockEntity();
-        lock.setLockKey(lockKey);
-        lock.setLockValue(thread1UUID);
-        lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
-        lock.setReentrantCount(1);
-        lockService.saveLock(lock);
-
-        // 在另一个线程中尝试加锁
-        Thread otherThread = new Thread(() -> {
-            boolean lockAcquired = lockService.tryLock(lockKey, thread2UUID, timeout);
-            Assertions.assertFalse(lockAcquired, "Acquired lock when it should have failed due to concurrent lock.");
-        });
-        otherThread.start();
-        // 确保线程顺序正确执行
-        otherThread.join();
-
-        // 删除测试数据
-        lockService.deleteLock(lockKey);
-    }
 
     /**
      * 测试释放过期锁
@@ -169,7 +138,7 @@ public class MySQLReentrantLockTest {
         lock.setLockValue(lockValue);
         lock.setExpiresAt(new Timestamp(System.currentTimeMillis() - 1000)); // 设置过去的时间作为过期时间
         lock.setReentrantCount(0);
-        lockService.saveLock(lock);
+        lockService.saveEntity(lock);
 
         // 释放过期锁
         lockService.releaseLock(lockKey, lockValue, timeout);
@@ -195,7 +164,7 @@ public class MySQLReentrantLockTest {
         lock.setLockValue(otherLockValue);
         lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
         lock.setReentrantCount(1);
-        lockService.saveLock(lock);
+        lockService.saveEntity(lock);
 
         // 尝试释放被其他线程持有的锁
         Assertions.assertThrows(RuntimeException.class, () -> lockService.releaseLock(lockKey, thisLockValue, timeout));
@@ -225,7 +194,7 @@ public class MySQLReentrantLockTest {
         lock.setLockValue(lockValue);
         lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
         lock.setReentrantCount(2);
-        lockService.saveLock(lock);
+        lockService.saveEntity(lock);
 
         // 释放重入锁
         lockService.releaseLock(lockKey, lockValue, timeout);
@@ -241,5 +210,113 @@ public class MySQLReentrantLockTest {
         // 验证锁是否被成功删除
         lock = lockRepository.findByLockKey(lockKey);
         Assertions.assertNull(lock, "Failed to release reentrant lock.");
+    }
+
+    /**
+     * 测试多个线程同时加锁
+     * @throws InterruptedException
+     */
+    @Test
+    void testConcurrentTryLock() throws InterruptedException {
+        String lockKey = "testKey_concurrent_tryLock";
+
+        int numThreads = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+
+        Map<String, Boolean> results = new ConcurrentHashMap<>(numThreads);
+
+        for (int i = 0; i < numThreads; i++) {
+            executorService.execute(() -> {
+                DistributedLock lock = lockFactory.newLock(lockKey, LockType.MySQLReentrantLock);
+                boolean result = lock.tryLock();
+                results.put(Thread.currentThread().getName(), result);
+            });
+        }
+
+        executorService.shutdown();
+        executorService.awaitTermination(10, TimeUnit.SECONDS);
+
+        int success = 0;
+        for (Boolean value : results.values()) {
+            if (value) {
+                success++;
+                LOG.infov("acquire lock success, keyName:{0}, thread:{1}", lockKey, Thread.currentThread());
+            }
+        }
+        Assertions.assertEquals(1, success);
+
+        lockService.deleteLock(lockKey);
+    }
+
+    /**
+     * 测试多个线程同时加锁解锁
+     * @throws InterruptedException
+     */
+    @Test
+    void testConcurrent() throws InterruptedException {
+        String keyName = "testKey_concurrent";
+
+        int numThreads = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+
+        AtomicInteger success = new AtomicInteger();
+
+        for (int i = 0; i < numThreads; i++) {
+            executorService.execute(() -> {
+                DistributedLock lock = lockFactory.newLock(keyName, LockType.MySQLReentrantLock);
+                // 加锁
+                Boolean isLocked = null;
+                try {
+                    isLocked = lock.tryLock(30, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                if (isLocked) {
+                    LOG.infov("acquire lock success, keyName:{0}, thread:{1}", keyName, Thread.currentThread());
+                    try {
+                        LOG.info("do something.");
+                        success.getAndIncrement();
+                    } finally {
+                        // 释放锁
+                        lock.unlock();
+                        LOG.infov("release lock success, keyName:{0}, thread:{1}", keyName, Thread.currentThread());
+                    }
+                } else {
+                    LOG.infov("acquire lock fail, keyName:{0}, thread:{1}", keyName, Thread.currentThread());
+                }
+            });
+        }
+
+        executorService.shutdown();
+        executorService.awaitTermination(10, TimeUnit.SECONDS);
+
+        Assertions.assertEquals(10, success.get());
+    }
+
+
+    /**
+     * 测试锁重入以及释放
+     */
+    @Test
+    void testReentrantAndRelease() {
+        String keyName = "test_reentrant_and_release";
+
+        DistributedLock lock = lockFactory.newLock(keyName, LockType.MySQLReentrantLock);
+
+        boolean lockAcquired = lock.tryLock();
+        Assertions.assertTrue(lockAcquired, "Failed to acquire lock.");
+
+        lockAcquired = lock.tryLock();
+        Assertions.assertTrue(lockAcquired, "Failed to acquire lock.");
+
+        // 验证重入次数是否为2
+        ReentrantLockEntity entity = lockRepository.findByLockKey(keyName);
+        Assertions.assertNotNull(entity, "Lock not found.");
+        Assertions.assertEquals(2, entity.getReentrantCount(), "Reentrant count is incorrect.");
+
+        lock.unlock();
+        lock.unlock();
+        entity = lockRepository.findByLockKey(keyName);
+        Assertions.assertNull(entity, "Lock not Released.");
     }
 }
