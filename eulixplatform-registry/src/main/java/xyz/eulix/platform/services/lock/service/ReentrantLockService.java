@@ -55,10 +55,16 @@ public class ReentrantLockService {
         lock.setLockValue(value);
         lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
         lock.setReentrantCount(1);
-        lockRepository.save(lock);
 
-        LOG.debugv("acquire lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
-        return true;
+        // 多个实例争夺加锁  利用唯一索引 确保只有一个实例加锁成功
+        if (saveEntity(lock)) {
+            LOG.debugv("acquire lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
+            return true;
+        } else {
+            LOG.debugv("Lock acquisition failed. The lock is already held by another instance.");
+            return false;
+        }
+
     }
 
     /**
@@ -120,19 +126,20 @@ public class ReentrantLockService {
 
     /**
      * 为了测试使用
-     * @param lock
-     */
-    @Transactional
-    public void saveLock(ReentrantLockEntity lock){
-        lockRepository.save(lock);
-    }
-
-    /**
-     * 为了测试使用
      * @param lockKey
      */
     @Transactional
     public void deleteLock(String lockKey){
         lockRepository.deleteByLockKey(lockKey);
+    }
+
+    @Transactional
+    public boolean saveEntity(ReentrantLockEntity entity) {
+        try {
+            lockRepository.save(entity);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

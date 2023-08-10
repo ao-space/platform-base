@@ -17,7 +17,7 @@ public class ReentrantLockRepository implements PanacheRepository<ReentrantLockE
     }
 
     public void save(ReentrantLockEntity lock) {
-        this.persist(lock);
+            this.persistAndFlush(lock);
     }
 
     public void update(ReentrantLockEntity lock) {
