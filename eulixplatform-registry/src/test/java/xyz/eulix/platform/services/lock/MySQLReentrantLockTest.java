@@ -56,6 +56,8 @@ public class MySQLReentrantLockTest {
     }
 
     /**
+     * 测试 ReentrantLockService
+     * <p>
      * 测试存在过期锁是否可以加锁成功
      * 先创建一个锁
      * 等待锁过期后  尝试加锁
@@ -89,6 +91,8 @@ public class MySQLReentrantLockTest {
     }
 
     /**
+     * 测试 ReentrantLockService
+     * <p>
      * 测试重入锁情况
      * 重复加锁  验证重入次数是否符合预期
      */
@@ -121,6 +125,8 @@ public class MySQLReentrantLockTest {
 
 
     /**
+     * 测试 ReentrantLockService
+     * <p>
      * 测试释放过期锁
      */
     @Test
@@ -149,6 +155,8 @@ public class MySQLReentrantLockTest {
     }
 
     /**
+     * 测试 ReentrantLockService
+     * <p>
      * 测试释放被其他线程持有的锁
      */
     @Test
@@ -178,6 +186,8 @@ public class MySQLReentrantLockTest {
     }
 
     /**
+     * 测试 ReentrantLockService
+     * <p>
      * 测试释放重入锁
      * 1.重入次数不为0  是否重置过期时间
      * 2.重入次数为0 是否删除锁
@@ -213,8 +223,9 @@ public class MySQLReentrantLockTest {
     }
 
     /**
+     * 测试 MySQLReentrantLock
+     * <p>
      * 测试多个线程同时加锁
-     * @throws InterruptedException
      */
     @Test
     void testConcurrentTryLock() throws InterruptedException {
@@ -249,8 +260,9 @@ public class MySQLReentrantLockTest {
     }
 
     /**
-     * 测试多个线程同时加锁解锁
-     * @throws InterruptedException
+     * 测试 MySQLReentrantLock
+     * <p>
+     * 测试多个线程同时加锁和解锁
      */
     @Test
     void testConcurrent() throws InterruptedException {
@@ -295,6 +307,8 @@ public class MySQLReentrantLockTest {
 
 
     /**
+     * 测试 MySQLReentrantLock
+     * <p>
      * 测试锁重入以及释放
      */
     @Test

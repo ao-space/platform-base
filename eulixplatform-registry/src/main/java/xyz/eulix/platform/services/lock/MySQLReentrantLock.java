@@ -14,17 +14,17 @@ public class MySQLReentrantLock implements DistributedLock {
     // 锁的key(资源的唯一标识)
     private String keyName;
 
-    // 拥有锁的线程uuid
+    // 拥有锁的实例uuid
     private String lockValue;
 
-    // 锁超时时间  单位: s
+    // 锁超时时间
     private Integer timeout;
 
     public MySQLReentrantLock(ReentrantLockService lockService, String keyName, String lockValue, Integer timeout) {
         this.lockService = lockService;
         this.keyName = keyName;
         this.lockValue = lockValue;
-        this.timeout = timeout * 1000;
+        this.timeout = timeout * 1000; // 单位ms
     }
 
     @Override

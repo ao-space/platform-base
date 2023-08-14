@@ -26,6 +26,6 @@ public class ReentrantLockRepository implements PanacheRepository<ReentrantLockE
     }
 
     public void deleteByLockKey(String lockKey) {
-        this.delete("lock_key=?1", lockKey);
+        this.delete("lock_key", lockKey);
     }
 }
