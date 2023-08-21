@@ -1,0 +1,158 @@
+package xyz.eulix.platform.services.lock;
+
+import org.jboss.logging.Logger;
+import xyz.eulix.platform.services.lock.service.ReentrantReadWriteLockService;
+
+import java.util.concurrent.TimeUnit;
+
+/**
+ * @author VvV
+ * @date 2023/8/4
+ */
+public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
+
+    private static final Logger LOG = Logger.getLogger("app.log");
+
+    private ReentrantReadWriteLockService lockService;
+    private String keyName;
+
+    private int timeout;
+
+    public MySQLReentrantReadWriteLock(ReentrantReadWriteLockService lockService, String keyName, int timeout) {
+        this.lockService = lockService;
+        this.keyName = keyName;
+        this.timeout = timeout * 1000;
+    }
+
+    /**
+     * Returns the lock used for reading.
+     */
+    @Override
+    public MySQLReentrantReadWriteLock.ReadLock readLock(String lockValue) {
+        return new ReadLock(lockValue);
+    }
+
+    /**
+     * Returns the lock used for writing.
+     */
+    @Override
+    public MySQLReentrantReadWriteLock.WriteLock writeLock(String lockValue) {
+        return new WriteLock(lockValue);
+    }
+
+    public class ReadLock implements DistributedLock {
+
+        private String lockValue;
+
+        public ReadLock(String lockValue) {
+            this.lockValue = lockValue;
+        }
+
+        /**
+         * 在有效时间内阻塞加锁，可被中断
+         *
+         * @param waitTime
+         * @param unit
+         */
+        @Override
+        public boolean tryLock(long waitTime, TimeUnit unit) throws InterruptedException {
+            long start = System.currentTimeMillis();
+            long end;
+            long sleepTime = 1L; // 重试间隔时间，单位ms。指数增长，最大值为1024ms
+            do {
+                //尝试获取锁
+                boolean success = tryLock();
+                if (success) {
+                    //成功获取锁，返回
+                    LOG.debugv("acquire lock success, keyName:{0}", keyName);
+                    LOG.infov("acquire lock success, keyName:{0}", keyName);
+                    return true;
+                }
+                // 等待后继续尝试获取
+                if (sleepTime < 1000L) {
+                    sleepTime = sleepTime << 1;
+                }
+                LOG.debugv("acquire lock fail, retry after: {0}ms", sleepTime);
+                LOG.infov("acquire lock fail, retry after: {0}ms", sleepTime);
+                Thread.sleep(sleepTime);
+                end = System.currentTimeMillis();
+            } while (end-start < unit.toMillis(waitTime));
+            LOG.debugv("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
+            LOG.infov("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
+            return false;
+        }
+
+        /**
+         * 尝试加锁
+         */
+        @Override
+        public boolean tryLock() {
+            return lockService.tryReadLock(keyName, lockValue, timeout);
+        }
+
+        /**
+         * 解锁操作
+         */
+        @Override
+        public void unlock() {
+            lockService.releaseReadLock(keyName, lockValue, timeout);
+        }
+    }
+
+    public class WriteLock implements DistributedLock {
+
+        private String lockValue;
+
+        public WriteLock(String lockValue) {
+            this.lockValue = lockValue;
+        }
+
+        /**
+         * 在有效时间内阻塞加锁，可被中断
+         *
+         * @param waitTime
+         * @param unit
+         */
+        @Override
+        public boolean tryLock(long waitTime, TimeUnit unit) throws InterruptedException {
+            long start = System.currentTimeMillis();
+            long end;
+            long sleepTime = 1L; // 重试间隔时间，单位ms。指数增长，最大值为1024ms
+            do {
+                //尝试获取锁
+                boolean success = tryLock();
+                if (success) {
+                    //成功获取锁，返回
+                    LOG.debugv("acquire lock success, keyName:{0}", keyName);
+                    return true;
+                }
+                // 等待后继续尝试获取
+                if (sleepTime < 1000L) {
+                    sleepTime = sleepTime << 1;
+                }
+                LOG.debugv("acquire lock fail, retry after: {0}ms", sleepTime);
+                Thread.sleep(sleepTime);
+                end = System.currentTimeMillis();
+            } while (end-start < unit.toMillis(waitTime));
+            LOG.debugv("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
+            return false;
+        }
+
+        /**
+         * 尝试加锁
+         */
+        @Override
+        public boolean tryLock() {
+            return lockService.tryWriteLock(keyName, lockValue, timeout);
+        }
+
+        /**
+         * 解锁操作
+         */
+        @Override
+        public void unlock() {
+            lockService.releaseWriteLock(keyName, lockValue, timeout);
+        }
+    }
+
+}
