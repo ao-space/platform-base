@@ -46,9 +46,7 @@ public class MySQLReentrantReadWriteLockTest {
         String keyName = "testKey_read";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
 
-        String lockValue = UUID.randomUUID().toString();
-
-        DistributedLock readLock = readWriteLock.readLock(lockValue);
+        DistributedLock readLock = readWriteLock.readLock();
 
         boolean isLocked = readLock.tryLock();
 
@@ -77,9 +75,7 @@ public class MySQLReentrantReadWriteLockTest {
         String keyName = "testKey_write";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
 
-        String lockValue = UUID.randomUUID().toString();
-
-        DistributedLock writeLock = readWriteLock.writeLock(lockValue);
+        DistributedLock writeLock = readWriteLock.writeLock();
 
         boolean isLocked = writeLock.tryLock();
 
@@ -118,8 +114,7 @@ public class MySQLReentrantReadWriteLockTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.execute(() -> {
                 boolean isLocked;
-                String lockValue = UUID.randomUUID().toString();
-                DistributedLock readLock = readWriteLock.readLock(lockValue);
+                DistributedLock readLock = readWriteLock.readLock();
                 try {
                     isLocked = readLock.tryLock(30, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
@@ -167,8 +162,7 @@ public class MySQLReentrantReadWriteLockTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.execute(() -> {
                 boolean isLocked;
-                String lockValue = UUID.randomUUID().toString();
-                DistributedLock writeLock = readWriteLock.writeLock(lockValue);
+                DistributedLock writeLock = readWriteLock.writeLock();
                 try {
                     isLocked = writeLock.tryLock(30, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
@@ -209,8 +203,7 @@ public class MySQLReentrantReadWriteLockTest {
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
         int readLockCount = 5;
         for (int i = 0; i < readLockCount; i++) {
-            String lockValue = UUID.randomUUID().toString();
-            boolean isLocked = readWriteLock.readLock(lockValue).tryLock();
+            boolean isLocked = readWriteLock.readLock().tryLock();
             Assertions.assertTrue(isLocked);
         }
 
@@ -221,10 +214,11 @@ public class MySQLReentrantReadWriteLockTest {
         // 验证读锁个数
         Assertions.assertEquals(5, readHolds.size());
 
-        // 获取readHolds中其中一个拥有读锁的实例的uuid 进行重复加锁
-        String lockValue = readHolds.keySet().iterator().next();
-        boolean isReentrantLocked = readWriteLock.readLock(lockValue).tryLock();
-        Assertions.assertTrue(isReentrantLocked);
+        // 验证读锁重入
+        MySQLReentrantReadWriteLock.ReadLock readLock = (MySQLReentrantReadWriteLock.ReadLock)readWriteLock.readLock();
+        String lockValue = readLock.getLockValue();
+        Assertions.assertTrue(readLock.tryLock());
+        Assertions.assertTrue(readLock.tryLock());
 
         ReentrantReadWriteLockEntity entity2 = lockRepository.findByLockKey(keyName);
         readHolds = new ObjectMapper().readValue(entity2.getReadHoldsJSON(), new TypeReference<>() {});
@@ -243,11 +237,11 @@ public class MySQLReentrantReadWriteLockTest {
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
 
         // Acquire a read lock
-        boolean isReadLocked = readWriteLock.readLock("readLockValue").tryLock();
+        boolean isReadLocked = readWriteLock.readLock().tryLock();
         Assertions.assertTrue(isReadLocked);
 
         // Attempt to acquire a write lock
-        boolean isWriteLocked = readWriteLock.writeLock("writeLockValue").tryLock();
+        boolean isWriteLocked = readWriteLock.writeLock().tryLock();
         Assertions.assertFalse(isWriteLocked);
 
         lockService.deleteEntity(keyName);
@@ -263,11 +257,11 @@ public class MySQLReentrantReadWriteLockTest {
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
 
         // Acquire a write lock
-        boolean isFirstWriteLocked = readWriteLock.writeLock("writeLockValue1").tryLock();
+        boolean isFirstWriteLocked = readWriteLock.writeLock().tryLock();
         Assertions.assertTrue(isFirstWriteLocked);
 
         // Attempt to acquire another write lock
-        boolean isSecondWriteLocked = readWriteLock.writeLock("writeLockValue2").tryLock();
+        boolean isSecondWriteLocked = readWriteLock.writeLock().tryLock();
         Assertions.assertFalse(isSecondWriteLocked);
 
         lockService.deleteEntity(keyName);
@@ -292,8 +286,7 @@ public class MySQLReentrantReadWriteLockTest {
             Thread readerThread = new Thread(() -> {
                 try {
                     startLatch.await();
-                    String lockValue = UUID.randomUUID().toString();
-                    DistributedLock readLock = readWriteLock.readLock(lockValue);
+                    DistributedLock readLock = readWriteLock.readLock();
                     boolean isLocked = readLock.tryLock(10, TimeUnit.SECONDS);
                     if (isLocked) {
                         try {
@@ -321,8 +314,7 @@ public class MySQLReentrantReadWriteLockTest {
             Thread writerThread = new Thread(() -> {
                 try {
                     startLatch.await();
-                    String lockValue = UUID.randomUUID().toString();
-                    DistributedLock writeLock = readWriteLock.writeLock(lockValue);
+                    DistributedLock writeLock = readWriteLock.writeLock();
                     boolean isLocked = writeLock.tryLock(10, TimeUnit.SECONDS);
                     if (isLocked) {
                         try {

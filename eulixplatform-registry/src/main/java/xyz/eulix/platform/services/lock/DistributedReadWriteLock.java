@@ -9,10 +9,10 @@ public interface DistributedReadWriteLock {
     /**
      * Returns the lock used for reading.
      */
-    DistributedLock readLock(String lockValue);
+    DistributedLock readLock();
 
     /**
      * Returns the lock used for writing.
      */
-    DistributedLock writeLock(String lockValue);
+    DistributedLock writeLock();
 }

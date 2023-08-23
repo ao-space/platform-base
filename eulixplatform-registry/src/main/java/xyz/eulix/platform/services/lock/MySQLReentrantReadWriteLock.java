@@ -3,6 +3,7 @@ package xyz.eulix.platform.services.lock;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.lock.service.ReentrantReadWriteLockService;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,7 +29,8 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
      * Returns the lock used for reading.
      */
     @Override
-    public MySQLReentrantReadWriteLock.ReadLock readLock(String lockValue) {
+    public MySQLReentrantReadWriteLock.ReadLock readLock() {
+        String lockValue = UUID.randomUUID().toString();
         return new ReadLock(lockValue);
     }
 
@@ -36,7 +38,8 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
      * Returns the lock used for writing.
      */
     @Override
-    public MySQLReentrantReadWriteLock.WriteLock writeLock(String lockValue) {
+    public MySQLReentrantReadWriteLock.WriteLock writeLock() {
+        String lockValue = UUID.randomUUID().toString();
         return new WriteLock(lockValue);
     }
 
@@ -46,6 +49,10 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
 
         public ReadLock(String lockValue) {
             this.lockValue = lockValue;
+        }
+
+        public String getLockValue() {
+            return lockValue;
         }
 
         /**
@@ -78,7 +85,6 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
                 end = System.currentTimeMillis();
             } while (end-start < unit.toMillis(waitTime));
             LOG.debugv("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
-            LOG.infov("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
             return false;
         }
 
@@ -105,6 +111,10 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
 
         public WriteLock(String lockValue) {
             this.lockValue = lockValue;
+        }
+
+        public String getLockValue() {
+            return lockValue;
         }
 
         /**
