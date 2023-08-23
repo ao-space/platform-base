@@ -10,5 +10,7 @@ public enum LockType {
 
     MySQLReentrantLock,
 
-    MySQLReentrantReadWriteLock
+    MySQLReentrantReadWriteLock,
+
+    RedisReentrantReadWriteLock
 }

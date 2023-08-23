@@ -1,5 +1,6 @@
 package xyz.eulix.platform.services.lock;
 
+import io.quarkus.redis.client.RedisClient;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.lock.service.ReentrantReadWriteLockService;
 
@@ -14,6 +15,9 @@ import javax.inject.Inject;
 public class DistributedReadWriteLockFactory {
 
     @Inject
+    RedisClient redisClient;
+
+    @Inject
     ReentrantReadWriteLockService mysqlLockService;
 
     @Inject
@@ -24,6 +28,8 @@ public class DistributedReadWriteLockFactory {
 
         if(lockType.equals(LockType.MySQLReentrantReadWriteLock)) {
             return new MySQLReentrantReadWriteLock(mysqlLockService, keyName, timeout);
+        } else if (lockType.equals(LockType.RedisReentrantReadWriteLock)) {
+            return new RedisReentrantReadWriteLock(redisClient, keyName, timeout);
         } else {
             throw new IllegalArgumentException("Invalid lock type: " + lockType);
         }
