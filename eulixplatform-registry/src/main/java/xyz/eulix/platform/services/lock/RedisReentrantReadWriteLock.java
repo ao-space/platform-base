@@ -74,20 +74,18 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                 boolean success = tryLock();
                 if (success) {
                     //成功获取锁，返回
-                    LOG.debugv("acquire lock success, keyName:{0}", keyName);
-                    LOG.infov("acquire lock success, keyName:{0}", keyName);
+                    LOG.debugv("acquire read lock success, keyName:{0}", keyName);
                     return true;
                 }
                 // 等待后继续尝试获取
                 if (sleepTime < 1000L) {
                     sleepTime = sleepTime << 1;
                 }
-                LOG.debugv("acquire lock fail, retry after: {0}ms", sleepTime);
-                LOG.infov("acquire lock fail, retry after: {0}ms", sleepTime);
+                LOG.debugv("acquire read lock fail, retry after: {0}ms", sleepTime);
                 Thread.sleep(sleepTime);
                 end = System.currentTimeMillis();
             } while (end-start < unit.toMillis(waitTime));
-            LOG.debugv("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
+            LOG.debugv("acquire read lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
             return false;
         }
 
@@ -178,7 +176,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                     "if (counter == 0) then " +                             // 如果重入次数变为0
                     "    redis.call('hdel', KEYS[1], ARGV[2]); " +          // 删除当前实例的锁
                     "end; " +
-                    "if (redis.call('hlen', KEYS[1]) > 1) then " +          // 如果还有其他锁
+                    "if (redis.call('hlen', KEYS[1]) > 1) then " +          // 如果还有锁(有mode字段 所以要大于1)
                     "    redis.call('pexpire', KEYS[1], ARGV[1]); " +      // 重置锁过期时间
                     "    return 0; " +
                     "end; " +
@@ -234,18 +232,18 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                 boolean success = tryLock();
                 if (success) {
                     //成功获取锁，返回
-                    LOG.debugv("acquire lock success, keyName:{0}", keyName);
+                    LOG.debugv("acquire write lock success, keyName:{0}", keyName);
                     return true;
                 }
                 // 等待后继续尝试获取
                 if (sleepTime < 1000L) {
                     sleepTime = sleepTime << 1;
                 }
-                LOG.debugv("acquire lock fail, retry after: {0}ms", sleepTime);
+                LOG.debugv("acquire write lock fail, retry after: {0}ms", sleepTime);
                 Thread.sleep(sleepTime);
                 end = System.currentTimeMillis();
             } while (end-start < unit.toMillis(waitTime));
-            LOG.debugv("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
+            LOG.debugv("acquire write lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
             return false;
         }
 
@@ -370,6 +368,5 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
             }
         }
     }
-
 
 }
