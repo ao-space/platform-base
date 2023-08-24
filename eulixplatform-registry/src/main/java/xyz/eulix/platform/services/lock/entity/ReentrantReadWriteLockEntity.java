@@ -27,23 +27,14 @@ public class ReentrantReadWriteLockEntity {
     @NotNull(message = "Expiration timestamp is required")
     private Timestamp expiresAt;
 
-    /**
-     * 读锁总数量
-     */
-    @Column(name = "read_lock_count")
-    private Integer readLockCount;
-
-    @Column(name = "write_lock_count")
-    private Integer writeLockCount;
-
-    @Column(name = "write_lock_owner_uuid")
-    private String writeLockOwnerUUID;
+    @Column(name = "mode")
+    private String mode;
 
     /**
      * JSON string that stores the UUIDs and reentrant counts of all read locks
      */
-    @Column(name = "read_holds_json")
-    private String readHoldsJSON;
+    @Column(name = "lock_holds_json")
+    private String lockHoldsJSON;
 
     @Version
     @Column(name = "version", nullable = false)

@@ -39,7 +39,7 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
      */
     @Override
     public MySQLReentrantReadWriteLock.WriteLock writeLock() {
-        String lockValue = UUID.randomUUID().toString();
+        String lockValue = UUID.randomUUID() + ":write";
         return new WriteLock(lockValue);
     }
 
@@ -71,20 +71,18 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
                 boolean success = tryLock();
                 if (success) {
                     //成功获取锁，返回
-                    LOG.debugv("acquire lock success, keyName:{0}", keyName);
-                    LOG.infov("acquire lock success, keyName:{0}", keyName);
+                    LOG.debugv("acquire read lock success, keyName:{0}", keyName);
                     return true;
                 }
                 // 等待后继续尝试获取
                 if (sleepTime < 1000L) {
                     sleepTime = sleepTime << 1;
                 }
-                LOG.debugv("acquire lock fail, retry after: {0}ms", sleepTime);
-                LOG.infov("acquire lock fail, retry after: {0}ms", sleepTime);
+                LOG.debugv("acquire read lock fail, retry after: {0}ms", sleepTime);
                 Thread.sleep(sleepTime);
                 end = System.currentTimeMillis();
             } while (end-start < unit.toMillis(waitTime));
-            LOG.debugv("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
+            LOG.debugv("acquire read lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
             return false;
         }
 
@@ -133,18 +131,18 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
                 boolean success = tryLock();
                 if (success) {
                     //成功获取锁，返回
-                    LOG.debugv("acquire lock success, keyName:{0}", keyName);
+                    LOG.debugv("acquire write lock success, keyName:{0}", keyName);
                     return true;
                 }
                 // 等待后继续尝试获取
                 if (sleepTime < 1000L) {
                     sleepTime = sleepTime << 1;
                 }
-                LOG.debugv("acquire lock fail, retry after: {0}ms", sleepTime);
+                LOG.debugv("acquire write lock fail, retry after: {0}ms", sleepTime);
                 Thread.sleep(sleepTime);
                 end = System.currentTimeMillis();
             } while (end-start < unit.toMillis(waitTime));
-            LOG.debugv("acquire lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
+            LOG.debugv("acquire write lock timeout, elapsed: {0}ms", System.currentTimeMillis() - start);
             return false;
         }
 

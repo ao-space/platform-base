@@ -12,10 +12,8 @@ CREATE TABLE IF NOT EXISTS `distributed_reentrant_locks` (
 CREATE TABLE IF NOT EXISTS `distributed_reentrant_read_write_locks` (
     `lock_key` VARCHAR(128) NOT NULL,
     `expires_at` TIMESTAMP(0) NOT NULL,
-    `read_lock_count` INT DEFAULT 0,
-    `write_lock_count` INT DEFAULT 0,
-    `write_lock_owner_uuid` VARCHAR(128),
-    `read_holds_json` VARCHAR(1024),
+    `mode` VARCHAR(20),
+    `lock_holds_json` VARCHAR(2048),
     `created_at` DATETIME DEFAULT NULL,
     `updated_at` DATETIME DEFAULT NULL,
     `version` INT DEFAULT 0,

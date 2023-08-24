@@ -13,7 +13,6 @@ import xyz.eulix.platform.services.lock.service.ReentrantReadWriteLockService;
 
 import javax.inject.Inject;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -195,7 +194,7 @@ public class MySQLReentrantReadWriteLockTest {
     }
 
     /**
-     * 测试读读是否共享以及读锁可重入
+     * 测试读读是否共享
      */
     @Test
     void testReadReadSharing() throws JsonProcessingException {
@@ -207,23 +206,46 @@ public class MySQLReentrantReadWriteLockTest {
             Assertions.assertTrue(isLocked);
         }
 
-        ReentrantReadWriteLockEntity entity1 = lockRepository.findByLockKey(keyName);
-        // 验证读锁总重入数量
-        Assertions.assertEquals(5, entity1.getReadLockCount());
-        Map<String, Integer> readHolds = new ObjectMapper().readValue(entity1.getReadHoldsJSON(), new TypeReference<>() {});
+        ReentrantReadWriteLockEntity entity = lockRepository.findByLockKey(keyName);
+        Map<String, Integer> lockHolds = new ObjectMapper().readValue(entity.getLockHoldsJSON(), new TypeReference<>() {});
         // 验证读锁个数
-        Assertions.assertEquals(5, readHolds.size());
+        Assertions.assertEquals(5, lockHolds.size());
 
-        // 验证读锁重入
+        lockService.deleteEntity(keyName);
+    }
+
+    /**
+     * 测试读锁重入
+     */
+    @Test
+    void testReadReentrant() throws JsonProcessingException {
+        String keyName = "test_read_reentrant";
+        DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
         MySQLReentrantReadWriteLock.ReadLock readLock = (MySQLReentrantReadWriteLock.ReadLock)readWriteLock.readLock();
         String lockValue = readLock.getLockValue();
         Assertions.assertTrue(readLock.tryLock());
         Assertions.assertTrue(readLock.tryLock());
+        ReentrantReadWriteLockEntity entity = lockRepository.findByLockKey(keyName);
+        Map<String, Integer> lockHolds = new ObjectMapper().readValue(entity.getLockHoldsJSON(), new TypeReference<>() {});
+        Assertions.assertEquals(2, lockHolds.get(lockValue));
 
-        ReentrantReadWriteLockEntity entity2 = lockRepository.findByLockKey(keyName);
-        readHolds = new ObjectMapper().readValue(entity2.getReadHoldsJSON(), new TypeReference<>() {});
+        lockService.deleteEntity(keyName);
+    }
 
-        Assertions.assertEquals(2, readHolds.get(lockValue));
+    /**
+     * 测试写锁重入
+     */
+    @Test
+    void testWriteReentrant() throws JsonProcessingException {
+        String keyName = "test_write_reentrant";
+        DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
+        MySQLReentrantReadWriteLock.WriteLock writeLock = (MySQLReentrantReadWriteLock.WriteLock)readWriteLock.writeLock();
+        String lockValue = writeLock.getLockValue();
+        Assertions.assertTrue(writeLock.tryLock());
+        Assertions.assertTrue(writeLock.tryLock());
+        ReentrantReadWriteLockEntity entity = lockRepository.findByLockKey(keyName);
+        Map<String, Integer> lockHolds = new ObjectMapper().readValue(entity.getLockHoldsJSON(), new TypeReference<>() {});
+        Assertions.assertEquals(2, lockHolds.get(lockValue));
 
         lockService.deleteEntity(keyName);
     }
@@ -271,7 +293,7 @@ public class MySQLReentrantReadWriteLockTest {
      * 测试多线程并发的读写锁
      */
     @Test
-    void testConcurrentReadWriteLock() throws InterruptedException {
+    void testConcurrentReadWriteLock() throws InterruptedException, JsonProcessingException {
         String keyName = "test_concurrent_read_write";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
         int numThreads = 10;
@@ -345,8 +367,8 @@ public class MySQLReentrantReadWriteLockTest {
 
         ReentrantReadWriteLockEntity entity = lockRepository.findByLockKey(keyName);
         if (entity != null) {
-            Assertions.assertEquals(0, entity.getReadLockCount());
-            Assertions.assertEquals(0, entity.getWriteLockCount());
+            Map<String, Integer> lockHolds = new ObjectMapper().readValue(entity.getLockHoldsJSON(), new TypeReference<>() {});
+            Assertions.assertEquals(0, lockHolds.size());
         }
 
         lockService.deleteEntity(keyName);

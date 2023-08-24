@@ -28,6 +28,9 @@ public class ReentrantReadWriteLockService {
 
     private static final Logger LOG = Logger.getLogger("app.log");
 
+    private static final String READ_MODE = "read";
+    private static final String Write_MODE = "write";
+
     @Inject
     ReentrantReadWriteLockRepository lockRepository;
 
@@ -52,33 +55,39 @@ public class ReentrantReadWriteLockService {
 
         ReentrantReadWriteLockEntity lockEntity = lockRepository.findByLockKey(key);
 
-        // 如果数据库中已经存在该锁
-        if (lockEntity != null) {
-            ReentrantReadWriteLock lock = entityToReentrantReadWriteLock(lockEntity);
-
-            // 如果锁已经过期了
-            if (lock.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
-                ReentrantReadWriteLockEntity entity = newReadLock(key, value, timeout);
-                entity.setVersion(lockEntity.getVersion());
-                return updateEntity(entity);
-            }
-
-            // 如果当前存在写锁 并且 该写锁被其他实例持有
-            if (lock.getWriteLockCount() != 0 && !lock.getWriteLockOwnerUUID().equals(value)) {
-                LOG.debugv("acquire read lock fail, keyName:{0}, value:{1}, ttl:{2}", key, value, lock.getExpiresAt());
+        if (lockEntity == null) {
+            // 当前锁不存在 竞争加锁
+            boolean isSave = saveEntity(newLock(key, value, timeout, READ_MODE));
+            if (isSave) {
+                LOG.debugv("acquire read lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
+                return true;
+            } else {
+                LOG.debugv("failed to acquire read lock. The lock is already held by another instance, keyName:{0}", key);
                 return false;
             }
+        }
 
-            // 读锁总重入数量+1 并且设置当前实例的重入次数
-            int readCount = lock.getReadLockCount();
-            lock.setReadLockCount(readCount + 1);
-            Map<String, Integer> readHolds = lock.getReadHoldsMap();
-            readHolds.put(value, readHolds.getOrDefault(value, 0) + 1);
-            lock.setReadHoldsMap(readHolds);
-
+        ReentrantReadWriteLock lock = entityToReentrantReadWriteLock(lockEntity);
+        // 如果锁已经过期了
+        if (lock.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+            ReentrantReadWriteLockEntity entity = newLock(key, value, timeout, READ_MODE);
+            entity.setVersion(lockEntity.getVersion());
+            boolean isUpdate = updateEntity(entity);
+            if (isUpdate) {
+                LOG.debugv("acquire read lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
+                return true;
+            } else {    // 乐观锁更新失败
+                LOG.debugv("update read lock failed, keyName:{0}, value:{1}", key, value);
+                return false;
+            }
+        }
+        String mode = lock.getMode();
+        Map<String, Integer> lockHolds = lock.getLockHoldsMap();
+        String writeValue = value + ":" + Write_MODE;
+        if (mode.equals(READ_MODE) || (mode.equals(Write_MODE) && lockHolds.containsKey(writeValue))) {
+            lockHolds.put(value, lockHolds.getOrDefault(value, 0) + 1);
             // 更新锁过期时间
             lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
-
             boolean isUpdate = updateEntity(this.reentrantReadWriteLockToEntity(lock));
             if (isUpdate) {
                 LOG.debugv("acquire read lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
@@ -87,19 +96,11 @@ public class ReentrantReadWriteLockService {
                 LOG.debugv("update read lock failed, keyName:{0}, value:{1}", key, value);
                 return false;
             }
-        } else {
-            // 当前锁不存在 竞争加锁
-            boolean isSave = saveEntity(newReadLock(key, value, timeout));
-            if (isSave) {
-                LOG.debugv("acquire read lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
-                return true;
-            } else {
-                LOG.debugv("failed to acquire read lock. The lock is already held by another instance, keyName:{0}", key);
-                // 竞争失败
-                return false;
-            }
         }
-    }
+
+        LOG.debugv("acquire read lock fail, keyName:{0}, lockValue:{1}, expires_at:{2}", key, value, lock.getExpiresAt());
+        return false;
+   }
 
     /**
      * 释放读锁
@@ -113,7 +114,6 @@ public class ReentrantReadWriteLockService {
      */
     @Transactional
     public void releaseReadLock(String key, String value, Integer timeout) {
-
         ReentrantReadWriteLockEntity lockEntity = lockRepository.findByLockKey(key);
 
         if (lockEntity == null) {
@@ -123,35 +123,46 @@ public class ReentrantReadWriteLockService {
 
         ReentrantReadWriteLock lock = entityToReentrantReadWriteLock(lockEntity);
 
-        Map<String, Integer> readHolds = lock.getReadHoldsMap();
-        // 检查该实例对应的读锁是否存在
-        if (!readHolds.containsKey(value)) {
-            LOG.warnv("Current thread does not hold read lock, keyName:{0}, lockValue:{1}", key, value);
+        // 如果锁已经过期了
+        if (lock.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+            LOG.debugv("the lock has been expired, keyName:{0}", key);
+            return;
+        }
+
+        Map<String, Integer> lockHolds = lock.getLockHoldsMap();
+        // 如果该实例对应的读锁不存在
+        if (!lockHolds.containsKey(value)) {
+            LOG.warnv("Current thread does not hold the read lock, keyName:{0}, lockValue:{1}", key, value);
             throw new RuntimeException("current thread does not hold read lock");
         }
 
-        // 读锁总重入次数-1
-        lock.setReadLockCount(lock.getReadLockCount() - 1);
-
-        // 获取当前实例的读锁数量
-        int currentCount = readHolds.get(value);
-
-        if (currentCount <= 1) {   // 如果读锁数量小于等于1 释放一次 该实例的读锁全部释放 删除锁记录
-            readHolds.remove(value);
-            LOG.debugv("release read lock success, keyName:{0}, lockValue:{1}", key, value);
-        } else {  // 减少重入次数后 重入次数不为0
-            readHolds.put(value, currentCount - 1);
-            LOG.debugv("Decrease read lock times success, keyName:{0}, lockValue:{1}", key, value);
-        }
-        // 将锁记录的相关修改 同步到数据库
-        lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
-        lock.setReadHoldsMap(readHolds);
-        boolean isUpdate = updateEntity(this.reentrantReadWriteLockToEntity(lock));
-        if (isUpdate) {
-            LOG.debugv("release lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
+        // 减少当前实例的读锁重入次数
+        int reentrantCount = lockHolds.get(value) - 1;
+        if (reentrantCount == 0) {
+            lockHolds.remove(value);
         } else {
-            // TODO 乐观锁更新失败 是否可以递归重试
-            releaseReadLock(key, value, timeout);
+            lockHolds.put(value, reentrantCount);
+        }
+        // 如果还有锁 重置锁过期时间
+        if (lockHolds.size() > 0) {
+            lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
+            boolean isUpdate = updateEntity(this.reentrantReadWriteLockToEntity(lock));
+            if (isUpdate) {
+                LOG.debugv("Decrease read lock times success, keyName:{0}, lockValue:{1}", key, value);
+            } else {    // 乐观锁更新失败
+                LOG.debugv("update read lock failed, retry, keyName:{0}, value:{1}", key, value);
+                releaseReadLock(key, value, timeout);
+            }
+        } else {
+            // 将锁设置过期 代表删除
+            lock.setExpiresAt(new Timestamp(System.currentTimeMillis() - timeout));
+            boolean isUpdate = updateEntity(this.reentrantReadWriteLockToEntity(lock));
+            if (isUpdate) {
+                LOG.debugv("release read lock success, keyName:{0}, lockValue:{1}", key, value);
+            } else {    // 乐观锁更新失败
+                LOG.debugv("update read lock failed, retry, keyName:{0}, value:{1}", key, value);
+                releaseReadLock(key, value, timeout);
+            }
         }
     }
 
@@ -171,46 +182,8 @@ public class ReentrantReadWriteLockService {
     public boolean tryWriteLock(String key, String value, Integer timeout) {
         ReentrantReadWriteLockEntity entity = lockRepository.findByLockKey(key);
 
-        if (entity != null) {
-            // 锁过期
-            if (entity.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
-                ReentrantReadWriteLockEntity newEntity = newWriteLock(key, value, timeout);
-                newEntity.setVersion(entity.getVersion());
-                boolean isUpdate = updateEntity(newEntity);
-                if (isUpdate) {
-                    LOG.debugv("acquire write lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
-                    return true;
-                } else {    // 乐观锁更新失败
-                    LOG.debugv("acquire write lock failed, keyName:{0}, value:{1}", key, value);
-                    return false;
-                }
-            }
-
-            // 如果存在写锁 加锁失败
-            if (entity.getReadLockCount() > 0) {
-                LOG.debugv("acquire write lock failed, read locks are held by other instances, keyName:{0}, value:{1}", key, value);
-                return false;
-            }
-
-            int writeCount = entity.getWriteLockCount();
-            // 如果存在写锁 且不是当前实例持有 加锁失败
-            if (writeCount > 0 && entity.getWriteLockOwnerUUID() != null && !entity.getWriteLockOwnerUUID().equals(value)) {
-                LOG.debugv("acquire write lock failed, write lock is held by other instance, keyName:{0}, value:{1}", key, value);
-                return false;
-            }
-            entity.setWriteLockOwnerUUID(value);
-            entity.setWriteLockCount(writeCount + 1);
-            entity.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
-            boolean isUpdate = updateEntity(entity);
-            if (isUpdate) {
-                LOG.debugv("acquire write lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
-                return true;
-            } else {    // 乐观锁更新失败
-                LOG.debugv("update write lock failed, keyName:{0}, value:{1}", key, value);
-                return false;
-            }
-        } else {
-            boolean isSave = saveEntity(newWriteLock(key, value, timeout));
+        if (entity == null) {
+            boolean isSave = saveEntity(newLock(key, value, timeout, Write_MODE));
             if (isSave) {
                 LOG.debugv("acquire write lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
                 return true;
@@ -220,6 +193,38 @@ public class ReentrantReadWriteLockService {
                 return false;
             }
         }
+
+        // 如果锁过期
+        if (entity.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+            ReentrantReadWriteLockEntity newEntity = newLock(key, value, timeout, Write_MODE);
+            newEntity.setVersion(entity.getVersion());
+            boolean isUpdate = updateEntity(newEntity);
+            if (isUpdate) {
+                LOG.debugv("acquire write lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
+                return true;
+            } else {    // 乐观锁更新失败
+                LOG.debugv("acquire write lock failed, keyName:{0}, value:{1}", key, value);
+                return false;
+            }
+        }
+
+        ReentrantReadWriteLock lock = entityToReentrantReadWriteLock(entity);
+        Map<String, Integer> lockHolds = lock.getLockHoldsMap();
+        if (lock.getMode().equals(Write_MODE) && lockHolds.containsKey(value)) {
+            lockHolds.put(value, lockHolds.get(value) + 1);
+            lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
+            boolean isUpdate = updateEntity(reentrantReadWriteLockToEntity(lock));
+            if (isUpdate) {
+                LOG.debugv("acquire write lock success, keyName:{0}, value:{1}, timeout:{2}", key, value, timeout);
+                return true;
+            } else {    // 乐观锁更新失败
+                LOG.debugv("acquire write lock failed, keyName:{0}, value:{1}", key, value);
+                return false;
+            }
+        }
+
+        LOG.debugv("acquire write lock failed, keyName:{0}, value:{1}", key, value);
+        return false;
     }
 
     /**
@@ -240,48 +245,62 @@ public class ReentrantReadWriteLockService {
             return;
         }
 
-        String writeLockOwner = entity.getWriteLockOwnerUUID();
-        if (writeLockOwner == null || !writeLockOwner.equals(value)) {
-            LOG.warnv("Current thread does not hold write lock, keyName:{0}, lockValue:{1}", key, value);
-            throw new RuntimeException("current thread does not hold write lock");
+        ReentrantReadWriteLock lock = entityToReentrantReadWriteLock(entity);
+
+        // 如果锁已经过期了
+        if (lock.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+            LOG.debugv("the lock has been expired, keyName:{0}", key);
+            return;
         }
 
-        int writeCount = entity.getWriteLockCount();
-        writeCount--;
-        if (writeCount <= 0) {
-            writeCount = 0;
-            entity.setWriteLockOwnerUUID(null);
+        if (lock.getMode().equals(Write_MODE)) {
+            Map<String, Integer> lockHolds = lock.getLockHoldsMap();
+            if (!lockHolds.containsKey(value)) {
+                LOG.warnv("Current thread does not hold the write lock, keyName:{0}, lockValue:{1}", key, value);
+                throw new RuntimeException("current thread does not hold read lock");
+            } else {
+                int reentrantCount = lockHolds.get(value) - 1;
+
+                if (reentrantCount > 0) {
+                    lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
+                    lockHolds.put(value, reentrantCount);
+                    boolean isUpdate = updateEntity(this.reentrantReadWriteLockToEntity(lock));
+                    if (isUpdate) {
+                        LOG.debugv("Decrease write lock times success, keyName:{0}, lockValue:{1}", key, value);
+                    } else {    // 乐观锁更新失败
+                        LOG.debugv("update write lock failed, retry, keyName:{0}, value:{1}", key, value);
+                        releaseWriteLock(key, value, timeout);
+                    }
+                } else {
+                    lockHolds.remove(value);
+                    if (lockHolds.size() == 0) {
+                        // 将过期时间设置为过去  代表删除
+                        lock.setExpiresAt(new Timestamp(System.currentTimeMillis() - timeout));
+                    } else {
+                        lock.setMode(READ_MODE);
+                    }
+                    boolean isUpdate = updateEntity(this.reentrantReadWriteLockToEntity(lock));
+                    if (isUpdate) {
+                        LOG.debugv("release write lock success, keyName:{0}, lockValue:{1}", key, value);
+                    } else {    // 乐观锁更新失败
+                        LOG.debugv("update write lock failed, retry, keyName:{0}, value:{1}", key, value);
+                        releaseWriteLock(key, value, timeout);
+                    }
+                }
+            }
         }
-        entity.setWriteLockCount(writeCount);
-        entity.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
-        // TODO 是否要对更新是否成功进行判断
-        updateEntity(entity);
-        LOG.debugv("Decrease lock times success, keyName:{0}, lockValue:{1}", key, value);
     }
 
     @Transactional
-    private ReentrantReadWriteLockEntity newReadLock(String key, String value, Integer timeout) {
+    private ReentrantReadWriteLockEntity newLock(String key, String value, Integer timeout, String mode) {
         ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
         lock.setLockKey(key);
+        lock.setMode(mode);
         lock.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
-        lock.setReadLockCount(1);
-        lock.setWriteLockCount(0);
-        Map<String, Integer> readHolds = new HashMap<>();
-        readHolds.put(value, 1);
-        lock.setReadHoldsMap(readHolds);
-
+        Map<String, Integer> lockHolds = new HashMap<>();
+        lockHolds.put(value, 1);
+        lock.setLockHoldsMap(lockHolds);
         return this.reentrantReadWriteLockToEntity(lock);
-    }
-
-    @Transactional
-    public ReentrantReadWriteLockEntity newWriteLock(String key, String value, Integer timeout) {
-        ReentrantReadWriteLockEntity entity = new ReentrantReadWriteLockEntity();
-        entity.setLockKey(key);
-        entity.setReadLockCount(0);
-        entity.setWriteLockCount(1);
-        entity.setWriteLockOwnerUUID(value);
-        entity.setExpiresAt(new Timestamp(System.currentTimeMillis() + timeout));
-        return entity;
     }
 
     @Transactional
@@ -300,10 +319,8 @@ public class ReentrantReadWriteLockService {
         ReentrantReadWriteLockEntity existingEntity = lockRepository.findByLockKey(entity.getLockKey());
         if (existingEntity != null) {
             existingEntity.setExpiresAt(entity.getExpiresAt());
-            existingEntity.setReadLockCount(entity.getReadLockCount());
-            existingEntity.setWriteLockCount(entity.getWriteLockCount());
-            existingEntity.setWriteLockOwnerUUID(entity.getWriteLockOwnerUUID());
-            existingEntity.setReadHoldsJSON(entity.getReadHoldsJSON());
+            existingEntity.setMode(entity.getMode());
+            existingEntity.setLockHoldsJSON(entity.getLockHoldsJSON());
             try {
                 entityManager.flush();
                 return true;
@@ -324,19 +341,17 @@ public class ReentrantReadWriteLockService {
         ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
         lock.setLockKey(entity.getLockKey());
         lock.setExpiresAt(entity.getExpiresAt());
-        lock.setReadLockCount(entity.getReadLockCount());
-        lock.setWriteLockCount(entity.getWriteLockCount());
-        lock.setWriteLockOwnerUUID(entity.getWriteLockOwnerUUID());
+        lock.setMode(entity.getMode());
         Map<String, Integer> readHolds = new HashMap<>();
         try {
-            String readHoldsJson = entity.getReadHoldsJSON();
+            String readHoldsJson = entity.getLockHoldsJSON();
             if (readHoldsJson != null && !readHoldsJson.isEmpty()) {
-                readHolds = new ObjectMapper().readValue(entity.getReadHoldsJSON(), new TypeReference<>() {});
+                readHolds = new ObjectMapper().readValue(entity.getLockHoldsJSON(), new TypeReference<>() {});
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error while parsing readHoldsJSON", e);
         }
-        lock.setReadHoldsMap(readHolds);
+        lock.setLockHoldsMap(readHolds);
         lock.setVersion(entity.getVersion());
 
         return lock;
@@ -346,12 +361,10 @@ public class ReentrantReadWriteLockService {
         ReentrantReadWriteLockEntity entity = new ReentrantReadWriteLockEntity();
         entity.setLockKey(lock.getLockKey());
         entity.setExpiresAt(lock.getExpiresAt());
-        entity.setReadLockCount(lock.getReadLockCount());
-        entity.setWriteLockCount(lock.getWriteLockCount());
-        entity.setWriteLockOwnerUUID(lock.getWriteLockOwnerUUID());
+        entity.setMode(lock.getMode());
         try {
-            String readHoldsJSON = new ObjectMapper().writeValueAsString(lock.getReadHoldsMap());
-            entity.setReadHoldsJSON(readHoldsJSON);
+            String readHoldsJSON = new ObjectMapper().writeValueAsString(lock.getLockHoldsMap());
+            entity.setLockHoldsJSON(readHoldsJSON);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error while converting readHoldsMap to JSON", e);
         }

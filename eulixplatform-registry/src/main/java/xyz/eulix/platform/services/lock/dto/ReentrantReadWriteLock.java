@@ -19,13 +19,9 @@ public class ReentrantReadWriteLock {
 
     private Timestamp expiresAt;
 
-    private Integer readLockCount;
+    private String mode;
 
-    private Integer writeLockCount;
-
-    private String writeLockOwnerUUID;
-
-    private Map<String, Integer> readHoldsMap;
+    private Map<String, Integer> lockHoldsMap;
 
     private Integer version;
 }
