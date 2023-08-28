@@ -20,6 +20,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import xyz.eulix.platform.services.registry.entity.RegistryBoxEntity;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +42,9 @@ public class RegistryBoxEntityRepository implements PanacheRepository<RegistryBo
     // 根据box_uuids查询资源
     private static final String FIND_BY_BOXUUIDS = "box_uuid in (?1)";
 
+    // 根据network_client_id查询资源
+    private static final String FIND_BY_CLIENTID = "network_client_id=?1";
+
     public Optional<RegistryBoxEntity> findByBoxUUID(String boxUUID) {
         return this.find(FIND_BY_BOXUUID, boxUUID).firstResultOptional();
     }
@@ -55,5 +59,14 @@ public class RegistryBoxEntityRepository implements PanacheRepository<RegistryBo
 
     public List<RegistryBoxEntity> findByBoxUUIDs(List<String> boxUUIDs) {
         return this.find(FIND_BY_BOXUUIDS, boxUUIDs).list();
+    }
+
+    public Optional<RegistryBoxEntity> findByClientId(String networkClientId) {
+        return this.find(FIND_BY_CLIENTID, networkClientId).firstResultOptional();
+    }
+
+    @Transactional
+    public void updateSecretKeyAndSaltByBoxUUID(String hashSecretKey, String salt, String boxUUID) {
+        update("set network_secret_key=?1, network_secret_salt=?2, updated_at=now() where box_uuid=?3 ", hashSecretKey, salt, boxUUID);
     }
 }
