@@ -109,7 +109,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
          * 通过key获取锁的模式mode
          *     如果锁的键不存在  加读锁
          *     如果 mode=read 或者 (mode=write&&写锁是当前实例的)
-         *         增加读锁记录 (对于第二种情况 写锁解锁时 需要特别处理 写锁释放完 则将锁模式设置为读锁)
+         *         增加读锁记录 (对于第二种情况 写锁解锁时 需要特别处理 写锁释放完 若还存在读锁则将锁模式设置为"read")
          *     否则 加锁失败 返回锁剩余过期时间
          * @param key      锁唯一标识
          * @param value    实例(客户端)唯一uuid
@@ -270,7 +270,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
          *         是 增加重入次数、重置过期时间
          *         否 加锁失败
          * @param key      锁唯一标识
-         * @param value    实例(客户端)唯一uuid
+         * @param value    实例(客户端)唯一uuid+"write"
          * @param timeout  过期时间
          * @return 加锁是否成功
          */
@@ -318,8 +318,9 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
          *                 否 删除当前实例的写锁 判断是否map中key的数量
          *                     key数量为1(该key为mode) 当前锁不被任何实例持有 删除整个锁记录
          *                     key数量不为1 将mode设置为read (这时当前实例持有读锁)
+         *     如果mode!=write 抛出异常
          * @param key      锁唯一标识
-         * @param value    实例(客户端)唯一uuid
+         * @param value    实例(客户端)唯一uuid+"write"
          * @param timeout  过期时间
          */
         private void releaseLock(String key, String value, Integer timeout) {
