@@ -72,6 +72,15 @@ class RegistryResourceTest {
                 .body()
                 .as(BoxRegistryResult.class);
         Assertions.assertNotNull(result);
+
+        given()
+                .header("Request-Id", "uuid")
+                .header("Box-Reg-Key", "box_reg_key")
+                .pathParam(  "box_uuid","box_uuid")
+                .contentType(ContentType.JSON)
+                .when().delete("/v2/platform/boxes/{box_uuid}")
+                .then()
+                .statusCode(204);
     }
 
     @Test
@@ -90,16 +99,24 @@ class RegistryResourceTest {
             .body()
             .as(BoxRegistryResult.class);
 
-        final BoxRegistryResult result1 = given()
+        final int statusCode = given()
                 .header("Request-Id", bid + "-1")
                 .header("Box-Reg-Key", "box_reg_key")
                 .body(info)
                 .contentType(ContentType.JSON)
                 .when().post("/v2/platform/boxes")
-                .body()
-                .as(BoxRegistryResult.class);
+                .getStatusCode();
         Assertions.assertNotNull(result);
-        Assertions.assertNotNull(result1);
+        Assertions.assertEquals(406, statusCode);
+
+        given()
+                .header("Request-Id", "uuid")
+                .header("Box-Reg-Key", "box_reg_key")
+                .pathParam(  "box_uuid","box_uuid")
+                .contentType(ContentType.JSON)
+                .when().delete("/v2/platform/boxes/{box_uuid}")
+                .then()
+                .statusCode(204);
     }
 
     @Test
