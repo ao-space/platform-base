@@ -146,7 +146,7 @@ For more details about the OpenAPI extension, please refer [Using OpenAPI and Sw
 
 Contributions to this project are very welcome. Here are some guidelines and suggestions to help you get involved in the project.
 
-[Contribution Guidelines](./docs/contribution-guidelines.md)
+[Contribution Guidelines](https://github.com/ao-space/ao.space/blob/dev/docs/contribution-guidelines.md)
 
 ## Contact us
 
