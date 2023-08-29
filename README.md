@@ -1,6 +1,6 @@
 # Platform Base Service Introduction
 
-- English | [简体中文](./README_zh.md)
+English | [简体中文](./README_zh.md)
 
 - [Brief Introduction](#brief-introduction)
 - [System Architecture](#system-architecture)
