@@ -1,5 +1,7 @@
 # Platform Base Service Introduction
 
+- English | [简体中文](./README_zh.md)
+
 - [Brief Introduction](#brief-introduction)
 - [System Architecture](#system-architecture)
     - [AO.space Platform](#ao.space-platform)
@@ -9,13 +11,10 @@
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
 - [Evolution Plan](#evolution-plan)
 - [Contribution Guidelines](#contribution-guidelines)
-- [切换中文文档](/README_zh.md)
+- [Contact us](#contact-us)
+- [Thanks for your contribution](#thanks-for-your-contribution)
 
 ## Brief Introduction
-
-AO.space is a solution that focuses on protecting personal data security and privacy. Utilizing end-to-end encryption and device-based authentication, users have complete control over their personal accounts and data. AO.space also employs various technologies, including transparent platform forwarding, peer-to-peer acceleration, and LAN direct connection, to enable fast access to personal data from anywhere at any time. Leveraging Progressive Web App and cloud-native technology, AO.space has developed an integrated application ecosystem that could include both front-end and back-end components.
-
-AO.space is composed of three parts: server-side, client-side, and platform. The server-side and client-side run on personal devices and establish encrypted communication channels with public key authentication. The server-side supports x86_64 and aarch64 architectures and can run on personal servers, computers, or other similar devices. The client-side supports Android, iOS, and web platforms, providing users with the convenience of using AO.space anywhere and anytime.
 
 AO.space Platform provides personal devices with transparent communication channel services and secure protection for Internet access. AO.space platform can also be privately deployed. Differing from other solutions, personal account authentication and authorization in AO.space are managed solely by the server running on the personal device. The AO.space platform cannot manage or parse any personal data, and personal account authentication and authorization in AO.space are managed solely by the server-side running on the personal device, ensuring complete control of user data in personal devices.
 
@@ -147,64 +146,17 @@ For more details about the OpenAPI extension, please refer [Using OpenAPI and Sw
 
 Contributions to this project are very welcome. Here are some guidelines and suggestions to help you get involved in the project.
 
-### Contributing Code
+[Contribution Guidelines](./docs/contribution-guidelines.md)
 
-If you want to contribute to the project, the best way is to submit code. Before submitting code, please ensure that you have downloaded and familiarized yourself with the project code repository, and that your code adheres to the following guidelines:
+## Contact us
 
-- The code should be as concise as possible, and easy to maintain and expand.
-- The code should follow the naming convention agreed by the project to ensure the consistency of the code.
-- The code should follow the code style guide of the project, and you can refer to the existing code in the project code library.
+- [Official website](https://ao.space)
+- [Discussion group](https://slack.ao.space)
+- [Twitter](https://twitter.com/AOspaceOSC)
+- [Medium](https://medium.com/@aospacecommunity)
 
-If you want to submit code to the project, you can do so by following these steps:
+You can also [get support for AO.spcae!](https://ao.space/en/support/help)
 
-- Fork the project on GitHub.
-- Clone your forked project locally.
-- Make your modifications and improvements locally.
-- Perform tests to ensure that any changes have no impact.
-- Commit your changes and create a pull request.
-
-### Code Quality
-
-We attach great importance to the quality of the code, so the code you submit should meet the following requirements:
-
-- Code should be fully tested to ensure its correctness and stability.
-- Code should follow good design principles and best practices.
-- The code should conform as closely as possible to the relevant requirements of your submitted code contribution.
-
-### Submit Information
-
-Before committing code, please ensure that you provide a meaningful and detailed commit message. This helps us better understand your code contribution and merge it more quickly.
-
-Submission information should include the following:
-
-- Describe the purpose or reason for this code contribution.
-- Describe the content or changes of this code contribution.
-- (Optional) Describe the test methods or results of this code contribution.
-
-The submission information should be clear and consistent with the submission information agreement of the project code base.
-
-### Problem Reporting
-
-If you encounter problems with the project, or find bugs, please submit an issue report to us. Before submitting an issue report, please ensure that you have thoroughly investigated and experimented with the issue and include as much of the following information as possible:
-
-- Describe the symptoms and manifestations of the problem.
-- Describe the scenario and conditions under which the problem occurred.
-- Describe contextual information or any relevant background information.
-- Information describing your desired behavior.
-- (Optional) Provide relevant screenshots or error messages.
-
-Issue reports should be clear and follow the issue reporting conventions of the project's codebase.
-
-### Feature Request
-
-If you want to add new functionality or features to the project, you are welcome to submit a feature request to us. Before submitting a feature request, please make sure you understand the history and current state of the project, and provide as much of the following information as possible:
-
-- Describe the functionality or features you would like to add.
-- Describe the purpose and purpose of this function or feature.
-- (Optional) Provide relevant implementation ideas or suggestions.
-
-Feature requests should be clear and follow the feature request conventions of the project's codebase.
-
-### Thanks for your contribution
+## Thanks for your contribution
 
 Finally, thank you for your contribution to this project. We welcome contributions in all forms, including but not limited to code contributions, issue reports, feature requests, documentation writing, etc. We believe that with your help, this project will become more perfect and stronger.
