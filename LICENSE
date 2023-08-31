@@ -202,12 +202,6 @@
    limitations under the License.
 
 
-========================================================================
- licenses
-========================================================================
-
-    io.quarkus:quarkus-resteasy-jaxb 2.4.2.Final 
-    io.quarkus:quarkus-scheduler 2.4.2.Final 
 
 ========================================================================
 Apache-2.0 licenses
@@ -218,12 +212,7 @@ Apache-2.0 licenses
     com.fasterxml.jackson.core:jackson-annotations 2.12.5 Apache-2.0
     com.fasterxml.jackson.core:jackson-core 2.12.5 Apache-2.0
     com.fasterxml.jackson.core:jackson-databind 2.12.5 Apache-2.0
-    com.fasterxml.jackson.dataformat:jackson-dataformat-yaml 2.12.5 Apache-2.0
     com.fasterxml.jackson.datatype:jackson-datatype-jdk8 2.12.5 Apache-2.0
-    com.fasterxml.jackson.datatype:jackson-datatype-jsr310 2.12.5 Apache-2.0
-    com.fasterxml.jackson.jaxrs:jackson-jaxrs-base 2.12.5 Apache-2.0
-    com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider 2.12.5 Apache-2.0
-    com.fasterxml.jackson.module:jackson-module-jaxb-annotations 2.12.5 Apache-2.0
     com.fasterxml.jackson.module:jackson-module-parameter-names 2.12.5 Apache-2.0
     com.fasterxml:classmate 1.5.1 Apache-2.0
     com.github.ben-manes.caffeine:caffeine 2.9.2 Apache-2.0
@@ -233,8 +222,6 @@ Apache-2.0 licenses
     com.google.guava:guava 30.1.1-jre Apache-2.0
     com.google.j2objc:j2objc-annotations 1.3 Apache-2.0
     com.ibm.async:asyncutil 0.1.0 Apache-2.0
-    com.squareup.okhttp3:okhttp 3.14.9 Apache-2.0
-    com.squareup.okio:okio 1.17.2 Apache-2.0
     com.zaxxer:SparseBitSet 1.2 Apache-2.0
     commons-codec:commons-codec 1.15 Apache-2.0
     commons-io:commons-io 2.11.0 Apache-2.0
@@ -251,87 +238,13 @@ Apache-2.0 licenses
     io.netty:netty-resolver 4.1.68.Final Apache-2.0
     io.netty:netty-resolver-dns 4.1.68.Final Apache-2.0
     io.netty:netty-transport 4.1.68.Final Apache-2.0
-    io.quarkus.arc:arc 2.4.2.Final Apache-2.0
     io.quarkus.security:quarkus-security 1.1.4.Final Apache-2.0
-    io.quarkus:quarkus-agroal 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-apache-httpclient 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-arc 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-bootstrap-runner 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-caffeine 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-config-yaml 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-core 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-credentials 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-datasource 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-datasource-common 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-development-mode-spi 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-flyway 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-hibernate-orm 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-hibernate-orm-panache 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-hibernate-orm-panache-common 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-hibernate-validator 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-ide-launcher 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-jackson 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-jaxb 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-jaxp 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-jdbc-h2 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-jdbc-mysql 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-mutiny 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-narayana-jta 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-netty 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-panache-common 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-panache-hibernate-common 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-redis-client 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-rest-client 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-rest-client-config 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-rest-client-jackson 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-resteasy 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-resteasy-common 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-resteasy-jackson 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-resteasy-server-common 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-security-runtime-spi 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-smallrye-context-propagation 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-smallrye-openapi 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-swagger-ui 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-vertx 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-vertx-http 2.4.2.Final Apache-2.0
-    io.quarkus:quarkus-vertx-http-dev-console-runtime-spi 2.4.2.Final Apache-2.0
-    io.smallrye.common:smallrye-common-annotation 1.6.0 Apache-2.0
-    io.smallrye.common:smallrye-common-classloader 1.6.0 Apache-2.0
-    io.smallrye.common:smallrye-common-constraint 1.6.0 Apache-2.0
-    io.smallrye.common:smallrye-common-expression 1.6.0 Apache-2.0
-    io.smallrye.common:smallrye-common-function 1.6.0 Apache-2.0
-    io.smallrye.common:smallrye-common-io 1.6.0 Apache-2.0
     io.smallrye.config:smallrye-config 2.5.1 Apache-2.0
-    io.smallrye.config:smallrye-config-common 2.5.1 Apache-2.0
     io.smallrye.config:smallrye-config-core 2.5.1 Apache-2.0
-    io.smallrye.config:smallrye-config-source-yaml 2.5.1 Apache-2.0
     io.smallrye.config:smallrye-config-validator 2.5.1 Apache-2.0
-    io.smallrye.reactive:mutiny 1.1.2 Apache-2.0
-    io.smallrye.reactive:mutiny-smallrye-context-propagation 1.1.2 Apache-2.0
-    io.smallrye.reactive:smallrye-mutiny-vertx-auth-common 2.14.1 Apache-2.0
-    io.smallrye.reactive:smallrye-mutiny-vertx-bridge-common 2.14.1 Apache-2.0
-    io.smallrye.reactive:smallrye-mutiny-vertx-core 2.14.1 Apache-2.0
-    io.smallrye.reactive:smallrye-mutiny-vertx-redis-client 2.14.1 Apache-2.0
-    io.smallrye.reactive:smallrye-mutiny-vertx-runtime 2.14.1 Apache-2.0
-    io.smallrye.reactive:smallrye-mutiny-vertx-web 2.14.1 Apache-2.0
-    io.smallrye.reactive:smallrye-mutiny-vertx-web-common 2.14.1 Apache-2.0
-    io.smallrye.reactive:smallrye-reactive-converter-api 2.6.0 Apache-2.0
-    io.smallrye.reactive:smallrye-reactive-converter-mutiny 2.6.0 Apache-2.0
-    io.smallrye.reactive:vertx-mutiny-generator 2.14.1 Apache-2.0
-    io.smallrye:smallrye-context-propagation 1.2.2 Apache-2.0
-    io.smallrye:smallrye-context-propagation-api 1.2.2 Apache-2.0
-    io.smallrye:smallrye-context-propagation-jta 1.2.2 Apache-2.0
-    io.smallrye:smallrye-context-propagation-storage 1.2.2 Apache-2.0
     io.smallrye:smallrye-fault-tolerance-vertx 5.2.1 Apache-2.0
-    io.smallrye:smallrye-open-api-core 2.1.15 Apache-2.0
-    io.vertx:vertx-auth-common 4.1.5 Apache-2.0
-    io.vertx:vertx-bridge-common 4.1.5 Apache-2.0
-    io.vertx:vertx-codegen 4.1.5 Apache-2.0
-    io.vertx:vertx-redis-client 4.1.5 Apache-2.0
-    io.vertx:vertx-web-common 4.1.5 Apache-2.0
     jakarta.inject:jakarta.inject-api 1.0 Apache-2.0
     jakarta.validation:jakarta.validation-api 2.0.2 Apache-2.0
-    net.bytebuddy:byte-buddy 1.11.20 Apache-2.0
     org.apache.commons:commons-collections4 4.4 Apache-2.0
     org.apache.commons:commons-compress 1.21 Apache-2.0
     org.apache.commons:commons-csv 1.8 Apache-2.0
@@ -353,22 +266,8 @@ Apache-2.0 licenses
     org.hibernate:quarkus-local-cache 0.1.0 Apache-2.0
     org.jboss.logging:jboss-logging 3.4.2.Final Apache-2.0
     org.jboss.logging:jboss-logging-annotations 2.2.1.Final Apache-2.0
-    org.jboss.narayana.jta:narayana-jta 5.12.0.Final Apache-2.0
-    org.jboss.narayana.jts:narayana-jts-integration 5.12.0.Final Apache-2.0
-    org.jboss.resteasy:resteasy-cdi 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-client 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-client-api 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-client-microprofile 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-client-microprofile-base 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-core 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-core-spi 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-jackson2-provider 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-jaxb-provider 4.7.3.Final Apache-2.0
-    org.jboss.resteasy:resteasy-multipart-provider 4.7.3.Final Apache-2.0
     org.jboss.threads:jboss-threads 3.4.2.Final Apache-2.0
     org.jboss:jandex 2.4.1.Final Apache-2.0
-    org.jboss:jboss-transaction-spi 7.6.0.Final Apache-2.0
-    org.slf4j:slf4j-api 1.7.30 Apache-2.0
     org.yaml:snakeyaml 1.29 Apache-2.0
     xyz.eulix.platform.services:eulixplatform-common 1.8.0 Apache-2.0
 
@@ -392,12 +291,6 @@ Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html licenses
 
     io.vertx:vertx-core 4.1.5 Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html
     io.vertx:vertx-web 4.1.5 Apache-2.0 and http://www.eclipse.org/legal/epl-v20.html
-
-========================================================================
-Apache-2.0 | 9999.0-empty-to-avoid-conflict-with-guava licenses
-========================================================================
-
-    com.google.guava:listenablefuture 9999.0-empty-to-avoid-conflict-with-guava Apache-2.0 | 9999.0-empty-to-avoid-conflict-with-guava
 
 ========================================================================
 BSD-3-Clause licenses
@@ -528,4 +421,3 @@ https://repository.jboss.org/licenses/apache-2.0.txt licenses
 ========================================================================
 
     jakarta.enterprise:jakarta.enterprise.cdi-api 2.0.2 https://repository.jboss.org/licenses/apache-2.0.txt
-
