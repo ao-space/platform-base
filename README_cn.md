@@ -139,20 +139,17 @@ OpenAPI 描述符和 Swagger UI 前端来测试 REST 端点，访问地址：`ht
 - 平台侧基础服务的 golang 语言 SDK
 - 基于 Mysql、Redis 等常用中间件的分布式锁
 
-## 贡献指南 
+## 贡献指南
 
 我们非常欢迎对本项目进行贡献。以下是一些指导原则和建议，希望能够帮助您参与到项目中来。
 
-[贡献指南](https://github.com/ao-space/ao.space/blob/dev/docs/contribution-guidelines_CN.md)
+[贡献指南](https://github.com/ao-space/ao.space/blob/dev/docs/cn/contribution-guidelines.md)
 
 ## 联系我们
 
-- [傲空间官网](https://ao.space)
+- 邮箱：<developer@ao.space>
+- [官方网站](https://ao.space)
 - [讨论组](https://slack.ao.space)
-- [Twitter](https://twitter.com/AOspaceOSC)
-- [Medium](https://medium.com/@aospacecommunity)
-
-您也可以查看傲空间提供的[帮助中心](https://ao.space/support/help)
 
 ## 感谢您的贡献
 
