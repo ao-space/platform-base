@@ -1,6 +1,6 @@
 # Platform Base Service Introduction
 
-English | [简体中文](./README_zh.md)
+English | [简体中文](./README_cn.md)
 
 - [Brief Introduction](#brief-introduction)
 - [System Architecture](#system-architecture)
@@ -146,16 +146,13 @@ For more details about the OpenAPI extension, please refer [Using OpenAPI and Sw
 
 Contributions to this project are very welcome. Here are some guidelines and suggestions to help you get involved in the project.
 
-[Contribution Guidelines](https://github.com/ao-space/ao.space/blob/dev/docs/contribution-guidelines.md)
+[Contribution Guidelines](https://github.com/ao-space/ao.space/blob/dev/docs/en/contribution-guidelines.md)
 
 ## Contact us
 
-- [Official website](https://ao.space)
+- Email: <developer@ao.space>
+- [Official Website](https://ao.space)
 - [Discussion group](https://slack.ao.space)
-- [Twitter](https://twitter.com/AOspaceOSC)
-- [Medium](https://medium.com/@aospacecommunity)
-
-You can also [get support for AO.spcae!](https://ao.space/en/support/help)
 
 ## Thanks for your contribution
 
