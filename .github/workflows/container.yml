@@ -107,40 +107,40 @@ jobs:
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v2
       with:
-        registry: cn-south-1@${{ env.HUAWEICLOUD_REGISTRY_GZ }}
-        username: ${{ secrets.HUAWEICLOUD_USERNAME }}
+        registry: ${{ env.HUAWEICLOUD_REGISTRY_GZ }}
+        username: cn-south-1@${{ secrets.HUAWEICLOUD_USERNAME }}
         password: ${{ secrets.HUAWEICLOUD_PASSWORD }}
 
     - name: Log into registry ${{ env.HUAWEICLOUD_REGISTRY_SG }}
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v2
       with:
-        registry: ap-southeast-3@${{ env.HUAWEICLOUD_REGISTRY_SG }}
-        username: ${{ secrets.HUAWEICLOUD_USERNAME }}
+        registry: ${{ env.HUAWEICLOUD_REGISTRY_SG }}
+        username: ap-southeast-3@${{ secrets.HUAWEICLOUD_USERNAME }}
         password: ${{ secrets.HUAWEICLOUD_PASSWORD }}
 
     - name: Log into registry ${{ env.HUAWEICLOUD_REGISTRY_HK }}
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v2
       with:
-        registry: ap-southeast-1@${{ env.HUAWEICLOUD_REGISTRY_HK }}
-        username: ${{ secrets.HUAWEICLOUD_USERNAME }}
+        registry: ${{ env.HUAWEICLOUD_REGISTRY_HK }}
+        username: ap-southeast-1@${{ secrets.HUAWEICLOUD_USERNAME }}
         password: ${{ secrets.HUAWEICLOUD_PASSWORD }}
 
     - name: Log into registry ${{ env.HUAWEICLOUD_REGISTRY_AF }}
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v2
       with:
-        registry: af-south-1@${{ env.HUAWEICLOUD_REGISTRY_AF }}
-        username: ${{ secrets.HUAWEICLOUD_USERNAME }}
+        registry: ${{ env.HUAWEICLOUD_REGISTRY_AF }}
+        username: af-south-1@${{ secrets.HUAWEICLOUD_USERNAME }}
         password: ${{ secrets.HUAWEICLOUD_PASSWORD }}
 
     - name: Log into registry ${{ env.HUAWEICLOUD_REGISTRY_LA }}
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v2
       with:
-        registry: la-north-2${{ env.HUAWEICLOUD_REGISTRY_LA }}
-        username: ${{ secrets.HUAWEICLOUD_USERNAME }}
+        registry: ${{ env.HUAWEICLOUD_REGISTRY_LA }}
+        username: la-north-2@${{ secrets.HUAWEICLOUD_USERNAME }}
         password: ${{ secrets.HUAWEICLOUD_PASSWORD }}
 
     - name: Extract Docker metadata
