@@ -172,6 +172,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         file: Dockerfile
+        provenance: false
 
     - name: Extract Docker metadata
       id: meta-opensource
