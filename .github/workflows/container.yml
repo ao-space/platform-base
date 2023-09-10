@@ -53,7 +53,7 @@ jobs:
     - name: Setup Docker buildx
       uses: docker/setup-buildx-action@v2
 
-    - run: echo ::set-env name=GITHUB_REPOSITORY_NAME::${GITHUB_REPOSITORY#*/}
+    - run: echo "GITHUB_REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
       shell: bash
 
     - name: Inspect builder
