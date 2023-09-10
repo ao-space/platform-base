@@ -91,16 +91,16 @@ jobs:
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v2
       with:
-        registry: cn-east-3@${{ env.HUAWEICLOUD_REGISTRY_SH }}
-        username: ${{ secrets.HUAWEICLOUD_USERNAME }}
+        registry: ${{ env.HUAWEICLOUD_REGISTRY_SH }}
+        username: cn-east-3@${{ secrets.HUAWEICLOUD_USERNAME }}
         password: ${{ secrets.HUAWEICLOUD_PASSWORD }}
 
     - name: Log into registry ${{ env.HUAWEICLOUD_REGISTRY_BJ }}
       if: github.event_name != 'pull_request'
       uses: docker/login-action@v2
       with:
-        registry: cn-north-4@${{ env.HUAWEICLOUD_REGISTRY_BJ }}
-        username: ${{ secrets.HUAWEICLOUD_USERNAME }}
+        registry: ${{ env.HUAWEICLOUD_REGISTRY_BJ }}
+        username: cn-north-4@${{ secrets.HUAWEICLOUD_USERNAME }}
         password: ${{ secrets.HUAWEICLOUD_PASSWORD }}
 
     - name: Log into registry ${{ env.HUAWEICLOUD_REGISTRY_GZ }}
