@@ -320,7 +320,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
          *                     key数量不为1 将mode设置为read (这时当前实例持有读锁)
          *     如果mode!=write 抛出异常
          * @param key      锁唯一标识
-         * @param value    实例(客户端)唯一uuid+"write"
+         * @param value    实例(客户端)唯一uuid+":write"
          * @param timeout  过期时间
          */
         private void releaseLock(String key, String value, Integer timeout) {
@@ -340,7 +340,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                     "            return 0; " +                              // 返回0表示锁还在有效期内
                     "        else " +
                     "            redis.call('hdel', KEYS[1], ARGV[2]); " +  // 删除当前实例的锁
-                    "            if (redis.call('hlen', KEYS[1]) == 1) then " + // 如果还剩一个锁
+                    "            if (redis.call('hlen', KEYS[1]) == 1) then " + // 如果hash中只剩一个字段(mode)
                     "                redis.call('del', KEYS[1]); " +        // 删除锁
                     "            else " +
                     "                redis.call('hset', KEYS[1], 'mode', 'read'); " + // 设置锁模式为读模式
