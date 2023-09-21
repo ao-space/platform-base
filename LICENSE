@@ -322,10 +322,10 @@ EPL-2.0 and GPL-2.0 licenses
     org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec 2.0.1.Final EPL-2.0 and GPL-2.0
 
 ========================================================================
-GPL-2.0 licenses
+CDDL and GPL-2.0 licenses
 ========================================================================
 
-    org.jboss.spec.javax.resource:jboss-connector-api_1.7_spec 1.0.0.Final GPL-2.0
+    org.jboss.spec.javax.resource:jboss-connector-api_1.7_spec 1.0.0.Final CDDL and GPL-2.0
 
 ========================================================================
 GPL-2.0 and LGPL-2.1 and EPL-1.0 and BSD-3-Clause and EPL-2.0 and MIT and Apache-2.0 licenses
