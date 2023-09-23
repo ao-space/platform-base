@@ -42,7 +42,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
      * Returns the lock used for writing.
      */
     public DistributedLock writeLock() {
-        String lockValue = UUID.randomUUID() + ":write";
+        String lockValue = UUID.randomUUID().toString();
         return new WriteLock(lockValue);
     }
 
@@ -122,12 +122,12 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                     "if (mode == false) then " +                            // 如果锁的键不存在
                     "    redis.call('hset', KEYS[1], 'mode', 'read'); " +   // 设置模式为读模式
                     "    redis.call('hset', KEYS[1], ARGV[2], 1); " +       // 创建新的键，值为1
-                    "    redis.call('pexpire', KEYS[1], ARGV[1]); " +       // 设置过期时间
+                    "    redis.call('pexpire', KEYS[1], ARGV[1]); " +       // 重置过期时间
                     "    return nil; " +                                    // 返回 nil 表示加锁成功
                     "end; " +
                     "if (mode == 'read') or (mode == 'write' and redis.call('hexists', KEYS[1], ARGV[3]) == 1) then " + // 如果锁的模式为读或者锁的模式为写且被当前实例持有
                     "    redis.call('hincrby', KEYS[1], ARGV[2], 1); " +    // 将值加1
-                    "    redis.call('pexpire', KEYS[1], ARGV[1]); " +       // 设置过期时间
+                    "    redis.call('pexpire', KEYS[1], ARGV[1]); " +       // 重置过期时间
                     "    return nil; " +                                    // 返回 nil 表示加锁成功
                     "end; " +
                     "return redis.call('pttl', KEYS[1]);";                  // 返回剩余的过期时间
@@ -206,14 +206,21 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
 
     public class WriteLock implements DistributedLock {
 
+        private String readLockValue;
+
         private String lockValue;
 
         public WriteLock(String lockValue) {
-            this.lockValue = lockValue;
+            this.lockValue = lockValue + ":write";
+            this.readLockValue = lockValue;
         }
 
         public String getLockValue() {
             return lockValue;
+        }
+
+        public ReadLock getCorrespondingReadLock() {
+            return new ReadLock(readLockValue);
         }
 
         /**
@@ -266,7 +273,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
         /**
          * 通过key获取锁模式mode
          *     如果锁不存在  加写锁
-         *     如果mode=write 检查当前线程是否持有锁
+         *     如果mode=write 检查当前实例是否持有锁
          *         是 增加重入次数、重置过期时间
          *         否 加锁失败
          * @param key      锁唯一标识
@@ -280,13 +287,13 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                     "if (mode == false) then " +                             // 如果锁的键不存在
                     "    redis.call('hset', KEYS[1], 'mode', 'write'); " +   // 设置锁的模式为写模式
                     "    redis.call('hset', KEYS[1], ARGV[2], 1); " +        // 设置当前线程的锁重入次数为1
-                    "    redis.call('pexpire', KEYS[1], ARGV[1]); " +        // 设置锁的过期时间
+                    "    redis.call('pexpire', KEYS[1], ARGV[1]); " +        // 重置锁的过期时间
                     "    return nil; " +                                     // 返回nil表示锁已经被当前线程获取
                     "end; " +
                     "if (mode == 'write') then " +                           // 如果是写锁模式
                     "    if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then " + // 检查当前线程是否已经持有锁
                     "        redis.call('hincrby', KEYS[1], ARGV[2], 1); " + // 增加当前线程的锁重入次数
-                    "        redis.call('pexpire', KEYS[1], ARGV[1]); " +    // 更新锁的过期时间
+                    "        redis.call('pexpire', KEYS[1], ARGV[1]); " +    // 重置锁的过期时间
                     "        return nil; " +                                 // 返回nil表示锁已经被当前线程获取
                     "    end; " +
                     "end;" +
@@ -314,10 +321,10 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
          *         否 抛出异常
          *         是 减少重入次数
          *             重入次数是否大于0
-         *                 是 设置锁过期时间
-         *                 否 删除当前实例的写锁 判断是否map中key的数量
-         *                     key数量为1(该key为mode) 当前锁不被任何实例持有 删除整个锁记录
-         *                     key数量不为1 将mode设置为read (这时当前实例持有读锁)
+         *                 是 重置锁过期时间
+         *                 否 删除当前实例的写锁 判断hash中field的数量
+         *                     field数量为1(该field为mode) 当前锁不被任何实例持有 删除整个锁记录
+         *                     field数量不为1 将mode设置为read (这时当前实例持有读锁)
          *     如果mode!=write 抛出异常
          * @param key      锁唯一标识
          * @param value    实例(客户端)唯一uuid+":write"
@@ -336,7 +343,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                     "    else " +
                     "        local counter = redis.call('hincrby', KEYS[1], ARGV[2], -1); " + // 减少当前实例的锁重入次数
                     "        if (counter > 0) then " +                      // 如果重入次数大于0
-                    "            redis.call('pexpire', KEYS[1], ARGV[1]); " + // 设置锁的过期时间
+                    "            redis.call('pexpire', KEYS[1], ARGV[1]); " + // 重置锁的过期时间
                     "            return 0; " +                              // 返回0表示锁还在有效期内
                     "        else " +
                     "            redis.call('hdel', KEYS[1], ARGV[2]); " +  // 删除当前实例的锁
@@ -344,6 +351,7 @@ public class RedisReentrantReadWriteLock implements DistributedReadWriteLock {
                     "                redis.call('del', KEYS[1]); " +        // 删除锁
                     "            else " +
                     "                redis.call('hset', KEYS[1], 'mode', 'read'); " + // 设置锁模式为读模式
+                    "                redis.call('pexpire', KEYS[1], ARGV[1]); " + // 重置锁的过期时间
                     "            end; " +
                     "            return 1; " +                              // 返回1表示解锁成功
                     "        end; " +

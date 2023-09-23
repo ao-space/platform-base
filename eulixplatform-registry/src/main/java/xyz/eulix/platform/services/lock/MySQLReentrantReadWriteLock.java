@@ -105,14 +105,21 @@ public class MySQLReentrantReadWriteLock implements DistributedReadWriteLock{
 
     public class WriteLock implements DistributedLock {
 
+        private String readLockValue;
+
         private String lockValue;
 
         public WriteLock(String lockValue) {
-            this.lockValue = lockValue;
+            this.lockValue = lockValue + ":write";
+            this.readLockValue = lockValue;
         }
 
         public String getLockValue() {
             return lockValue;
+        }
+
+        public ReadLock getCorrespondingReadLock() {
+            return new ReadLock(readLockValue);
         }
 
         /**

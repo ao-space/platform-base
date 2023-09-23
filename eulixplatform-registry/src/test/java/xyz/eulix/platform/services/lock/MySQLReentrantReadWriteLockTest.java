@@ -374,4 +374,46 @@ public class MySQLReentrantReadWriteLockTest {
         lockService.deleteEntity(keyName);
     }
 
+    /**
+     * 测试锁降级
+     */
+    @Test
+    void testLockDegradation() {
+        String keyName = "testKey_lock_degradation";
+        DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
+
+        DistributedLock writeLock = readWriteLock.writeLock();
+        DistributedLock readLock = ((MySQLReentrantReadWriteLock.WriteLock) writeLock).getCorrespondingReadLock();
+
+        boolean isLocked = writeLock.tryLock();
+
+        if (isLocked) {
+            LOG.infov("acquire write lock success, keyName:{0}", keyName);
+            try {
+                LOG.infov("do something.");
+                // Do something
+
+                // Lock degradation
+                readLock.tryLock();
+                LOG.infov("downgraded to read lock, keyName:{0}", keyName);
+            } finally {
+                writeLock.unlock();
+                LOG.infov("release write lock success, keyName:{0}", keyName);
+            }
+
+            try {
+                // Continue doing something with read lock
+                LOG.infov("continue doing something with read lock, keyName:{0}", keyName);
+            } finally {
+                readLock.unlock();
+                LOG.infov("release read lock success, keyName:{0}", keyName);
+            }
+        } else {
+            LOG.infov("acquire write lock fail, keyName:{0}", keyName);
+        }
+
+        Assertions.assertTrue(isLocked);
+
+        lockService.deleteEntity(keyName);
+    }
 }
