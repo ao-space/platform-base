@@ -51,6 +51,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static xyz.eulix.platform.services.registry.dto.registry.SubdomainStateEnum.TEMPORARY;
+
 /**
  * Provides box and client registry service.
  */
@@ -120,6 +122,7 @@ public class RegistryService {
 
     @Transactional
     public void deleteClientByClientUUID(String boxUUID, String userId, String clientUUID) {
+        networkService.nsrRemoveClientUUID(boxUUID, userId, clientUUID);
         clientEntityRepository.deleteByClientUUID(boxUUID, userId, clientUUID);
     }
 
@@ -166,7 +169,7 @@ public class RegistryService {
                 userRegistryInfo.getSubdomain());
 
         // 添加用户面路由：用户域名 - network server 地址 & network client id
-        networkService.cacheNSRoute(subdomainEntity.getUserDomain(), boxUUID);
+        networkService.cacheGTRouteBasic(userEntity.getUserId(), subdomainEntity.getUserDomain(), boxUUID);
 
         // 注册client（用户的绑定设备）
         RegistryClientEntity clientEntity = registryClient(boxUUID, userRegistryInfo.getUserId(),
@@ -219,6 +222,8 @@ public class RegistryService {
             clientEntity.setRegistryType(clientType.getName());
         }
         clientEntityRepository.persist(clientEntity);
+        // 添加clients路由
+        networkService.nsrAddClientUUID(boxUUID, userId, clientUUID);
         return clientEntity;
     }
 
@@ -297,14 +302,14 @@ public class RegistryService {
     public void resetNsRoute(String boxUUID){
         var subdomainEntities = subdomainEntityRepository.findByBoxUUId(boxUUID);
         for (var subdomain: subdomainEntities) {
-            networkService.expireNSRoute(subdomain.getUserDomain(), 3600);
+            networkService.expireGTRouteBasicAndClients(subdomain.getBoxUUID(), subdomain.getUserId(), subdomain.getSubdomain(), 3600);
         }
     }
 
     public void resetNsRoute(String boxUUID, String userId){
         var subdomainEntities = subdomainEntityRepository.findByBoxUUIdAndUserId(boxUUID, userId);
         for (var subdomain: subdomainEntities) {
-            networkService.expireNSRoute(subdomain.getUserDomain(), 3600);
+            networkService.expireGTRouteBasicAndClients(boxUUID, userId, subdomain.getSubdomain(), 3600);
         }
     }
 
@@ -596,7 +601,7 @@ public class RegistryService {
         if (subdomainEntityOp.isPresent() && subdomainOld.equals(subdomain)) {
             String userDomain = subdomain + "." + properties.getRegistrySubdomain();
             // 添加用户面路由：用户域名 - network server 地址 & network client id
-            networkService.cacheNSRoute(userDomain, boxUUID);
+            networkService.cacheGTRouteBasic(subdomainEntityOp.get().getUserId(), userDomain, boxUUID);
             LOG.infov("subdomain is in use, update route directly, boxUUID:{0}, userId:{1}, subdomain:{2}", boxUUID, userId, subdomain);
             updateResult.setSuccess(true);
             updateResult.setBoxUUID(boxUUID);
@@ -612,7 +617,7 @@ public class RegistryService {
                 String userDomain = subdomain + "." + properties.getRegistrySubdomain();
                 subdomainService.updateSubdomainState(boxUUID, userId, subdomain, subdomainOld);
                 // 添加用户面路由：用户域名 - network server 地址 & network client id
-                networkService.cacheNSRoute(userDomain, boxUUID);
+                networkService.cacheGTRouteBasic(subdomainEntityOp.get().getUserId(), userDomain, boxUUID);
                 LOG.infov("subdomain update succeed, from:{0} to:{1}", subdomainOld, subdomain);
                 updateResult.setSuccess(true);
                 updateResult.setBoxUUID(boxUUID);
@@ -646,7 +651,7 @@ public class RegistryService {
         String userDomain = subdomain + "." + properties.getRegistrySubdomain();
         subdomainService.updateSubdomain(boxUUID, userId, subdomain, userDomain, subdomainOld);
         // 添加用户面路由：用户域名 - network server 地址 & network client id
-        networkService.cacheNSRoute(userDomain, boxUUID);
+        networkService.cacheGTRouteBasic(userId, userDomain, boxUUID);
         LOG.infov("subdomain update succeed, from:{0} to:{1}", subdomainOld, subdomain);
 
         updateResult.setSuccess(true);
