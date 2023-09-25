@@ -17,7 +17,9 @@
 package xyz.eulix.platform.services.network.service;
 
 import org.jboss.logging.Logger;
-import xyz.eulix.platform.services.cache.NSRClient;
+import xyz.eulix.platform.services.cache.GTRClient;
+import xyz.eulix.platform.services.cache.GTRouteBasic;
+import xyz.eulix.platform.services.cache.NetworkBasic;
 import xyz.eulix.platform.services.network.dto.NetworkServerExtraInfo;
 import xyz.eulix.platform.services.network.dto.NetworkServerRes;
 import xyz.eulix.platform.services.network.dto.StunServerRes;
@@ -60,9 +62,6 @@ public class NetworkService {
     RegistryBoxEntityRepository registryBoxEntityRepository;
 
     @Inject
-    NSRClient nsrClient;
-
-    @Inject
     SubdomainEntityRepository subdomainEntityRepository;
 
     @Inject
@@ -70,6 +69,9 @@ public class NetworkService {
 
     @Inject
     ProviderFactory providerFactory;
+
+    @Inject
+    GTRClient gtrClient;
 
     /**
      * 计算network路由
@@ -92,10 +94,11 @@ public class NetworkService {
     /**
      * 添加用户面路由：用户域名 - network server 地址 & network client id
      *
+     * @param userId userId
      * @param userDomain 用户域名
      * @param boxUUID boxUUID
      */
-    public void cacheNSRoute(String userDomain, String boxUUID) {
+    public void cacheGTRouteBasic(String userId, String userDomain, String boxUUID) {
         // 查询 networkClientId（box 注册信息）
         Optional<RegistryBoxEntity> registryBoxEntityOp = registryBoxEntityRepository.findByBoxUUID(boxUUID);
         if (registryBoxEntityOp.isEmpty()) {
@@ -106,12 +109,30 @@ public class NetworkService {
         // 查询 network server 地址
         NetworkServerEntity serverEntity = getNetworkServer(networkClientId);
         String networkServerLocalAddr = serverEntity.getIdentifier();
+
         // 缓存用户面路由
-        nsrClient.setNSRoute(userDomain, networkServerLocalAddr, networkClientId);
+        String subdomain = userDomain.substring(0, userDomain.indexOf("."));
+        NetworkBasic networkBasic = new NetworkBasic(networkServerLocalAddr, networkClientId, boxUUID, userId);
+        GTRouteBasic gtRouteBasic = new GTRouteBasic(subdomain, networkBasic);
+        gtrClient.setGTRouteBasic(gtRouteBasic);
+        LOG.infov("set GTRouteBasic success, userdomain:{0}, networkBasic:{1}", userDomain, networkBasic);
     }
 
-    public void expireNSRoute(String userDomain, Integer expireSeconds) {
-        nsrClient.expireNSRoute(userDomain, expireSeconds.toString());
+    public void nsrAddClientUUID(String boxUUID, String userId, String clientUUID) {
+        gtrClient.addClientUUID(boxUUID, userId, clientUUID);
+    }
+
+    public void nsrRemoveClientUUID(String boxUUID, String userId, String clientUUID) {
+        gtrClient.removeClientUUID(boxUUID, userId, clientUUID);
+    }
+
+    public void expireGTRouteBasicAndClients(String boxUUID, String userId, String subdomain, Integer expireSeconds) {
+        gtrClient.expireGTRouteBasic(subdomain, expireSeconds.toString());
+        gtrClient.expireGTRouteClients(boxUUID, userId, expireSeconds.toString());
+    }
+
+    public void expireGTRouteApptokens(String boxUUID, Integer expireSeconds) {
+        gtrClient.expireGTRouteAppTokens(boxUUID, expireSeconds.toString());
     }
 
     /**

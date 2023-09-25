@@ -21,9 +21,7 @@ import io.quarkus.scheduler.ScheduledExecution;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.common.support.CommonUtils;
 import xyz.eulix.platform.common.support.log.Logged;
-import xyz.eulix.platform.services.cache.NSRClient;
-import xyz.eulix.platform.services.cache.NSRRedirectStateEnum;
-import xyz.eulix.platform.services.cache.NSRoute;
+import xyz.eulix.platform.services.cache.*;
 import xyz.eulix.platform.services.migration.dto.*;
 import xyz.eulix.platform.services.network.service.NetworkService;
 import xyz.eulix.platform.services.registry.dto.registry.RegistryTypeEnum;
@@ -49,12 +47,15 @@ public class MigrationService {
 
     @Inject
     RegistryService registryService;
-    @Inject
-    NSRClient nsrClient;
+
     @Inject
     SubdomainEntityRepository subdomainEntityRepository;
+
     @Inject
     NetworkService networkService;
+
+    @Inject
+    GTRClient gtrClient;
 
     @Logged
     public BoxMigrationResult migration(BoxMigrationInfo boxMigrationInfo, BoxTokenEntity boxTokenEntity) {
@@ -98,7 +99,7 @@ public class MigrationService {
                 subdomainEntity.getSubdomain());
 
         // 添加用户面路由：用户域名 - network server 地址 & network client id
-        networkService.cacheNSRoute(subdomainEntity.getUserDomain(), boxUUID);
+        networkService.cacheGTRouteBasic(userEntity.getUserId(), subdomainEntity.getUserDomain(), boxUUID);
         LOG.infov("[Migration]: registry user succeed, boxUUID:{0}, userId:{1}", boxUUID, userMigrationInfo.getUserId());
 
         // 注册客户端
@@ -128,10 +129,10 @@ public class MigrationService {
             List<SubdomainEntity> subdomains = getNotMigratedUserDomains(route.getUserId(), boxTokenEntity.getBoxUUID());
             for (SubdomainEntity subdomain : subdomains) {
                 // 计算缓存value
-                NSRoute nsRoute = nsrClient.getNSRoute(subdomain.getUserDomain());
-                var networkInfo = getNetworkInfo(nsRoute.getNetworkInfo());
-                nsrClient.setRedirect(subdomain.getUserDomain(), networkInfo.getServerAddr(), networkInfo.getClientId(),
-                        route.getUserDomainRedirect(), NSRRedirectStateEnum.NORMAL);
+                GTRouteBasic gtRouteBasic = gtrClient.getGTRouteBasic(subdomain.getSubdomain());
+                NetworkBasic networkBasic = gtRouteBasic.getNetworkBasic();
+                gtrClient.setRedirect(subdomain.getSubdomain(), networkBasic.getGtSvrNode(), networkBasic.getGtCliId(),
+                        route.getUserDomainRedirect(), NSRRedirectStateEnum.NORMAL, subdomain.getBoxUUID(), subdomain.getUserId());
                 LOG.infov("[Migration]: route userdomain succeed, boxUUID:{0}, userId:{1}, userDomain:{2}, redirect:{3}, state:{4}",
                         boxTokenEntity.getBoxUUID(), route.getUserId(), subdomain.getUserDomain(), route.getUserDomainRedirect(), NSRRedirectStateEnum.NORMAL);
             }
@@ -168,21 +169,21 @@ public class MigrationService {
             try {
                 if (subdomainEntity.getExpiresAt().isBefore(OffsetDateTime.now())) {
                     // 计算缓存value
-                    NSRoute nsRoute = nsrClient.getNSRoute(subdomainEntity.getUserDomain());
-                    if (CommonUtils.isNullOrEmpty(nsRoute.getNetworkInfo())) {
+                    GTRouteBasic gtRouteBasic = gtrClient.getGTRouteBasic(subdomainEntity.getSubdomain());
+                    if (CommonUtils.isNull(gtRouteBasic.getNetworkBasic())) {
                         subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(),
                                 subdomainEntity.getSubdomain(), SubdomainStateEnum.TEMPORARY.getState());
                         LOG.warnv("[Migration]: userdomain route does not exist, boxUUID:{0}, userId:{1}, userDomain:{2}",
                                 subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain());
                         return;
                     }
-                    NetworkInfo networkInfo = getNetworkInfo(nsRoute.getNetworkInfo());
-                    nsrClient.setRedirect(subdomainEntity.getUserDomain(), networkInfo.getServerAddr(), networkInfo.getClientId(),
-                            networkInfo.getUserDomain(), NSRRedirectStateEnum.EXPIRED);
+                    NetworkBasic networkBasic = gtRouteBasic.getNetworkBasic();
+                    gtrClient.setRedirect(subdomainEntity.getSubdomain(), networkBasic.getGtSvrNode(), networkBasic.getGtCliId(),
+                            networkBasic.getRedirectDomain(), NSRRedirectStateEnum.EXPIRED, networkBasic.getBoxUUID(), networkBasic.getUserId());
                     subdomainEntityRepository.updateStateByBoxUUIDAndUserIdAndSubdomain(subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(),
                             subdomainEntity.getSubdomain(), SubdomainStateEnum.TEMPORARY.getState());
                     LOG.infov("[Migration]: update userdomain route state succeed, boxUUID:{0}, userId:{1}, userDomain:{2}, redirect:{3}, state:{4}",
-                            subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain(), networkInfo.getUserDomain(), NSRRedirectStateEnum.EXPIRED);
+                            subdomainEntity.getBoxUUID(), subdomainEntity.getUserId(), subdomainEntity.getUserDomain(), networkBasic.getRedirectDomain(), NSRRedirectStateEnum.EXPIRED);
                 }
             } catch (Exception e) {
                 LOG.warnv(e, "[Migration]: update userdomain route state error, boxUUID:{0}, userId:{1}, userDomain:{2}",
