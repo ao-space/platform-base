@@ -17,6 +17,7 @@
 package xyz.eulix.platform.services.registry.service;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.logging.Logger;
 import xyz.eulix.platform.services.config.ApplicationProperties;
 import xyz.eulix.platform.services.network.service.NetworkService;
@@ -130,15 +131,15 @@ public class RegistryService {
     public BoxRegistryResult registryBox (BoxTokenEntity boxToken, String networkClientId) {
         var registryBoxEntity = boxEntityRepository.findByBoxUUID(boxToken.getBoxUUID());
         if (registryBoxEntity.isPresent()) {
-            return BoxRegistryResult.of(
-                    registryBoxEntity.get().getBoxUUID(),
-                    NetworkClient.of(registryBoxEntity.get().getNetworkClientId(), registryBoxEntity.get().getNetworkSecretKey()));
+            LOG.warnv("box uuid had already registered, boxuuid:{0}", boxToken.getBoxUUID());
+            throw new WebApplicationException("box uuid had already registered. Pls reset and try again.", Response.Status.NOT_ACCEPTABLE);
         }
         // 注册box
-        RegistryBoxEntity boxEntity = registryBox(boxToken.getBoxUUID(), boxToken.getBoxRegKey(), networkClientId);
+        String networkClientSecret = "nrk_" + CommonUtils.createUnifiedRandomCharacters(10);
+        RegistryBoxEntity boxEntity = registryBox(boxToken.getBoxUUID(), boxToken.getBoxRegKey(), networkClientId, networkClientSecret);
         // 计算路由
         networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
-        return BoxRegistryResult.of(boxEntity.getBoxUUID(), NetworkClient.of(boxEntity.getNetworkClientId(), boxEntity.getNetworkSecretKey()));
+        return BoxRegistryResult.of(boxEntity.getBoxUUID(), NetworkClient.of(boxEntity.getNetworkClientId(), networkClientSecret));
     }
 
     @Transactional
@@ -179,7 +180,7 @@ public class RegistryService {
     }
 
     @Transactional
-    public RegistryBoxEntity registryBox(String boxUUID, String boxRegKey, String networkClientId) {
+    public RegistryBoxEntity registryBox(String boxUUID, String boxRegKey, String networkClientId, String networkSecretKey) {
         // 注册box
         RegistryBoxEntity boxEntity = new RegistryBoxEntity();
         {
@@ -187,7 +188,11 @@ public class RegistryService {
             boxEntity.setBoxRegKey(boxRegKey);
             // network client
             boxEntity.setNetworkClientId(CommonUtils.isNullOrBlank(networkClientId) ? CommonUtils.getUUID() : networkClientId);
-            boxEntity.setNetworkSecretKey("nrk_" + CommonUtils.createUnifiedRandomCharacters(10));
+            // 随机字符串做盐
+            String salt = CommonUtils.getUUID();
+            // 盐和密码结合取hash值
+            boxEntity.setNetworkSecretSalt(salt);
+            boxEntity.setNetworkSecretKey(DigestUtils.md5Hex(salt + networkSecretKey));
         }
         boxEntityRepository.persist(boxEntity);
         return boxEntity;
@@ -544,11 +549,17 @@ public class RegistryService {
     }
 
     public Boolean networkClientAuth(String clientId, String secretKey) {
-        Optional<RegistryBoxEntity> registryBoxEntityOp = boxEntityRepository.findByClientIdAndSecretKey(clientId, secretKey);
+        Optional<RegistryBoxEntity> registryBoxEntityOp = boxEntityRepository.findByClientId(clientId);
         if (registryBoxEntityOp.isEmpty()) {
-            LOG.infov("network client auth failed, client id:{0}, secret key:{1}", clientId, secretKey);
+            LOG.infov("network client is empty, client id:{0}, secret key:{1}", clientId, secretKey);
+            return false;
         }
-        return registryBoxEntityOp.isPresent();
+        String salt = registryBoxEntityOp.get().getNetworkSecretSalt();
+        if (!registryBoxEntityOp.get().getNetworkSecretKey().equals(DigestUtils.md5Hex(salt + secretKey))) {
+            LOG.infov("network client auth failed, client id:{0}, secret key:{1}", clientId, secretKey);
+            return false;
+        }
+        return true;
     }
 
     public BoxRegistryDetailInfo boxRegistryBindUserAndClientInfo(String uuid) {

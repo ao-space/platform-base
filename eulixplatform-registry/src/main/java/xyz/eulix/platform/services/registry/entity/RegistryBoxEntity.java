@@ -44,4 +44,7 @@ public class RegistryBoxEntity extends BaseEntity {
 
   @Column(name = "network_secret_key")
   private String networkSecretKey;
+
+  @Column(name = "network_secret_salt")
+  private String networkSecretSalt;
 }
