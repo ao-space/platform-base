@@ -150,9 +150,9 @@ public class RedisReentrantLock implements DistributedLock {
         }
         Integer resultNum = result.toInteger();
         if (resultNum == 1) {
-            LOG.debugv("release lock sucess, keyName:{0}, lockValue:{1}", key, value);
+            LOG.debugv("release lock success, keyName:{0}, lockValue:{1}", key, value);
         } else {
-            LOG.debugv("Decrease lock times sucess, keyName:{0}, lockValue:{1}", key, value);
+            LOG.debugv("Decrease lock times success, keyName:{0}, lockValue:{1}", key, value);
         }
     }
 

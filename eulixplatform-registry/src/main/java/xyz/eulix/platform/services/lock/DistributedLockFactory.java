@@ -18,6 +18,7 @@ package xyz.eulix.platform.services.lock;
 
 import io.quarkus.redis.client.RedisClient;
 import xyz.eulix.platform.services.config.ApplicationProperties;
+import xyz.eulix.platform.services.lock.service.ReentrantLockService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,11 +30,22 @@ public class DistributedLockFactory {
     RedisClient redisClient;
 
     @Inject
+    ReentrantLockService mysqlLockService;
+
+    @Inject
     ApplicationProperties applicationProperties;
 
-    public DistributedLock newLock(String keyName) {
+    public DistributedLock newLock(String keyName, LockType lockType) {
         String lockValue = UUID.randomUUID().toString();
         Integer timeout = applicationProperties.getLockExpireTime();    // 单位s
-        return new RedisReentrantLock(redisClient, keyName, lockValue, timeout);
+
+        if (lockType.equals(LockType.RedisReentrantLock)) {
+            return new RedisReentrantLock(redisClient, keyName, lockValue, timeout);
+        } else if(lockType.equals(LockType.MySQLReentrantLock)) {
+            return new MySQLReentrantLock(mysqlLockService, keyName, lockValue, timeout);
+        } else {
+            throw new IllegalArgumentException("Invalid lock type: " + lockType);
+        }
+
     }
 }

@@ -23,6 +23,7 @@ import xyz.eulix.platform.common.support.service.ServiceError;
 import xyz.eulix.platform.common.support.service.ServiceOperationException;
 import xyz.eulix.platform.services.lock.DistributedLock;
 import xyz.eulix.platform.services.lock.DistributedLockFactory;
+import xyz.eulix.platform.services.lock.LockType;
 import xyz.eulix.platform.services.migration.dto.*;
 import xyz.eulix.platform.common.support.log.Logged;
 import xyz.eulix.platform.services.migration.service.MigrationService;
@@ -60,7 +61,7 @@ public class MigrationResource {
                                         @PathParam("box_uuid") @NotBlank String boxUUID) {
         var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
 
-        DistributedLock lock = lockFactory.newLock(boxUUID);
+        DistributedLock lock = lockFactory.newLock(boxUUID, LockType.RedisReentrantLock);
         // 加锁
         boolean isLocked = lock.tryLock();
         if (isLocked) {
@@ -90,7 +91,7 @@ public class MigrationResource {
                                                @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
                                                @PathParam("box_uuid") @NotBlank String boxUUID) {
         var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
-        DistributedLock lock = lockFactory.newLock(boxUUID);
+        DistributedLock lock = lockFactory.newLock(boxUUID, LockType.RedisReentrantLock);
         // 加锁
         boolean isLocked = lock.tryLock();
         if (isLocked) {
