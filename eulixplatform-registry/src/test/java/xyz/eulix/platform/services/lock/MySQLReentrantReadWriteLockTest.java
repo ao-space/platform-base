@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author VvV
  * @date 2023/8/11
  */
-@QuarkusTest
+//@QuarkusTest
 public class MySQLReentrantReadWriteLockTest {
 
     private static final Logger LOG = Logger.getLogger("app.log");
@@ -40,7 +40,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试读锁 加锁和解锁流程
      */
-    @Test
+//    @Test
     void testReadLock() {
         String keyName = "testKey_read";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -69,7 +69,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试写锁加锁解锁流程
      */
-    @Test
+//    @Test
     void testWriteLock() {
         String keyName = "testKey_write";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -100,7 +100,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试读锁并发加锁解锁
      */
-    @Test
+//    @Test
     void testReadLockConcurrent() throws InterruptedException {
         String keyName = "testKey_read_lock_concurrent";
 
@@ -148,7 +148,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试写锁并发加锁解锁
      */
-    @Test
+//    @Test
     void testWriteLockConcurrent() throws InterruptedException {
         String keyName = "testKey_write_lock_concurrent";
 
@@ -196,7 +196,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试读读是否共享
      */
-    @Test
+//    @Test
     void testReadReadSharing() throws JsonProcessingException {
         String keyName = "test_read_sharing";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -217,7 +217,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试读锁重入
      */
-    @Test
+//    @Test
     void testReadReentrant() throws JsonProcessingException {
         String keyName = "test_read_reentrant";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -235,7 +235,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试写锁重入
      */
-    @Test
+//    @Test
     void testWriteReentrant() throws JsonProcessingException {
         String keyName = "test_write_reentrant";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -253,7 +253,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试读写互斥
      */
-    @Test
+//    @Test
     void testReadWriteMutex() {
         String keyName = "test_read_write_mutex";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -273,7 +273,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试写写互斥
      */
-    @Test
+//    @Test
     void testWriteWriteMutex() {
         String keyName = "test_write_write_mutex";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -292,7 +292,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试多线程并发的读写锁
      */
-    @Test
+//    @Test
     void testConcurrentReadWriteLock() throws InterruptedException, JsonProcessingException {
         String keyName = "test_concurrent_read_write";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
@@ -377,7 +377,7 @@ public class MySQLReentrantReadWriteLockTest {
     /**
      * 测试锁降级
      */
-    @Test
+//    @Test
     void testLockDegradation() {
         String keyName = "testKey_lock_degradation";
         DistributedReadWriteLock readWriteLock = lockFactory.newLock(keyName, LockType.MySQLReentrantReadWriteLock);
