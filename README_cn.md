@@ -4,7 +4,7 @@
 
 - [简介](#简介)
 - [系统架构](#系统架构)
-    - [傲空间平台](#傲空间平台)
+    - [功能介绍](#功能介绍)
     - [Base Service](#base-service)
 - [环境变量](#环境变量)
 - [构建和运行应用程序](#构建和运行应用程序)
@@ -16,30 +16,30 @@
 
 ## 简介
 
-AO.space Platform（即傲空间平台），则为个人设备提供透明通信通道服务和互联网访问的安全防护，并且可以进行私有部署。与其他解决方案中的平台不同，傲空间下个人账号的认证和鉴权只由运行在个人设备的服务端管理，傲空间平台无法管理和解析个人的任何数据，实现用户的个人数据完全由用户掌控在个人设备上。
+AO.space Platform 为个人设备提供透明通信通道服务和互联网访问的安全防护，并且可以进行私有部署。与其他解决方案中的平台不同，个人账号的认证和鉴权只由运行在个人设备的服务端管理，AO.space 平台无法管理和解析个人的任何数据，实现用户的个人数据完全由用户掌控在个人设备上。
 
 ## 系统架构
 
 ![傲空间平台&Platform Base架构.png](docs/zh/asserts/傲空间平台&Platform%20Base架构.png)
 
-### 傲空间平台
+### 功能介绍
 
-傲空间平台的职责是为个人设备建立透明的通信信道。包含基础服务（Platform Base Service）、转发代理服务（Plarform Proxy Service）、中继转发服务器（Network Transit Server）。
+AO.space Platform 的职责是为个人设备建立透明的通信信道。包含基础服务（Platform Base Service）、转发代理服务（Plarform Proxy Service）、中继转发服务器（Network Transit Server）。
 
-- 基础服务（Platform Base Service）：为傲空间设备提供注册服务，以及协调和管理平台网络资源（域名，Network Server通信信道等）。
-- 转发代理服务（Plarform Proxy）：为傲空间用户域名流量提供高可用转发和横向扩容的支持。
-- 中继转发服务器（Network Transit Server）提供通过中继转发的方式穿透 NAT 访问设备的网络支持服务。将来自 Clients 的流量转发至傲空间设备。
+- 基础服务（Platform Base Service）：为 AO.space 设备提供注册服务，以及协调和管理平台网络资源（域名，Network Server通信信道等）。
+- 转发代理服务（Plarform Proxy）：为 AO.space 用户域名流量提供高可用转发和横向扩容的支持。
+- 中继转发服务器（Network Transit Server）提供通过中继转发的方式穿透 NAT 访问设备的网络支持服务。将来自 Clients 的流量转发至 AO.space 设备。
 
-> **_注意：_** 完整的傲空间平台部署指南，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002) 。
+> **_注意：_** 完整的平台部署指南，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002) 。
 
 ### Base Service
 
-Base Service 是傲空间平台管理面的实现，主要提供以下功能：
+Base Service 是 AO.space Platform 管理面的实现，主要提供以下功能：
 
-1. 认证傲空间设备身份
-2. 提供傲空间设备、用户、客户端注册功能
+1. 认证 AO.space 设备身份
+2. 提供 AO.space 设备、用户、客户端注册功能
 3. 协调和管理平台网络资源（域名，Network Transit Server通信信道等）
-4. 傲空间平台切换
+4. AO.space 平台切换
 
 > **_注意：_** 项目使用了 Quarkus，它是一个 Red Hat 公司开源的云原生 Java 框架。如果您想了解有关Quarkus的更多信息，请访问其网站：[QUARKUS](https://quarkus.io/) 。
 
@@ -58,7 +58,7 @@ Base Service 是傲空间平台管理面的实现，主要提供以下功能：
 - QUARKUS_REDIS_PASSWORD：用于设置 redis 的密码。
 
 ### 应用程序
-- APP_REGISTRY_SUBDOMAIN：用于设置傲空间设备的“根域名”，也是傲空间用户域名的一部分。您需要在 DNS 和 Nignx 上配置根域名，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002)
+- APP_REGISTRY_SUBDOMAIN：用于设置 AO.space 设备的“根域名”，也是 AO.space 用户域名的一部分。您需要在 DNS 和 Nignx 上配置根域名，请参阅 [AOPlatform社区部署指南](https://ao.space/open/documentation/104002)
 
 有关配置名称和环境变量名称之间的命名转换规则，请参阅 [转换规则](https://github.com/eclipse/microprofile-config/blob/master/spec/src/main/asciidoc/configsources.asciidoc#default-configsources )。以下是来自 “application.yml” 的上述变量的所有默认值：
 
@@ -75,7 +75,7 @@ quarkus:
     password: 123456
 app:
   registry:
-    subdomain: XXXX # 傲空设备的根域名
+    subdomain: XXXX # AO.space 设备的根域名
 ```
 
 ## 构建和运行应用程序
@@ -93,7 +93,7 @@ app:
 1. `./mvnw package`
 2. `cd /eulixplatform-registry`
 3. `docker build --pull -f src/main/docker/Dockerfile.jvm -t platform-base-jvm-community:latest .`
-4. `docker run -itd --name platform-base -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN="傲空间设备的根域名" platform-base-jvm-community:latest`
+4. `docker run -itd --name platform-base -p 8080:8080 -u root -e APP_REGISTRY_SUBDOMAIN=" AO.space 设备的根域名" platform-base-jvm-community:latest`
 
 ### 在开发模式下运行应用程序
 
