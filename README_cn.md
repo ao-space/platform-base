@@ -8,6 +8,8 @@
     - [Base Service](#base-service)
 - [环境变量](#环境变量)
 - [构建和运行应用程序](#构建和运行应用程序)
+- [测试](#测试)
+- [精简部署](#精简部署)
 - [使用 OpenAPI 和 Swagger UI](#使用-openapi-和-swagger-ui)
 - [演进计划](#演进计划)
 - [贡献指南](#贡献指南)
@@ -124,6 +126,92 @@ app:
 ```java命令
 java -jar target/quarkus-app/quarkus-run.jar
 ```
+
+## 测试
+
+### 运行单元测试
+
+```shell脚本
+./mvnw test
+```
+
+### 运行测试并生成覆盖率报告
+
+```shell脚本
+./mvnw clean verify jacoco:report
+```
+
+覆盖率报告将生成在 `target/site/jacoco/index.html`。
+
+### 测试结构
+
+项目包含以下测试类别：
+
+| 测试文件 | 覆盖范围 |
+|---------|---------|
+| `RegistryResourceTest` | 盒子/用户/客户端注册 API |
+| `SpaceResourceTest` | 简化的空间注册 API |
+| `NetworkResourceTest` | 网络认证和服务器 API |
+| `BasicResourceTest` | 平台状态和能力 API |
+| `TokenResourceTest` | Token 管理 API |
+| `AuthServiceTest` | 认证服务逻辑 |
+| `CommonUtilsTest` | 工具函数 |
+| `OperationUtilsTest` | 加密操作 |
+
+### API 烟雾测试
+
+部署后，可以运行烟雾测试：
+
+```bash
+# 设置平台基础 URL
+export PLATFORM_BASE=http://localhost:8080
+
+# 运行烟雾测试
+../../scripts/platform-smoke.sh
+
+# 运行完整 API 测试
+../../scripts/platform-api-test.sh
+```
+
+## 精简部署
+
+对于单机个人部署，我们提供了简化的配置：
+
+- **容器数量**: 6 个（合并了 mysql-update）
+- **DNS 记录**: 2 条（只需 `@` 和 `*`）
+- **注册 API**: 1 步完成（新的 `/v2/platform/spaces` 端点）
+
+### 快速开始（精简版）
+
+```bash
+cd deploy/platform
+cp .env.simple.example .env
+# 编辑 .env 设置域名和密码
+
+mkdir -p data/ssl
+# 将 SSL 证书 (tls.crt, tls.key) 放入 data/ssl/
+
+docker compose -f docker-compose.simple.yml up -d
+./scripts/init-network.sh
+```
+
+### 简化 API
+
+新的 `/v2/platform/spaces` 端点合并了盒子、用户、客户端注册：
+
+```bash
+curl -X POST https://platform.example.com/v2/platform/spaces \
+  -H "Content-Type: application/json" \
+  -H "Request-Id: $(uuidgen)" \
+  -d '{
+    "boxUUID": "your-box-uuid",
+    "userId": "admin",
+    "clientUUID": "your-client-uuid",
+    "subdomain": "myspace"
+  }'
+```
+
+详细的 API 变化请参阅 [平台 API 变更说明](../../docs/cn/platform-api-changes.md)。
 
 ## 使用 OpenAPI 和 Swagger UI
 

@@ -142,6 +142,90 @@ public class RegistryService {
         return BoxRegistryResult.of(boxEntity.getBoxUUID(), NetworkClient.of(boxEntity.getNetworkClientId(), networkClientSecret));
     }
 
+    /**
+     * Simplified one-step space registration.
+     * Registers box, user, and client in a single transaction.
+     *
+     * @param spaceInfo Registration information
+     * @return Complete registration result with network credentials
+     */
+    @Transactional
+    public SpaceRegistryResult registerSpace(SpaceRegistryInfo spaceInfo) {
+        String boxUUID = spaceInfo.getBoxUUID();
+        String userId = spaceInfo.getUserId();
+        String clientUUID = spaceInfo.getClientUUID();
+        String userType = CommonUtils.isNullOrEmpty(spaceInfo.getUserType()) ?
+                RegistryTypeEnum.USER_ADMIN.getName() : spaceInfo.getUserType();
+
+        // Step 1: Register or get existing box
+        RegistryBoxEntity boxEntity;
+        String networkSecretKeyPlaintext = null;  // Keep plaintext for response
+        var existingBox = boxEntityRepository.findByBoxUUID(boxUUID);
+        if (existingBox.isPresent()) {
+            boxEntity = existingBox.get();
+            LOG.infov("Box already registered, reusing: boxUUID={0}", boxUUID);
+            // Note: For existing boxes, we cannot retrieve the plaintext secret
+            // The client should have saved it from initial registration
+        } else {
+            networkSecretKeyPlaintext = CommonUtils.getUUID();
+            boxEntity = registryBox(boxUUID, "space_reg_" + CommonUtils.createUnifiedRandomCharacters(6), CommonUtils.getUUID(), networkSecretKeyPlaintext);
+            networkService.calculateNetworkRoute(boxEntity.getNetworkClientId());
+            LOG.infov("New box registered: boxUUID={0}, networkClientId={1}", boxUUID, boxEntity.getNetworkClientId());
+        }
+
+        // Step 2: Check and reset existing user if necessary
+        Optional<RegistryUserEntity> existingUser = userEntityRepository.findUserByBoxUUIDAndUserId(boxUUID, userId);
+        if (existingUser.isPresent()) {
+            resetUserInner(boxUUID, userId);
+            LOG.infov("Existing user reset: boxUUID={0}, userId={1}", boxUUID, userId);
+        }
+
+        // Step 3: Generate or validate subdomain
+        SubdomainEntity subdomainEntity;
+        if (CommonUtils.isNullOrEmpty(spaceInfo.getSubdomain())) {
+            subdomainEntity = subdomainGen(boxUUID);
+        } else {
+            // Try to use the requested subdomain
+            Optional<SubdomainEntity> existingSubdomain = subdomainEntityRepository.findBySubdomain(spaceInfo.getSubdomain());
+            if (existingSubdomain.isPresent()) {
+                // Check if it belongs to this box/user
+                SubdomainEntity existing = existingSubdomain.get();
+                if (!existing.getBoxUUID().equals(boxUUID)) {
+                    throw new ServiceOperationException(ServiceError.SUBDOMAIN_ALREADY_USED);
+                }
+                subdomainEntity = existing;
+            } else {
+                // Create new subdomain with requested name
+                subdomainEntity = subdomainSave(boxUUID, spaceInfo.getSubdomain(), null);
+            }
+        }
+
+        // Step 4: Register user
+        RegistryUserEntity userEntity = registryUser(boxUUID, userId, RegistryTypeEnum.fromValue(userType));
+
+        // Step 5: Update subdomain state to USED
+        subdomainEntityRepository.updateBySubdomain(userId, SubdomainStateEnum.USED.getState(), subdomainEntity.getSubdomain());
+
+        // Step 6: Cache GT route
+        networkService.cacheGTRouteBasic(userId, subdomainEntity.getUserDomain(), boxUUID);
+
+        // Step 7: Register client
+        RegistryClientEntity clientEntity = registryClient(boxUUID, userId, clientUUID, RegistryTypeEnum.CLIENT_BIND);
+
+        LOG.infov("Space registration complete: boxUUID={0}, userId={1}, subdomain={2}, userDomain={3}",
+                boxUUID, userId, subdomainEntity.getSubdomain(), subdomainEntity.getUserDomain());
+
+        return SpaceRegistryResult.of(
+                boxUUID,
+                userId,
+                clientUUID,
+                subdomainEntity.getSubdomain(),
+                subdomainEntity.getUserDomain(),
+                userEntity.getRegistryType(),
+                NetworkClient.of(boxEntity.getNetworkClientId(), networkSecretKeyPlaintext)
+        );
+    }
+
     @Transactional
     public UserRegistryResult registryUser (UserRegistryInfo userRegistryInfo, String boxUUID) {
 

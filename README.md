@@ -8,6 +8,8 @@ English | [简体中文](./README_cn.md)
     - [Base Service](#base-service)
 - [Environment Variables](#environment-variables)
 - [Build and Run Application](#build-and-run-application)
+- [Testing](#testing)
+- [Simplified Deployment](#simplified-deployment)
 - [Using OpenAPI and Swagger UI](#using-openapi-and-swagger-ui)
 - [Evolution Plan](#evolution-plan)
 - [Contribution Guidelines](#contribution-guidelines)
@@ -127,6 +129,92 @@ The application is now runnable using the following command:
 ```java script
 java -jar target/quarkus-app/quarkus-run.jar
 ```
+
+## Testing
+
+### Running Unit Tests
+
+```shell script
+./mvnw test
+```
+
+### Running Tests with Coverage Report
+
+```shell script
+./mvnw clean verify jacoco:report
+```
+
+The coverage report will be generated at `target/site/jacoco/index.html`.
+
+### Test Structure
+
+The project includes the following test categories:
+
+| Test File | Coverage |
+|-----------|----------|
+| `RegistryResourceTest` | Box/User/Client registration API |
+| `SpaceResourceTest` | Simplified space registration API |
+| `NetworkResourceTest` | Network authentication and server APIs |
+| `BasicResourceTest` | Platform status and ability APIs |
+| `TokenResourceTest` | Token management APIs |
+| `AuthServiceTest` | Authentication service logic |
+| `CommonUtilsTest` | Utility functions |
+| `OperationUtilsTest` | Crypto operations |
+
+### API Smoke Test
+
+After deployment, you can run the smoke test:
+
+```bash
+# Set the platform base URL
+export PLATFORM_BASE=http://localhost:8080
+
+# Run smoke test
+../../scripts/platform-smoke.sh
+
+# Run full API test
+../../scripts/platform-api-test.sh
+```
+
+## Simplified Deployment
+
+For single-machine personal deployment, we provide a simplified setup that reduces complexity:
+
+- **Containers**: 6 instead of 7 (merged mysql-update)
+- **DNS Records**: 2 instead of 7 (just `@` and `*`)
+- **Registration API**: 1 step instead of 4 (new `/v2/platform/spaces` endpoint)
+
+### Quick Start (Simplified)
+
+```bash
+cd deploy/platform
+cp .env.simple.example .env
+# Edit .env with your domain and passwords
+
+mkdir -p data/ssl
+# Place your SSL certificate (tls.crt, tls.key) in data/ssl/
+
+docker compose -f docker-compose.simple.yml up -d
+./scripts/init-network.sh
+```
+
+### Simplified API
+
+The new `/v2/platform/spaces` endpoint combines box, user, and client registration:
+
+```bash
+curl -X POST https://platform.example.com/v2/platform/spaces \
+  -H "Content-Type: application/json" \
+  -H "Request-Id: $(uuidgen)" \
+  -d '{
+    "boxUUID": "your-box-uuid",
+    "userId": "admin",
+    "clientUUID": "your-client-uuid",
+    "subdomain": "myspace"
+  }'
+```
+
+For detailed API changes, see [Platform API Changes](../../docs/en/platform-api-changes.md).
 
 ## Using OpenAPI and Swagger UI
 
